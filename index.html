@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Códice Sinclair 3.5 — O Legado de Maya</title>
+    <style>
+        :root {
+            --roxo-fundo: #1a0f1e;
+            --roxo-card: #2d1b33;
+            --dourado: #d4af37;
+            --dourado-claro: #f1d592;
+            --texto: #fdfaf0;
+        }
+
+        body {
+            background-color: var(--roxo-fundo);
+            color: var(--texto);
+            font-family: 'Georgia', serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* MENU LATERAL */
+        nav {
+            width: 250px;
+            background: #120915;
+            border-right: 2px solid var(--dourado);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        nav h2 {
+            color: var(--dourado);
+            text-align: center;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        nav button {
+            background: transparent;
+            color: var(--texto);
+            border: none;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 1em;
+            cursor: pointer;
+            border-bottom: 1px solid #2d1b33;
+            transition: 0.3s;
+        }
+
+        nav button:hover {
+            background: var(--roxo-card);
+            color: var(--dourado);
+            padding-left: 30px;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background-image: radial-gradient(circle at center, #2d1b33 0%, #1a0f1e 100%);
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        /* TOP DASHBOARD */
+        .header-dinastico {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+
+        .camafeu {
+            width: 120px;
+            height: 160px;
+            border: 4px solid var(--dourado);
+            border-radius: 50%;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+
+        .camafeu img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        
+        .camafeu label {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            background: rgba(0,0,0,0.6);
+            font-size: 0.7em;
+            color: var(--dourado);
+        }
+
+        .contador-geracao {
+            text-align: center;
+            border: 2px solid var(--dourado);
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: var(--roxo-card);
+        }
+
+        .contador-geracao h4 { margin: 0; color: var(--dourado); font-size: 0.8em; }
+        .contador-geracao span { font-size: 2.5em; font-weight: bold; }
+
+        /* ROLETAS */
+        .grid-roletas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card-roleta {
+            background: var(--roxo-card);
+            border: 1px solid var(--dourado);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-roleta h3 { margin-top: 0; font-size: 1em; color: var(--dourado-claro); height: 40px; }
+
+        .resultado {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 50px;
+            color: #fff;
+        }
+
+        button.btn-acao {
+            background: var(--dourado);
+            color: #000;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .vortice-btn {
+            background: linear-gradient(45deg, #d4af37, #f1d592);
+            font-size: 1.2em;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        /* ÁRVORE GENEALÓGICA */
+        .sim-form {
+            background: var(--roxo-card);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--dourado);
+        }
+
+        .sim-form input, .sim-form select, textarea {
+            background: #1a0f1e;
+            color: #fff;
+            border: 1px solid var(--dourado);
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        .sim-card {
+            background: #25142b;
+            border-left: 5px solid var(--dourado);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .conjuge-linha { display: block; margin-top: 10px; color: #f1d592; border-top: 1px solid #3d2446; padding-top: 5px; }
+
+        /* TRAÇOS */
+        .lab-box { background: var(--roxo-card); padding: 20px; border-radius: 10px; text-align: center; }
+
+        /* UTILITÁRIOS */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2>Sinclair</h2>
+        <button onclick="showSection('dashboard')">🏰 Painel de Controle</button>
+        <button onclick="showSection('arvore')">🌳 Códice da Linhagem</button>
+        <button onclick="showSection('laboratorio')">🧪 Laboratório de Traços</button>
+        <button onclick="showSection('regras')">📜 Livro de Leis</button>
+        
+        <div style="margin-top: auto; padding: 10px; border-top: 1px solid var(--dourado);">
+            <button onclick="baixarBackup()" style="width: 100%; font-size: 0.8em;">📥 Baixar Backup</button>
+            <input type="file" id="import-file" class="hidden" accept=".json" onchange="importarBackup(event)">
+            <button onclick="document.getElementById('import-file').click()" style="width: 100%; font-size: 0.8em; margin-top: 5px;">📤 Importar Backup</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <div class="header-dinastico">
+                <div class="camafeu">
+                    <img id="img-marcy" src="https://via.placeholder.com/150" onclick="editImg('marcy')">
+                    <label>MARCY (ORIGEM)</label>
+                </div>
+                <div class="contador-geracao">
+                    <h4>GERAÇÃO</h4>
+                    <span id="num-geracao">1</span><br>
+                    <button onclick="changeGer(1)" style="width:30px">+</button>
+                    <button onclick="changeGer(-1)" style="width:30px">-</button>
+                </div>
+                <div class="camafeu">
+                    <img id="img-maya" src="https://via.placeholder.com/150" onclick="editImg('maya')">
+                    <label>MAYA (HERDEIRA)</label>
+                </div>
+            </div>
+
+            <button class="btn-acao vortice-btn" onclick="vorticeCaos()">🌪️ VÓRTICE DE CAOS</button>
+
+            <div class="grid-roletas" id="container-roletas"></div>
+        </section>
+
+        <!-- ÁRVORE -->
+        <section id="arvore" class="section">
+            <h2>Códice da Linhagem</h2>
+            <div class="sim-form">
+                <h3>Cadastrar Novo Membro</h3>
+                <input type="text" id="sim-nome" placeholder="Nome Completo">
+                <input type="text" id="sim-pais" placeholder="Pais">
+                <textarea id="sim-conjuges" placeholder="Cônjuges (uma linha por cônjuge)"></textarea>
+                <textarea id="sim-filhos" placeholder="Filhos"></textarea>
+                <button class="btn-acao" onclick="salvarSim()">Adicionar ao Códice</button>
+            </div>
+            <div id="lista-sims"></div>
+        </section>
+
+        <!-- LABORATÓRIO -->
+        <section id="laboratorio" class="section">
+            <h2>Laboratório de Personalidade</h2>
+            <div class="lab-box">
+                <p>Escolha a fase da vida:</p>
+                <select id="fase-vida">
+                    <option value="bebe">Bebé (1 traço)</option>
+                    <option value="crianca">Criança (1 traço)</option>
+                    <option value="adolescente">Adolescente (2 traços)</option>
+                    <option value="adulto">Adulto/Jovem (3 traços)</option>
+                </select>
+                <button class="btn-acao" onclick="gerarTracos()">Gerar Traços do Jogo</button>
+                <div id="resultado-tracos" class="resultado"></div>
+                
+                <div id="vinculo-container" class="hidden">
+                    <p>Vincular a qual Sim?</p>
+                    <select id="sim-vinculo-select"></select>
+                    <button class="btn-acao" onclick="vincularTracos()">Vincular agora</button>
+                </div>
+
+                <div style="margin-top:20px; border-top:1px solid var(--dourado); padding-top:20px; text-align: left;">
+                    <p>Traços Customizados (separados por vírgula):</p>
+                    <textarea id="custom-tracos" rows="2"></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- REGRAS -->
+        <section id="regras" class="section">
+            <h2>Livro de Leis (Regras)</h2>
+            <textarea id="texto-regras" rows="20"></textarea>
+            <button class="btn-acao" onclick="salvarRegras()">Salvar Alterações</button>
+        </section>
+    </main>
+
+    <script>
+        const defaultRoletas = [
+            { id: 1, nome: "Destino Anual", itens: ["Prosperidade", "Escândalo", "Amor Inesperado", "Conflito", "Gravidez Surpresa", "Tragédia Silenciosa", "Evento Sobrenatural"] },
+            { id: 2, nome: "Casamentos", itens: ["Amor Verdadeiro", "Contrato Político", "Romance Proibido", "Noivado Cancelado", "União Rival", "Triângulo Amoroso"] },
+            { id: 3, nome: "Herdeiros", itens: ["Sem Filhos", "Herdeiro Único", "Gêmeos", "Filho Adotivo", "Herdeiro Rebelde", "Prodígio da Linhagem"] },
+            { id: 4, nome: "Drama Nobre", itens: ["Caso Secreto Revelado", "Rivalidade entre Irmãos", "Escândalo Público", "Fortuna Perdida", "Segredo Antigo"] },
+            { id: 5, nome: "Rotina Diária", itens: ["Estudo Arcano", "Governança da Mansão", "Exploração Mundial", "Visita à Matriarca Marcy", "Festa Aristocrática", "Dia de Caridade", "Ócio Criativo", "Caçada por Segredos", "Noite no Reino da Magia", "Prática de Habilidades"] },
+            { id: 6, nome: "Marcy Imortal", itens: ["Novo Poder", "Visão do Futuro", "Intervenção Familiar", "Fase Introspectiva", "Tradição Permanente"] },
+            { id: 7, nome: "Personalidade Adulta", itens: ["Líder Natural", "Espírito Livre", "Ambição Intensa", "Guardião do Legado", "Rebelde"] },
+            { id: 8, nome: "Casa Sinclair", itens: ["Renovação Completa", "Novo Membro", "Crise Financeira", "Aparição Fantasmagórica", "Festa Histórica"] },
+            { id: 9, nome: "Geracional", itens: ["Nova Ramificação", "Lealdade à Sede", "Rival Político", "Figura Pública", "Líder da Dinastia"] }
+        ];
+
+        const tracosBase = ["Alegre", "Familiar", "Astuta", "Cativante", "Exemplar", "Prudente", "Ambição", "Gênio", "Solitário", "Materialista", "Romântico", "Criativo", "Ativo", "Perfeccionista", "Sombrio", "Maldoso", "Esnobe", "Amante do Ar Livre"];
+
+        let db = JSON.parse(localStorage.getItem('sinclair_db_v3')) || {
+            geracao: 1,
+            marcy_img: "",
+            maya_img: "",
+            sims: [],
+            regras: "1. Marcy permanece na casa até todos os filhos se casarem.\n2. Cada filho possui identidade própria baseada numa joia.\n3. O legado familiar é prioridade absoluta.",
+            customTracos: ""
+        };
+
+        function init() {
+            document.getElementById('num-geracao').innerText = db.geracao;
+            document.getElementById('texto-regras').value = db.regras;
+            document.getElementById('img-marcy').src = db.marcy_img || "https://via.placeholder.com/150";
+            document.getElementById('img-maya').src = db.maya_img || "https://via.placeholder.com/150";
+            document.getElementById('custom-tracos').value = db.customTracos;
+            
+            renderRoletas();
+            renderSims();
+            updateSimSelect();
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function renderRoletas() {
+            const container = document.getElementById('container-roletas');
+            container.innerHTML = '';
+            defaultRoletas.forEach(r => {
+                container.innerHTML += `
+                    <div class="card-roleta">
+                        <h3>${r.nome}</h3>
+                        <div id="res-${r.id}" class="resultado">...</div>
+                        <button class="btn-acao" onclick="girar(${r.id})">Girar Destino</button>
+                    </div>
+                `;
+            });
+        }
+
+        function girar(id) {
+            const roleta = defaultRoletas.find(r => r.id === id);
+            const resDiv = document.getElementById(`res-${id}`);
+            resDiv.innerText = "Sorteando...";
+            setTimeout(() => {
+                const sorteado = roleta.itens[Math.floor(Math.random() * roleta.itens.length)];
+                resDiv.innerText = sorteado;
+            }, 500);
+        }
+
+        function vorticeCaos() {
+            const ids = [1, 2, 4, 7, 8];
+            for(let i=0; i<3; i++) {
+                const randId = ids[Math.floor(Math.random() * ids.length)];
+                girar(randId);
+            }
+        }
+
+        function salvarSim() {
+            const nome = document.getElementById('sim-nome').value;
+            if(!nome) return alert("Dê um nome ao Sim!");
+            const sim = {
+                id: Date.now(),
+                nome: nome,
+                pais: document.getElementById('sim-pais').value,
+                conjuges: document.getElementById('sim-conjuges').value.split('\n').filter(l => l.trim() !== ""),
+                filhos: document.getElementById('sim-filhos').value,
+                tracos: ""
+            };
+            db.sims.push(sim);
+            saveDB();
+            renderSims();
+            updateSimSelect();
+            document.getElementById('sim-nome').value = "";
+            document.getElementById('sim-pais').value = "";
+            document.getElementById('sim-conjuges').value = "";
+            document.getElementById('sim-filhos').value = "";
+        }
+
+        function renderSims() {
+            const lista = document.getElementById('lista-sims');
+            lista.innerHTML = '';
+            db.sims.forEach(sim => {
+                const conjugesHTML = sim.conjuges.map(c => `<span class="conjuge-linha">💍 ${c}</span>`).join('');
+                lista.innerHTML += `
+                    <div class="sim-card">
+                        <strong>${sim.nome}</strong><br>
+                        <small>Origem: ${sim.pais}</small><br>
+                        ${conjugesHTML}
+                        <div style="font-size:0.8em; margin-top:5px;">👶 Filhos: ${sim.filhos}</div>
+                        <div style="color:var(--dourado-claro); font-style:italic;">✨ Traços: ${sim.tracos || 'Aguardando Lab'}</div>
+                        <button onclick="deletarSim(${sim.id})" style="background:#8b0000; color:white; border:none; font-size:0.7em; margin-top:10px; cursor:pointer; padding:3px 8px; border-radius:3px;">Remover do Códice</button>
+                    </div>
+                `;
+            });
+        }
+
+        function deletarSim(id) {
+            if(confirm("Deseja mesmo remover este membro da história?")) {
+                db.sims = db.sims.filter(s => s.id !== id);
+                saveDB();
+                renderSims();
+                updateSimSelect();
+            }
+        }
+
+        function gerarTracos() {
+            const fase = document.getElementById('fase-vida').value;
+            let qtd = 1;
+            if(fase === 'adolescente') qtd = 2;
+            if(fase === 'adulto') qtd = 3;
+
+            const cTracos = db.customTracos.split(',').map(t => t.trim()).filter(t => t !== "");
+            const listaTotal = [...tracosBase, ...cTracos];
+            
+            let sorteados = [];
+            for(let i=0; i<qtd; i++) {
+                sorteados.push(listaTotal[Math.floor(Math.random() * listaTotal.length)]);
+            }
+            const res = sorteados.join(' — ');
+            document.getElementById('resultado-tracos').innerText = res;
+            document.getElementById('vinculo-container').classList.remove('hidden');
+        }
+
+        function updateSimSelect() {
+            const select = document.getElementById('sim-vinculo-select');
+            select.innerHTML = db.sims.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+        }
+
+        function vincularTracos() {
+            const simId = document.getElementById('sim-vinculo-select').value;
+            const tracos = document.getElementById('resultado-tracos').innerText;
+            const sim = db.sims.find(s => s.id == simId);
+            if(sim) {
+                sim.tracos = tracos;
+                saveDB();
+                renderSims();
+                alert(`Traços vinculados a ${sim.nome}!`);
+            }
+        }
+
+        function saveDB() {
+            db.regras = document.getElementById('texto-regras').value;
+            db.customTracos = document.getElementById('custom-tracos').value;
+            localStorage.setItem('sinclair_db_v3', JSON.stringify(db));
+        }
+
+        function changeGer(val) {
+            db.geracao += val;
+            if(db.geracao < 1) db.geracao = 1;
+            document.getElementById('num-geracao').innerText = db.geracao;
+            saveDB();
+        }
+
+        function editImg(quem) {
+            const url = prompt("Cole a URL da imagem (ou o caminho local):");
+            if(url) {
+                if(quem === 'marcy') db.marcy_img = url;
+                else db.maya_img = url;
+                saveDB();
+                init();
+            }
+        }
+
+        function salvarRegras() {
+            saveDB();
+            alert("Regras salvas no Códice!");
+        }
+
+        function baixarBackup() {
+            const blob = new Blob([JSON.stringify(db, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Códice_Sinclair_G${db.geracao}.json`;
+            a.click();
+        }
+
+        function importarBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if(confirm("Isso irá substituir os dados atuais. Prosseguir?")) {
+                        db = data;
+                        saveDB();
+                        location.reload();
+                    }
+                } catch (err) {
+                    alert("Erro ao ler o arquivo de backup.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        init();
+    </script>
+</body>
+</html>
