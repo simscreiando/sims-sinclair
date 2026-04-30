@@ -1,180 +1,252 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Companion Narrativo</title>
+    <meta charset="UTF-8">
+    <title>Sims 4 Legacy Dashboard</title>
+    <style>
+        :root {
+            --ts4-blue: #0079C1;
+            --ts4-green: #7CD700;
+            --ts4-bg: #E4EBF5;
+            --ts4-panel: #FFFFFF;
+            --ts4-text: #2B2B2B;
+        }
 
-<style>
-body {
-  font-family: Arial;
-  background: #1e1e2f;
-  color: white;
-  text-align: center;
-}
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--ts4-bg);
+            color: var(--ts4-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
 
-.container {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
-}
+        .dashboard {
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
 
-h1 { color: #7ed957; }
+        .panel {
+            background: var(--ts4-panel);
+            padding: 20px;
+            border-radius: 0 30px 0 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-bottom: 5px solid var(--ts4-blue);
+            margin-bottom: 20px;
+        }
 
-.bar {
-  height: 20px;
-  border-radius: 10px;
-  margin: 5px 0 15px;
-}
+        h2 { color: var(--ts4-blue); font-size: 16px; margin-top: 0; text-transform: uppercase; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 
-#dramaBar { background: #ff6b6b; }
-#caosBar { background: #f7b733; }
-#estabilidadeBar { background: #4cd137; }
+        /* Estilos de Input */
+        .info-label { font-size: 11px; color: #888; font-weight: bold; margin-top: 10px; }
+        input, textarea { 
+            width: 100%; 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+        }
+        textarea { height: 120px; resize: none; margin-top: 5px; }
 
-button {
-  background: #7ed957;
-  border: none;
-  padding: 15px;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  margin: 10px;
-}
+        /* Barras de Estado */
+        .stat-container { margin: 12px 0; }
+        .bar-bg { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; margin-top: 4px; }
+        .bar-fill { height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .drama { background: #ff4d4d; }
+        .caos { background: #ffaa00; }
+        .estabilidade { background: #2ecc71; }
 
-.result, .history, .creator {
-  background: #2c2c3f;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  text-align: left;
-}
+        /* Roleta */
+        .roulette-box { text-align: center; background: #f3f7fa; padding: 15px; border-radius: 15px; border: 2px dashed var(--ts4-blue); }
+        .result-display { margin-top: 15px; padding: 15px; background: var(--ts4-blue); color: white; border-radius: 10px; text-align: left; display: none; }
+        .example-text { font-size: 13px; opacity: 0.9; margin-top: 8px; padding-top: 5px; border-top: 1px solid rgba(255,255,255,0.2); }
 
-textarea {
-  width: 100%;
-  height: 120px;
-  border-radius: 8px;
-  border: none;
-  padding: 10px;
-  margin-top: 10px;
-}
-</style>
+        /* Botões */
+        button {
+            width: 100%;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: 0.2s;
+        }
+        .btn-main { background: var(--ts4-blue); color: white; box-shadow: 0 4px 0 #005a8f; }
+        .btn-apply { background: var(--ts4-green); color: white; box-shadow: 0 4px 0 #599d00; display: none; }
+        .btn-save-menu { background: #fff; border: 2px solid var(--ts4-green); color: var(--ts4-green); margin-top: 15px; }
+        .btn-save-menu:hover { background: var(--ts4-green); color: white; }
+
+        /* Timeline */
+        .timeline { max-height: 250px; overflow-y: auto; font-size: 13px; }
+        .timeline-item { padding: 6px 0; border-bottom: 1px solid #eee; display: flex; gap: 8px; }
+
+        #toast { position: fixed; bottom: 20px; left: 20px; background: var(--ts4-green); color: white; padding: 10px 20px; border-radius: 20px; display: none; z-index: 100; }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
+<div class="dashboard">
+    <!-- COLUNA ESQUERDA: Perfil e Configurações -->
+    <div class="left-col">
+        <div class="panel">
+            <h2>👤 Sim & Família</h2>
+            <div class="info-label">FAMÍLIA</div>
+            <input type="text" id="familyName" placeholder="Nome do Legado" oninput="autoSave()">
+            
+            <div class="info-label">SIM ATIVO</div>
+            <input type="text" id="simName" placeholder="Nome do Sim" oninput="autoSave()">
+            
+            <div class="info-label">TRAÇO PRINCIPAL</div>
+            <input type="text" id="simTrait" placeholder="Ex: Romântico" oninput="autoSave()">
+        </div>
 
-<h1>🎲 Companion Narrativo</h1>
+        <div class="panel">
+            <h2>📊 Estados Gerais</h2>
+            <div class="stat-container">
+                <div class="info-label">DRAMA: <span id="val-drama">0</span></div>
+                <div class="bar-bg"><div id="bar-drama" class="bar-fill drama"></div></div>
+            </div>
+            <div class="stat-container">
+                <div class="info-label">CAOS: <span id="val-caos">0</span></div>
+                <div class="bar-bg"><div id="bar-caos" class="bar-fill caos"></div></div>
+            </div>
+            <div class="stat-container">
+                <div class="info-label">ESTABILIDADE: <span id="val-estabilidade">5</span></div>
+                <div class="bar-bg"><div id="bar-estabilidade" class="bar-fill estabilidade"></div></div>
+            </div>
 
-<div>
-Drama: <span id="drama">0</span>
-<div id="dramaBar" class="bar"></div>
+            <button class="btn-save-menu" onclick="manualSave()">💾 SALVAR TUDO AGORA</button>
+            <p style="font-size: 10px; color: #aaa; text-align: center; margin-top: 10px;">Status e campos salvam automaticamente ao digitar.</p>
+        </div>
+    </div>
 
-Caos: <span id="caos">0</span>
-<div id="caosBar" class="bar"></div>
+    <!-- COLUNA DIREITA: Jogo e Log -->
+    <div class="right-col">
+        <div class="panel">
+            <h2>🎲 Gerador de Destino</h2>
+            <div class="roulette-box">
+                <p id="roulette-instruction" style="font-size: 13px; color: #666;">Pronto para decidir o dia?</p>
+                <button class="btn-main" onclick="gerarSorteio()">GIRAR ROLETA</button>
+                
+                <div class="result-display" id="resultado-box">
+                    <div id="sorteio-nome" style="font-weight: bold; font-size: 16px;"></div>
+                    <div id="sorteio-exemplo" class="example-text"></div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-apply" id="btnApply" onclick="confirmarSorteio()">ACEITAR DESTINO</button>
+                        <button onclick="gerarSorteio()" style="background: #e0e0e0; color: #333; box-shadow: 0 4px 0 #bbb;">TENTAR OUTRO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-Estabilidade: <span id="estabilidade">5</span>
-<div id="estabilidadeBar" class="bar"></div>
+        <div class="panel">
+            <h2>✍️ Log do Criador (Suas anotações)</h2>
+            <textarea id="creatorLog" placeholder="O que aconteceu no seu jogo hoje? Descreva os detalhes da sua história aqui..." oninput="autoSave()"></textarea>
+        </div>
+
+        <div class="panel">
+            <h2>📜 Timeline de Eventos</h2>
+            <div id="timeline" class="timeline"></div>
+        </div>
+    </div>
 </div>
 
-<button onclick="girar()">Girar Roleta</button>
-<button onclick="resetar()">Resetar</button>
-
-<div class="result" id="resultado">Clique para começar</div>
-
-<div class="history" id="historico">
-<strong>Timeline:</strong><br>
-</div>
-
-<div class="creator">
-<strong>🧠 Creator Log (seus 7 dias):</strong>
-<textarea id="log" placeholder="Dia 1: ...&#10;Dia 2: ..."></textarea>
-</div>
-
-</div>
+<div id="toast">Alterações salvas! ✓</div>
 
 <script>
-let drama = localStorage.getItem("drama") ? parseInt(localStorage.getItem("drama")) : 0;
-let caos = localStorage.getItem("caos") ? parseInt(localStorage.getItem("caos")) : 0;
-let estabilidade = localStorage.getItem("estabilidade") ? parseInt(localStorage.getItem("estabilidade")) : 5;
+    const opcoes = [
+        {n: "Conversa Sincera", d: 1, c: 0, e: 1, x: "Revele um segredo ou discuta o futuro do relacionamento."},
+        {n: "Crise de Estilo", d: 2, c: 2, e: -1, x: "Mude todo o guarda-roupa e cabelo do seu Sim agora."},
+        {n: "Dia de Sorte", d: 0, c: 1, e: 3, x: "Tente a sorte em algo arriscado ou peça um aumento."},
+        {n: "Conflito Explosivo", d: 4, c: 3, e: -2, x: "Inicie uma briga ou declare um inimigo hoje."},
+        {n: "Gasto Compulsivo", d: 1, c: 2, e: -1, x: "Compre o item mais caro da categoria 'Decoração' que puder pagar."},
+        {n: "Noite Fora", d: 2, c: 2, e: 0, x: "Saia para um bar ou boate e só volte ao amanhecer."},
+        {n: "Sabotagem", d: 2, c: 4, e: -2, x: "Quebre algo propositalmente ou ignore o trabalho."},
+        {n: "Obsessão por Habilidade", d: 0, c: 1, e: 2, x: "Passe 8 horas seguidas praticando a mesma coisa."},
+        {n: "Visita Inesperada", d: 2, c: 2, e: 1, x: "Convide um Sim quase desconhecido para dormir na sua casa."},
+        {n: "Generosidade", d: 1, c: 0, e: 4, x: "Faça uma doação generosa ou dê um presente caro para alguém."},
+        {n: "Mudança de Carreira", d: 3, c: 3, e: -2, x: "Peça demissão e comece em uma área totalmente oposta."},
+        {n: "Dia de Preguiça", d: 0, c: 0, e: 2, x: "Fique de pijama o dia todo e não limpe nada na casa."}
+    ];
 
-const eventos = [
-{name:"Conversa Necessária",d:3,c:1,e:1,t:["relacionamento","emocional"]},
-{name:"Autocuidado",d:1,c:0,e:3,t:["emocional","rotina"]},
-{name:"Impulsiva",d:2,c:3,e:-1,t:["risco","caos"]},
-{name:"Reconectar",d:2,c:0,e:2,t:["relacionamento"]},
-{name:"Desejo Proibido",d:3,c:2,e:-2,t:["risco"]},
-{name:"Mudança",d:2,c:2,e:-1,t:["caos"]},
-{name:"Ajudar",d:1,c:0,e:2,t:["progresso"]},
-{name:"Evento Social",d:2,c:3,e:1,t:["social"]},
-{name:"Carreira",d:0,c:0,e:3,t:["progresso"]},
-{name:"Passado",d:3,c:2,e:-1,t:["emocional"]},
-{name:"Desastre",d:2,c:3,e:-2,t:["caos"]},
-{name:"Sorte",d:1,c:2,e:3,t:["caos"]},
-{name:"Teste",d:3,c:2,e:1,t:["relacionamento"]},
-{name:"Novo",d:1,c:2,e:1,t:["progresso"]},
-{name:"Silêncio",d:1,c:0,e:2,t:["preparação"]}
-];
+    let sorteioAtual = null;
+    let dados = JSON.parse(localStorage.getItem('ts4_master_data')) || {
+        familia: "", sim: "", traco: "", drama: 0, caos: 0, estabilidade: 5, log: "", historico: []
+    };
 
-function girar() {
+    function gerarSorteio() {
+        sorteioAtual = opcoes[Math.floor(Math.random() * opcoes.length)];
+        
+        document.getElementById('roulette-instruction').style.display = 'none';
+        document.getElementById('resultado-box').style.display = 'block';
+        document.getElementById('btnApply').style.display = 'block';
+        
+        document.getElementById('sorteio-nome').innerText = sorteioAtual.n;
+        document.getElementById('sorteio-exemplo').innerText = "Sugestão: " + sorteioAtual.x;
+    }
 
-let pool = eventos;
+    function confirmarSorteio() {
+        if (!sorteioAtual) return;
 
-// 🔥 consequência simples baseada no estado
-if (caos > 8) {
-  pool = eventos.filter(e => e.t.includes("caos"));
-}
+        // Aplica os valores
+        dados.drama = Math.max(0, dados.drama + sorteioAtual.d);
+        dados.caos = Math.max(0, dados.caos + sorteioAtual.c);
+        dados.estabilidade = Math.max(0, dados.estabilidade + sorteioAtual.e);
+        
+        // Adiciona à timeline
+        const agora = new Date();
+        const dataFormatada = agora.toLocaleDateString() + " " + agora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        dados.historico.unshift(`${dataFormatada} - ${sorteioAtual.n}`);
 
-if (drama > 8) {
-  pool = eventos.filter(e => e.t.includes("emocional") || e.t.includes("relacionamento"));
-}
+        // Limpa a roleta
+        sorteioAtual = null;
+        document.getElementById('resultado-box').style.display = 'none';
+        document.getElementById('roulette-instruction').style.display = 'block';
+        document.getElementById('roulette-instruction').innerText = "Destino aplicado! Girar novamente?";
 
-if (estabilidade > 8) {
-  pool = eventos.filter(e => e.t.includes("rotina") || e.t.includes("progresso"));
-}
+        atualizarInterface();
+        manualSave();
+    }
 
-const ev = pool[Math.floor(Math.random() * pool.length)];
+    function atualizarInterface() {
+        document.getElementById('familyName').value = dados.familia;
+        document.getElementById('simName').value = dados.sim;
+        document.getElementById('simTrait').value = dados.traco;
+        document.getElementById('creatorLog').value = dados.log;
+        
+        document.getElementById('val-drama').innerText = dados.drama;
+        document.getElementById('val-caos').innerText = dados.caos;
+        document.getElementById('val-estabilidade').innerText = dados.estabilidade;
 
-drama += ev.d;
-caos += ev.c;
-estabilidade += ev.e;
+        document.getElementById('bar-drama').style.width = Math.min(100, dados.drama * 10) + "%";
+        document.getElementById('bar-caos').style.width = Math.min(100, dados.caos * 10) + "%";
+        document.getElementById('bar-estabilidade').style.width = Math.min(100, dados.estabilidade * 10) + "%";
 
-atualizarUI();
+        document.getElementById('timeline').innerHTML = dados.historico.map(h => `<div class="timeline-item"><span>♢</span> ${h}</div>`).join('');
+    }
 
-document.getElementById("resultado").innerHTML =
-`<strong>${ev.name}</strong><br>
-Drama ${ev.d} | Caos ${ev.c} | Estabilidade ${ev.e}<br>
-Tags: ${ev.t.join(", ")}`;
+    function autoSave() {
+        dados.familia = document.getElementById('familyName').value;
+        dados.sim = document.getElementById('simName').value;
+        dados.traco = document.getElementById('simTrait').value;
+        dados.log = document.getElementById('creatorLog').value;
+        localStorage.setItem('ts4_master_data', JSON.stringify(dados));
+    }
 
-document.getElementById("historico").innerHTML += `• ${ev.name}<br>`;
+    function manualSave() {
+        autoSave();
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
+    }
 
-salvar();
-}
-
-function atualizarUI() {
-document.getElementById("drama").innerText = drama;
-document.getElementById("caos").innerText = caos;
-document.getElementById("estabilidade").innerText = estabilidade;
-
-document.getElementById("dramaBar").style.width = (drama * 10) + "px";
-document.getElementById("caosBar").style.width = (caos * 10) + "px";
-document.getElementById("estabilidadeBar").style.width = (estabilidade * 10) + "px";
-}
-
-function salvar() {
-localStorage.setItem("drama", drama);
-localStorage.setItem("caos", caos);
-localStorage.setItem("estabilidade", estabilidade);
-localStorage.setItem("log", document.getElementById("log").value);
-}
-
-function resetar() {
-localStorage.clear();
-location.reload();
-}
-
-document.getElementById("log").value = localStorage.getItem("log") || "";
-
-atualizarUI();
+    atualizarInterface();
 </script>
 
 </body>
