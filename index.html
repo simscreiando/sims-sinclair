@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Companion Narrativo - v12</title>
+    <title>Companion Narrativo - v27</title>
     <style>
         :root {
             --ts4-blue: #0079C1;
@@ -15,50 +15,63 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--ts4-bg); color: var(--ts4-text); margin: 0; display: flex; min-height: 100vh; overflow: hidden; }
 
         /* SIDEBAR */
-        .sidebar { width: 260px; background: var(--ts4-panel); padding: 20px; box-shadow: 2px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; }
+        .sidebar { width: 260px; background: var(--ts4-panel); padding: 20px; box-shadow: 2px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
         .sidebar h1 { font-size: 14px; color: var(--ts4-blue); text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        
         .nav-btn { background: none; border: none; text-align: left; padding: 12px; border-radius: 12px; font-weight: bold; color: #555; cursor: pointer; transition: 0.2s; margin-bottom: 5px; width: 100%; }
         .nav-btn.active { background: var(--ts4-blue); color: white; box-shadow: 0 4px 0 #005a8f; }
 
-        /* CONTEÚDO */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; height: 100vh; }
-        .tab-pane { display: none; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.3s; }
+        /* CONTEÚDO PRINCIPAL */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; height: 100vh; box-sizing: border-box; }
+        .tab-pane { display: none; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.3s; padding-bottom: 50px; }
         .tab-pane.active { display: block; }
 
-        /* DASHBOARD */
-        .card-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-        .panel { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex: 1 1 300px; min-width: 300px; border-bottom: 4px solid var(--ts4-blue); }
+        /* GRID DE CARTÕES E ROLETAS */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .panel { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-bottom: 4px solid var(--ts4-blue); margin-bottom: 20px; }
         
-        .roulette-display { height: 60px; display: flex; align-items: center; justify-content: center; background: #f0f4f8; border-radius: 10px; margin: 15px 0; font-weight: bold; color: var(--ts4-blue); text-align: center; padding: 0 10px; }
-        .suggestion-box { font-size: 11px; color: #555; font-style: italic; background: #fffdf2; padding: 10px; border-left: 3px solid #ffcc00; margin-top: 8px; }
-
-        /* ÁRVORE E STATUS MORTO */
-        .tree-container { display: flex; flex-direction: column; align-items: center; gap: 60px; padding: 40px; }
-        .gen-level { display: flex; gap: 40px; justify-content: center; width: 100%; border-top: 1px dashed #ccc; padding-top: 20px; }
+        .wheel-wrapper { position: relative; width: 160px; height: 160px; margin: 15px auto; }
+        .roulette-display { width: 100%; height: 100%; border-radius: 50%; position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); overflow: hidden; border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); transform: rotate(0deg); }
         
-        .sim-card { background: white; border: 2px solid #ddd; padding: 10px; border-radius: 15px; width: 140px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .sim-card.morto { opacity: 0.4; filter: grayscale(100%); border-style: dashed; }
-        .sim-card:hover { border-color: var(--ts4-blue); transform: translateY(-5px); }
+        .roulette-label { position: absolute; top: 50%; left: 50%; width: 50%; transform-origin: left center; text-align: right; padding-right: 15px; box-sizing: border-box; font-size: 9px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); white-space: nowrap; pointer-events: none; }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid #ff4d4d; z-index: 10; }
+        .suggestion-box { font-size: 12px; color: #444; background: #fffdf2; padding: 12px; border-radius: 10px; border-left: 4px solid #ffcc00; margin-top: 10px; min-height: 45px; line-height: 1.4; }
 
-        .sim-img { width: 60px; height: 60px; border-radius: 50%; background: #eee; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 25px; overflow: hidden; border: 2px solid var(--ts4-blue); }
-        .sim-img img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* CONFIGURAÇÕES */
-        .config-header { background: #f0f4f8; padding: 10px 15px; border-radius: 10px; margin: 20px 0 10px; color: var(--ts4-blue); font-weight: bold; }
-        .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
-        .tag { background: #eee; padding: 5px 10px; border-radius: 8px; font-size: 11px; }
-        .tag b { color: red; cursor: pointer; margin-left: 5px; }
-
-        /* MODAIS */
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display:none; z-index:100; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 95%; max-width: 650px; padding: 30px; border-radius: 25px; max-height: 90vh; overflow-y: auto; position: relative; }
+        /* ÁRVORE GENEALÓGICA */
+        .tree-container { display: flex; justify-content: center; padding: 20px; min-height: 500px; overflow-x: auto; }
+        .css-tree ul { padding-top: 20px; position: relative; transition: all 0.5s; display: flex; justify-content: center; padding-left: 0; margin: 0; }
+        .css-tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 20px 10px 0 10px; transition: all 0.5s; }
+        .css-tree li::before, .css-tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid var(--ts4-blue); width: 50%; height: 20px; }
+        .css-tree li::after { right: auto; left: 50%; border-left: 2px solid var(--ts4-blue); }
+        .css-tree li:only-child::after, .css-tree li:only-child::before { display: none; }
+        .css-tree li:only-child { padding-top: 0; }
+        .css-tree li:first-child::before, .css-tree li:last-child::after { border: 0 none; }
+        .css-tree li:last-child::before { border-right: 2px solid var(--ts4-blue); border-radius: 0 5px 0 0; }
+        .css-tree li:first-child::after { border-radius: 5px 0 0 0; }
+        .css-tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid var(--ts4-blue); width: 0; height: 20px; transform: translateX(-50%); }
         
-        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; }
-        .btn-main { background: var(--ts4-blue); color: white; width: 100%; padding: 12px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .tree-family-group { display: inline-flex; gap: 10px; justify-content: center; align-items: center; background: #f0f4f8; padding: 10px; border-radius: 20px; border: 1px dashed var(--ts4-blue); position: relative; }
+        .sim-card { background: white; border: 2px solid #ddd; padding: 10px; border-radius: 15px; width: 110px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .sim-card.morto { opacity: 0.6; filter: grayscale(100%); border-style: dashed; }
+        .sim-img-circle { width: 50px; height: 50px; border-radius: 50%; background: #eee; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; border: 2px solid var(--ts4-blue); }
+        .sim-img-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* MODAL PERFIL */
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; z-index:100; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 95%; max-width: 600px; padding: 25px; border-radius: 25px; max-height: 90vh; overflow-y: auto; }
+        .profile-view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .profile-field { background: #f8f9fa; padding: 10px; border-radius: 10px; border-left: 3px solid var(--ts4-blue); }
+        .profile-field strong { display: block; font-size: 11px; color: var(--ts4-blue); text-transform: uppercase; }
+
+        /* BOTOES E INPUTS */
+        .btn-main { background: var(--ts4-blue); color: white; width: 100%; padding: 12px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-sec { background: #f0f0f0; color: #333; border: 1px solid #ccc; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 5px 0 10px 0; }
+        .tag { background: #d4e4f7; border: 1px solid #0079C1; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--ts4-green); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 200; }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--ts4-green); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 200; font-weight:bold; }
     </style>
 </head>
 <body>
@@ -66,11 +79,13 @@
     <div class="sidebar">
         <h1>Legacy Companion</h1>
         <button class="nav-btn active" onclick="switchTab('tab-dash')">🏠 Dashboard</button>
-        <button class="nav-btn" onclick="switchTab('tab-gen')">🔮 Oráculo de Traços</button>
+        <button class="nav-btn" onclick="switchTab('tab-lab')">🧪 Laboratório de Sims</button>
+        <button class="nav-btn" onclick="switchTab('tab-gen')">🔮 Personalidade</button>
         <button class="nav-btn" onclick="switchTab('tab-tree')">🌳 Árvore Genealógica</button>
         <button class="nav-btn" onclick="switchTab('tab-history')">📖 Livro da História</button>
         <button class="nav-btn" onclick="switchTab('tab-laws')">📜 Livro de Regras</button>
         <button class="nav-btn" onclick="switchTab('tab-config')">⚙️ Configurações</button>
+        <button class="nav-btn" onclick="switchTab('tab-feedback')">💬 Enviar Feedback</button>
     </div>
 
     <div class="main-content">
@@ -80,64 +95,92 @@
             <div class="card-grid" id="dash-cards"></div>
         </div>
 
+        <div id="tab-lab" class="tab-pane">
+            <h2>🧬 Laboratório: Gerar Base do Sim</h2>
+            <p style="font-size:14px; color:#666; margin-bottom:20px;">Use estas roletas para definir as características biológicas e sociais básicas do Sim antes de criar a personalidade.</p>
+            <div class="card-grid" id="lab-cards"></div>
+        </div>
+
         <div id="tab-gen" class="tab-pane">
             <div class="panel" style="max-width: 700px; margin: auto;">
-                <h2>Invocação do Oráculo</h2>
+                <h2>✨ Gerador de Personalidade</h2>
                 <label>Vincular a um Sim:</label>
                 <select id="sel-sim-link"></select>
+                
                 <label style="margin-top:15px; display:block;">Fase da Vida:</label>
                 <select id="sel-fase">
-                    <option value="bebe-colo">Bebê de Colo (Sem Traço)</option>
-                    <option value="bebe">Bebê (1 Traço)</option>
-                    <option value="crianca">Criança (1 Traço + Aspiração Infantil)</option>
-                    <option value="adolescente">Adolescente (2 Traços + Aspiração Adulta)</option>
-                    <option value="adulto">Jovem Adulto+ (3 Traços + Aspiração + Carreira)</option>
-                    <option value="completo">✨ GERAR TODAS AS FASES</option>
+                    <option value="bebe-colo">Bebê de colo (1 traço)</option>
+                    <option value="bebe">Bebê (1 traço)</option>
+                    <option value="crianca">Criança (1 traço + Aspiração infantil)</option>
+                    <option value="adolescente">Adolescente (2 traços + Aspiração)</option>
+                    <option value="adulto">Jovem adulto em diante (3 traços + aspiração + carreira)</option>
+                    <option value="todas">GERAR TODAS AS FASES</option>
                 </select>
                 <button class="btn-main" style="background:var(--ts4-green)" onclick="gerarOraculo()">INVOCAR DESTINO</button>
-                <div id="res-oraculo" class="panel" style="margin-top:20px; display:none; background:#f0f7ff; border: 2px solid var(--ts4-blue);">
-                    <div id="res-detalhes"></div>
-                    <button class="btn-main" id="btn-save-oraculo" style="display:none;" onclick="salvarOraculoNoSim()">SALVAR NO PERFIL</button>
+                
+                <div id="res-oraculo" class="panel" style="margin-top:20px; display:none; background:#f0f7ff;">
+                    <div id="res-detalhes" style="white-space: pre-line; line-height:1.6;"></div>
+                    <button class="btn-main" id="btn-save-oraculo" onclick="salvarOraculoNoSim()">SALVAR NO PERFIL</button>
                 </div>
+
+                <hr style="margin: 30px 0; border: 1px solid #eee;">
+                
+                <h2>🎲 Sorteios Rápidos Base</h2>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-main btn-sec" onclick="sortearRapido('carreiras')">Sortear Carreira</button>
+                    <button class="btn-main btn-sec" onclick="sortearRapido('aspiracoes')">Sortear Aspiração</button>
+                </div>
+                <div id="res-rapido" style="margin-top:20px; font-size:16px; text-align:center;"></div>
             </div>
         </div>
 
         <div id="tab-tree" class="tab-pane">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
                 <h2>Linhagem da Família</h2>
-                <button class="btn-main" style="width:200px" onclick="abrirNovoSim()">+ Novo Sim</button>
+                <button class="btn-main" style="width:180px; margin:0" onclick="abrirNovoSim()">+ Novo Sim</button>
             </div>
             <div class="tree-container" id="tree-display"></div>
         </div>
 
         <div id="tab-history" class="tab-pane">
             <div class="panel">
-                <h2>📖 Livro da História</h2>
-                <textarea id="txt-history" style="height:350px"></textarea>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button class="btn-main" onclick="salvarGeral()" style="margin:0;">Salvar História</button>
-                    <button class="btn-main" style="background:var(--ts4-blue); margin:0;" onclick="exportarHistoria()">📖 Exportar História</button>
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
+                    <h2 style="margin:0;">📖 Livro da História</h2>
+                    <button class="btn-main" style="width:auto; margin:0; padding:10px 20px; background:var(--ts4-green);" onclick="exportarHistoria()">📥 Exportar História (TXT)</button>
                 </div>
-            </div>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="nova-historia-manual" placeholder="Escreva algo novo...">
+                    <button class="btn-main" style="width:120px; margin:0;" onclick="addHistoriaManual()">Adicionar</button>
+                </div>
+                <textarea id="txt-history" style="height:300px"></textarea>
+                <button class="btn-main" onclick="salvarGeral()">Salvar Livro</button>
 
-            <div class="panel" style="margin-top:20px;">
-                <h3>🎯 Controle de Metas do Legado</h3>
-                <div id="meta-list"></div>
+                <hr style="margin: 30px 0; border: 1px solid #eee;">
+                <h2 style="margin-top:0;">🎯 Controle de Metas do Legado</h2>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="nova-meta" placeholder="Ex: Chegar ao topo da carreira criminal...">
+                    <button class="btn-main" style="width:150px; margin:0; background:var(--ts4-blue);" onclick="addMeta()">Adicionar Meta</button>
+                </div>
+                <div id="lista-metas"></div>
             </div>
         </div>
 
         <div id="tab-laws" class="tab-pane">
-            <div class="panel"><h2>📜 Livro de Regras</h2><textarea id="txt-laws" style="height:500px"></textarea><button class="btn-main" onclick="salvarGeral()">Salvar Regras</button></div>
+            <div class="panel">
+                <h2>📜 Livro de Regras</h2>
+                <textarea id="txt-laws" style="height:450px"></textarea>
+                <button class="btn-main" onclick="salvarGeral()">Salvar Regras</button>
+            </div>
         </div>
 
         <div id="tab-config" class="tab-pane">
             <div class="panel">
                 <h2>Ajustes do Sistema</h2>
                 
-                <div class="config-header">📂 GERENCIAR DADOS</div>
-                <div id="config-data-area"></div>
+                <div class="config-header">📂 MEUS ITENS ADICIONADOS</div>
+                <div id="custom-items-area"></div>
 
-                <div class="config-header">🎲 GERENCIAR ROLETAS</div>
+                <div class="config-header">🎲 GERENCIAR ROLETAS DE EVENTOS</div>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <input type="text" id="new-roulette-name" placeholder="Nome da nova roleta...">
                     <button class="btn-main" style="width:150px; margin:0" onclick="criarNovaRoleta()">+ Criar</button>
@@ -147,11 +190,28 @@
                 <div class="config-header">🔄 SISTEMA DE DADOS</div>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <input type="file" id="import-file" style="display:none" onchange="importarArquivo(event)">
-                    <button class="btn-main" style="margin:0; background:var(--ts4-blue)" onclick="fazerBackup()">💾 Backup dos Dados</button>
-                    <button class="btn-main" style="margin:0; background:var(--ts4-blue)" onclick="exportarDados()">📂 Exportar Dados</button>
-                    <button class="btn-main" style="margin:0; background:var(--ts4-green)" onclick="importarDados()">📥 Importar Dados</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="fazerBackup()">💾 Backup dos Dados</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="exportarDados()">📂 Exportar Dados</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="document.getElementById('import-file').click()">📥 Importar Dados</button>
                     <button class="btn-main" style="margin:0; background:#ff4d4d" onclick="reiniciarConfiguracoes()">⚠️ Reiniciar Configurações</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="tab-feedback" class="tab-pane">
+            <div class="panel" style="max-width: 600px; margin: auto;">
+                <h2>💬 Fale com a Criadora</h2>
+                <p style="font-size:14px; color:#666; margin-bottom:20px;">Encontrou algum erro, tem uma ideia genial para o Companion ou quer apenas dar um alô? Sua opinião ajuda a construir as próximas versões!</p>
+                
+                <form action="https://formspree.io/f/xeenvoaj" method="POST">
+                    <label>Seu Nome/Nick (Opcional):</label>
+                    <input type="text" name="nome" placeholder="Como quer ser chamado?">
+                    
+                    <label style="margin-top:15px; display:block;">Sua Mensagem:</label>
+                    <textarea name="mensagem" required style="height:150px" placeholder="Escreva sua ideia, sugestão ou bug aqui..."></textarea>
+                    
+                    <button type="submit" class="btn-main" style="background:var(--ts4-green); margin-top:15px;">Enviar Mensagem</button>
+                </form>
             </div>
         </div>
 
@@ -159,545 +219,539 @@
 
     <div class="modal-overlay" id="modal-sim">
         <div class="modal-content">
-            <div id="sim-view-mode">
-                <button style="float:right" onclick="toggleEditMode(true)">EDITAR</button>
-                <div class="sim-img" id="v-img">👤</div>
-                <h2 id="v-nome" style="text-align:center">---</h2>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; background:#f9f9f9; padding:20px; border-radius:15px;">
-                    <div><strong>Status:</strong> <span id="v-status"></span></div>
-                    <div><strong>Cônjuge:</strong> <span id="v-spouse"></span></div>
-                    <div><strong>Pais:</strong> <span id="v-parents"></span></div>
-                    <div><strong>Irmãos:</strong> <span id="v-irmaos"></span></div>
-                    <div style="grid-column: span 2;"><strong>Filhos:</strong> <span id="v-filhos"></span></div>
-                    <div style="grid-column: span 2;"><strong>Traços:</strong> <span id="v-tracos"></span></div>
-                    <div style="grid-column: span 2;"><strong>Sugestões Extras:</strong> <span id="v-extra"></span></div>
+            <div id="mode-view">
+                <button class="btn-main" style="width:100px; float:left; font-size:10px; margin:0; background:#555;" onclick="marcarFalecidoRapido()">✝️ FALECEU</button>
+                <button class="btn-main" style="width:80px; float:right; font-size:10px; margin:0;" onclick="toggleEditMode(true)">EDITAR</button>
+                <div style="clear:both;"></div>
+                <div style="text-align:center">
+                    <div class="sim-img-circle" id="v-img" style="width:80px; height:80px; font-size:40px; margin:0 auto;">👤</div>
+                    <h2 id="v-nome" style="margin:10px 0">Nome</h2>
                 </div>
-                <button class="btn-main" style="background:var(--ts4-green); margin-top:15px;" onclick="adicionarFilhoPerfil()">+ Adicionar Filho</button>
+                <div class="profile-view-grid" id="profile-details-view">
+                    <div class="profile-field"><strong>Status</strong><span id="v-status">Vivo</span></div>
+                    <div class="profile-field"><strong>Ancestral (Morto)</strong><span id="v-morto"></span></div> <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
+                    <div class="profile-field"><strong>Progenitor(a) 2</strong><span id="v-p2">Nenhum</span></div>
+                    <div class="profile-field"><strong>Cônjuge</strong><span id="v-spouse">Nenhum</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Filhos(as)</strong><span id="v-filhos">Nenhum</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Irmãos(ãs)</strong><span id="v-irmaos">Nenhum</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Traços</strong><span id="v-tracos">...</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Sugestões Extras</strong><span id="v-extra">...</span></div>
+                </div>
+                <button class="btn-main" style="background:var(--ts4-green); margin-top:20px;" onclick="adicionarFilhoPerfil()">+ ADICIONAR FILHO(A)</button>
+                <button class="btn-main btn-sec" style="margin-top:10px;" onclick="fecharModal()">FECHAR</button>
             </div>
 
-            <div id="sim-edit-mode" style="display:none;">
-                <h3>Editar Sim</h3>
+            <div id="mode-edit" style="display:none;">
+                <h3>Perfil do Sim</h3>
                 <label>Nome:</label><input type="text" id="e-nome">
-                <label>Foto/Emoji (URL):</label><input type="text" id="e-img">
-                <label>Status:</label>
-                <select id="e-status">
-                    <option value="Vivo">Vivo</option>
-                    <option value="Ancestral (Morto)">Ancestral (Morto)</option>
-                </select>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div><label>Pai:</label><select id="e-p1"></select></div>
-                    <div><label>Mãe:</label><select id="e-p2"></select></div>
+                <label>Foto/Emoji:</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="e-img" placeholder="Link, Emoji ou Suba ->">
+                    <input type="file" id="e-img-file" accept="image/*" style="width:120px; font-size:11px;" onchange="carregarImagemComputador(event)">
                 </div>
+                <label>Status de Vida:</label>
+                <select id="e-status"><option value="Vivo">Vivo</option><option value="Ancestral (Morto)">Ancestral (Morto)</option></select>
+                <label>Progenitor(a) 1:</label><select id="e-p1"></select>
+                <label>Progenitor(a) 2:</label><select id="e-p2"></select>
                 <label>Cônjuge:</label><select id="e-spouse"></select>
-                <label>Traços:</label><input type="text" id="e-tracos">
-                <label>Sugestões Extras:</label><input type="text" id="e-extra">
-                <button class="btn-main" onclick="salvarSim()">SALVAR</button>
-                <button class="btn-main" style="background:#ff4d4d" onclick="deletarSim()">EXCLUIR</button>
+                <label>Status com Cônjuge:</label>
+                <select id="e-rel"><option value="casado">Casados 💍</option><option value="separado">Separados 💔</option></select>
+                <label>Traços:</label><textarea id="e-tracos" style="height:60px"></textarea>
+                <label>Sugestões Extras:</label><textarea id="e-extra" style="height:60px"></textarea>
+                
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn-main" onclick="salvarSim()">SALVAR</button>
+                    <button class="btn-main" style="background:#ff4d4d" onclick="deletarSim()">EXCLUIR</button>
+                </div>
+                <button class="btn-main btn-sec" onclick="toggleEditMode(false)">CANCELAR</button>
             </div>
-            <button class="btn-main" style="background:#ccc; color:#333" onclick="fecharModal()">FECHAR</button>
         </div>
     </div>
 
-    <div id="toast">✓ Salvo com sucesso!</div>
+    <div id="toast">✓ Sucesso!</div>
 
     <script>
-        // --- BANCO DADOS ---
-        let db = JSON.parse(localStorage.getItem('ts4_v12_data')) || {
-            sims: [],
-            historia: "", regras: "",
-            metas: [],
+        // --- DADOS NARRATIVOS ---
+        const SUGESTOES = {
+            "Incêndio": "Como fazer: Deixe um Sim sem habilidade cozinhando em um fogão barato sem alarme.",
+            "Promoção": "Como fazer: Vá para o trabalho com o humor ideal e use a opção 'Trabalhar Duro'.",
+            "Gravidez Inesperada": "Como fazer: Selecione 'Tentar o Bebê' com o parceiro imediatamente.",
+            "Gêmeos": "Como fazer: Compre o traço 'Fértil' ou assista TV infantil ouvindo música infantil.",
+            "Traição": "Como fazer: Flerte com outro Sim na frente do seu cônjuge.",
+            "Visita Inesperada": "Como fazer: Um parente ou amigo próximo aparece na porta e deve passar 24h na casa.",
+            "Dilema Ético!": "Como fazer: Um Sim conhecido pede um empréstimo de 500 simoleons. Se aceitar, role um dado: 1-3 ele nunca paga, 4-6 ele paga o dobro em uma semana.",
+            "Inimigo Declarado": "Como fazer: O Sim teve uma interação negativa. Pelas próximas 48h, ele deve tentar fazer uma pegadinha ou brigar com esse Sim sempre que o encontrar.",
+            "Crise de Identidade": "Como fazer: O Sim decide que precisa mudar de visual (cabelo, roupas ou até um traço de personalidade se o jogador usar cheats).",
+            "Dia de Folga Forçado": "Como fazer: O Sim está 'doente' ou a empresa fechou para manutenção. Ele não pode ir trabalhar hoje.",
+            "Investimento de Risco": "Como fazer: O Sim 'investiu' em cripto-lhamas. Remova 1.000 simoleons da conta.",
+            "Multa Ambiental": "Como fazer: O Sim foi pego descartando lixo de forma errada. Pague 300 simoleons de multa imediata.",
+            "Bônus por Mérito": "Como fazer: Um projeto antigo deu certo. Adicione 10% do valor total da conta bancária atual como bônus.",
+            "O Objeto Amaldiçoado": "Como fazer: Escolha um móvel da casa. Ele deve ser vendido imediatamente porque o Sim 'sente uma energia ruim' vinda dele.",
+            "Segredo de Família": "Como fazer: O Sim descobriu algo sobre um antepassado. Ele deve passar o dia escrevendo no diário ou no computador.",
+            "Tradição Esquecida": "Como fazer: Hoje é dia de homenagear os mortos. O Sim deve visitar o cemitério ou interagir com a urna/lápide de um ancestral.",
+            "Desejo Repentino": "Como fazer: O Sim precisa realizar o primeiro desejo (vontade) que aparecer na interface do jogo, não importa quão inconveniente seja.",
+            "Lei Seca de Eletrônicos": "Como fazer: Um 'apagão' atingiu o bairro. Não use computadores, TVs ou celulares por 24h.",
+            "Incêndio Culinário": "Como fazer: O Sim só pode comer refeições rápidas (da geladeira) hoje, pois está com trauma de cozinhar.",
+            "Fuga Espiritual": "Como fazer: O Sim decide que precisa de isolamento. Ele deve passar o dia em um lote de natureza (parque ou floresta) sozinho.",
+            "Juntar 10k": "Como fazer: Foque em colecionáveis, pintar quadros e escrever livros para vender.",
+            "Topo da carreira": "Como fazer: Maximize as habilidades requeridas antes de tudo.",
+            "Ter um herdeiro": "Como fazer: Engravide ou adote uma criança pelo telefone.",
+            "Comprar mansão": "Como fazer: Mude para o lote mais caro ou reforme muito sua casa atual.",
+            "Festa Luxuosa": "Como fazer: Organize um Evento Social de gala e alcance o Ouro.",
+            "Elopement": "Como fazer: Clique no cônjuge e selecione 'Fugir para Casar'.",
+            "Divórcio": "Como fazer: Crie interações mesquinhas até aparecer 'Pedir Divórcio'.",
+            "Interesse": "Como fazer: Case com um Sim rico (ex: Landgraab) e mude para a casa dele.",
+            "Vampiro": "Como fazer: Peça para Vladislaus te morder em Forgotten Hollow.",
+            "Lobisomem": "Como fazer: Seja atacado por um lobo à noite em Moonwood Mill.",
+            "Sereia": "Como fazer: Coma a Alga Sereiana encontrada em Sulani.",
+            "Alien": "Como fazer: Use o observatório do quintal muitas vezes.",
+            "Bruxo": "Como fazer: Viaje para o portal de Glimmerbrook e fale com os Sábios.",
+            "PlantaSim": "Como fazer: Plante e coma um Feijão Mágico.",
+            "Humano": "Como fazer: Jogue a rotina normal focada em carreira e família.",
+            "Velhice": "Como fazer: Ative o ciclo de vida nas opções e deixe a idade chegar.",
+            "Fogo": "Como fazer: Tire alarmes e ponha tapetes embaixo de lareiras.",
+            "Afogamento": "Como fazer: Nade exausto ou construa um muro na borda da piscina.",
+            "Riso": "Como fazer: Assista comédia, tome banho de espuma e conte piadas até ficar Histérico.",
+            "Fome": "Como fazer: Tranque a porta do quarto do Sim e tire a geladeira.",
+            "Choque": "Como fazer: Conserte eletrodomésticos quebrados sem habilidade de mecânica, preferencialmente sobre poças de água.",
+            "Planta Vaca": "Como fazer: Plante, não a alimente por alguns dias e tente pegar o bolo da boca dela."
+        };
+
+        const BASE_DADOS = {
+            tracos: {
+                "bebe-colo": ["Agitado", "Calmo", "Cauteloso", "Intenso", "Sensível", "Vibrante"],
+                "bebe": ["Angelical", "Bobo", "Curioso", "Encantador", "Grudento", "Incansável", "Independente", "Irritável"],
+                "crianca": ["A prática leva à perfeição", "Alegre", "Cabeça-quente", "Criativo", "Errático", "Genial", "Pateta", "Seguro de si", "Soturno", "Adora o ar livre", "Amante da arte", "Amante da música", "Devorador de livros", "Geek", "Reciclador", "Amigo da natureza", "Asseado", "Ativo", "Aventureiro", "Cleptomaníaco", "Competitivo", "Cético", "Filho da ilha", "Filho do oceano", "Glutão", "Intolerante a lactose", "Macabro", "Perfeccionista", "Preguiçoso", "Provinciano", "Relaxado", "Vegetariano", "Amante de cavalos", "Amante de cães", "Amante de gatos", "Amante de plantas", "Bondoso", "Engajado", "Extrovertido", "Fã de animais", "Maldoso", "Maligno", "Respeitoso", "Solitário"],
+                "adolescente": ["A prática leva à perfeição", "Alegre", "Cabeça-quente", "Criativo", "Desajeitado", "Errático", "Exigente", "Genial", "Infantil", "Não paquerador", "Paranoico", "Pateta", "Romanticamente reservado", "Romântico", "Seguro de si", "Sentimental", "Soturno", "Adora o ar livre", "Amante da arte", "Amante da música", "Criador", "Devorador de livros", "Gastrônomo", "Geek", "Máquina de dança", "Reciclador", "Amigo da natureza", "Asseado", "Ativo", "Aventureiro", "Cleptomaníaco", "Competitivo", "Cético", "Filho da ilha", "Filho do oceano", "Freegano", "Glutão", "Inconveniente", "Intolerante a lactose", "Macabro", "Materialista", "Místico", "Perfeccionista", "Perseguido pela morte", "Preguiçoso", "Provinciano", "Rancheiro", "Relaxado", "Vegetariano", "Amante de cavalos", "Amante de cães", "Amante de gatos", "Amante de plantas", "Benevolente", "Bondoso", "Chegado", "Ciumento", "Desonesto", "Egocêntrico", "Engajado", "Esnobe", "Extrovertido", "Fã de animais", "Grande festeiro", "Idealista", "Leal", "Maldoso", "Maligno", "Odeia crianças", "Respeitoso", "Sem noção", "Socialmente desconfortável", "Solitário", "Xereta"],
+                "adulto": ["Ambicioso", "Alegre", "Cabeça-quente", "Criativo", "Desajeitado", "Errático", "Exigente", "Genial", "Infantil", "Não paquerador", "Paranoico", "Pateta", "Romanticamente reservado", "Romântico", "Seguro de si", "Sentimental", "Soturno", "Adora o ar livre", "Amante da arte", "Amante da música", "Criador", "Devorador de livros", "Gastrônomo", "Geek", "Máquina de dança", "Reciclador", "Amigo da natureza", "Asseado", "Ativo", "Aventureiro", "Cleptomaníaco", "Competitivo", "Cético", "Filho da ilha", "Filho do oceano", "Freegano", "Glutão", "Inconveniente", "Intolerante a lactose", "Macabro", "Materialista", "Místico", "Perfeccionista", "Perseguido pela morte", "Preguiçoso", "Provinciano", "Rancheiro", "Relaxado", "Vegetariano", "Amante de cavalos", "Amante de cães", "Amante de gatos", "Amante de plantas", "Benevolente", "Bondoso", "Chegado", "Ciumento", "Desonesto", "Egocêntrico", "Engajado", "Esnobe", "Evasivo", "Extrovertido", "Familiar", "Fã de animais", "Grande festeiro", "Idealista", "Leal", "Maldoso", "Maligno", "Odeia crianças", "Respeitoso", "Sem noção", "Socialmente desconfortável", "Solitário", "Xereta"]
+            },
+            aspiracoes: {
+                "crianca": ["Prodígio Artístico", "Jovem Gênio", "Capitã da Brincadeira", "Gênia Criativa", "Estrela da Festa do Pijama", "Corpo e Mente", "Pestinha Agitada", "Criança Legal do Quarteirão", "Borboletinha Social"],
+                "comum": ["Alma Gêmea", "Romântico em série", "Explorador Afetivo", "Par Perfeito", "Amigo dos animais", "Fisiculturista", "Cavalgante de campeonato", "Paz interior", "Chef mestre", "Mestre da mixologia", "Ás dos eletrodomésticos", "Especialista em fantasmas", "Acadêmico", "Cérebro nerd", "Mestre da mentoria", "Gênio da informática", "Gênio musical", "Autor best-seller", "Mestre da criação", "Pintor extraordinário", "Inimigo público", "Rainha das travessuras", "Família grande e feliz", "Linhagem de sucesso", "Fabulosamente rico", "Barão das mansões", "Nativo da cidade", "Amigo do mundo"]
+            },
+            carreiras: ["Agente Secreto", "Artista", "Astronauta", "Atleta", "Culinária", "Escritor", "Freelancer", "Guru da Tecnologia", "Negócios", "Pintor", "Conservacionista", "Crítico", "Designer Civil", "Direito", "Educação", "Engenharia", "Jardineiro", "Militar", "Político", "Redes Sociais", "Ator/Atriz", "Cientista", "Detetive", "Médico"]
+        };
+
+        // --- SISTEMA DE DADOS (DB) ---
+        let db = JSON.parse(localStorage.getItem('ts4_v27_data')) || {
+            sims: [], historia: "", regras: "", metas_pendentes: [],
             config: {
-                destino: ["Incêndio!", "Promoção!", "Gravidez Inesperada", "Gêmeos!", "Traição!"],
-                metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão"],
-                casamento: ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse"],
+                "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
+                metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
+                "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
+                "gênero": ["Masculino", "Feminino"],
+                "idade": ["Bebê de colo", "Bebê", "Criança", "Adolescente", "Jovem Adulto", "Adulto", "Idoso"],
+                "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
                 "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
                 "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"]
             },
-            dados: {
-                tracos: ["Alegre", "Sombrio", "Ativo", "Genial", "Maligno", "Criativo", "Preguiçoso"],
-                carreiras: ["Pintor", "Escritor", "Culinária", "Criminoso", "Tech Guru", "Médico"],
-                aspiracoes: ["Pintor Extraordinário", "Amigo do Mundo", "Inimigo Público", "Mestre Cuca"]
-            },
-            dicas: {
-                "Incêndio!": "Sugestão de execução: Faça o Sim cozinhar usando um fogão barato ou utilize a lareira sem tapete de proteção.",
-                "Promoção!": "Sugestão de execução: Cumpra as tarefas diárias da profissão e incentive o Sim a interagir com os colegas de trabalho.",
-                "Gravidez Inesperada": "Sugestão de execução: Faça os Sims 'Tentar o Bebê' sem planejar após um encontro romântico no parque.",
-                "Gêmeos!": "Sugestão de execução: Compre o traço de recompensa de fertilidade ou coloque a televisão no lote no canal de música de crianças.",
-                "Traição!": "Sugestão de execução: Faça um dos Sims flertar com outro na frente do parceiro para gerar o drama e criar um clima tenso.",
-                "Juntar 10k": "Sugestão de execução: Venda produtos criados (pinturas, livros, itens colecionáveis) sem trabalhar nos empregos tradicionais.",
-                "Topo da carreira": "Sugestão de execução: Priorize as necessidades básicas antes do trabalho para o Sim sair de casa sempre com foco e bom humor.",
-                "Vampiro": "Sugestão de execução: Visite o bairro de Forgotten Hollow à noite e peça para o lorde vampiro transformar seu Sim.",
-                "Morte por Fogo": "Sugestão de execução: Tente preparar uma refeição de alto nível com um Sim sem nenhuma habilidade em um ambiente apertado e com poucos objetos."
-            }
+            custom: { tracos: [], carreiras: [], aspiracoes: [] }
         };
 
-        if (!db.metas) db.metas = [];
+        let lastRotation = {};
+        let currentSimId = null;
 
-        let resultCache = "";
-        let simAtualId = null;
-
+        // --- NAVEGAÇÃO ---
         function switchTab(id) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
             if(id === 'tab-dash') renderDash();
+            if(id === 'tab-lab') renderLab();
             if(id === 'tab-tree') renderTree();
             if(id === 'tab-config') renderConfig();
-            if(id === 'tab-gen') renderGenList();
             if(id === 'tab-history') renderMetas();
+            if(id === 'tab-gen') renderGenList();
         }
 
-        // --- DASHBOARD ---
+        // --- RENDERIZAR ROLETAS (Dashboard e Lab) ---
         function renderDash() {
-            const container = document.getElementById('dash-cards');
-            container.innerHTML = Object.keys(db.config).map(key => `
+            // No Dashboard, mostramos apenas Eventos, Metas, Relações e Morte
+            const keys = ["eventos diários", "metas", "relações românticas", "modo de morte"];
+            renderWheels('dash-cards', keys);
+        }
+
+        function renderLab() {
+            // No Lab, mostramos Gênero, Idade, Sexualidade e Oculto
+            const keys = ["gênero", "idade", "sexualidade", "sim oculto"];
+            renderWheels('lab-cards', keys);
+        }
+
+        function renderWheels(containerId, keys) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = keys.map(key => {
+                const lista = db.config[key];
+                if(!lista || lista.length === 0) return '';
+                const degSize = 360 / lista.length;
+                const colors = ["#0079C1", "#7CD700", "#FFC83D", "#FF6B6B", "#9B59B6", "#1ABC9C", "#E67E22"];
+                const stops = lista.map((_, i) => `${colors[i % colors.length]} ${i * (100/lista.length)}% ${(i+1) * (100/lista.length)}%`).join(', ');
+                
+                return `
                 <div class="panel">
                     <h3 style="text-transform:capitalize">${key}</h3>
-                    <div class="roulette-display" id="rol-${key}">?</div>
-                    <div class="suggestion-box" id="sug-${key}">Clique em girar e descubra o que fazer...</div>
-                    <button class="btn-main" onclick="animarRoleta('${key}')">GIRAR</button>
-                </div>
-            `).join('');
+                    <div class="wheel-wrapper">
+                        <div class="wheel-pointer"></div>
+                        <div class="roulette-display" id="rol-${key}" style="background: conic-gradient(${stops})">
+                            ${lista.map((txt, i) => `<div class="roulette-label" style="transform: rotate(${i * degSize + (degSize/2) - 90}deg)">${txt}</div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="suggestion-box" id="sug-${key}">Role para decidir...</div>
+                    <div id="ctrl-${key}" style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="btn-main" style="margin:0;" onclick="girar('${key}')">GIRAR</button>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            // Reposiciona as roletas no ângulo que pararam
+            keys.forEach(k => {
+                const e = document.getElementById('rol-'+k);
+                if(e && lastRotation[k]) e.style.transform = `rotate(${lastRotation[k]}deg)`;
+            });
         }
 
-        function animarRoleta(key) {
+        function girar(key) {
             const display = document.getElementById('rol-' + key);
             const sug = document.getElementById('sug-' + key);
+            const ctrl = document.getElementById('ctrl-' + key);
             const lista = db.config[key];
+
+            sug.innerHTML = "<strong>Girando a roleta...</strong>";
+            ctrl.innerHTML = `<button class="btn-main" disabled style="opacity:0.5; margin:0;">SORTEANDO...</button>`;
+
+            const idx = Math.floor(Math.random() * lista.length);
+            const sorteado = lista[idx];
+            const degSize = 360 / lista.length;
+            const center = (idx + 0.5) * degSize;
+            const targetDeg = 360 - center;
+
+            if(!lastRotation[key]) lastRotation[key] = 0;
+            const currentBase = Math.floor(lastRotation[key] / 360) * 360;
+            const finalDeg = currentBase + (360 * 5) + targetDeg; 
             
-            sug.innerText = "Sorteando...";
-            let i = 0;
-            const timer = setInterval(() => { display.innerText = lista[Math.floor(Math.random()*lista.length)]; }, 80);
-            
+            display.style.transform = `rotate(${finalDeg}deg)`;
+            lastRotation[key] = finalDeg;
+
             setTimeout(() => {
-                clearInterval(timer);
-                const final = display.innerText;
-                display.style.color = 'var(--ts4-green)';
-                let suggestionText = db.dicas[final] || "Crie uma justificativa narrativa para este evento na sua geração.";
-                sug.innerHTML = `
-                    ${suggestionText}<br><br>
-                    <div style="display:flex; gap:10px;">
-                        <button class="btn-main" style="margin:0; background:var(--ts4-green)" onclick="aceitarEvento('${final}', '${key}')">Aceitar</button>
-                        <button class="btn-main" style="margin:0; background:var(--ts4-blue)" onclick="animarRoleta('${key}')">Gerar Outro</button>
-                    </div>
+                const dica = SUGESTOES[sorteado] || "Como fazer: Justifique este acontecimento na narrativa da sua família.";
+                sug.innerHTML = `<strong style="font-size:14px; color:var(--ts4-blue)">Sorteado: ${sorteado}</strong><br><br>💡 <em>${dica}</em>`;
+                ctrl.innerHTML = `
+                    <button class="btn-main" style="background:var(--ts4-green); margin:0;" onclick="aceitarEvento('${sorteado}', '${key}')">Registrar</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="girar('${key}')">Novo Sorteio</button>
                 `;
-            }, 1000);
+            }, 4000);
         }
 
-        function aceitarEvento(evento, key) {
-            let atualText = document.getElementById('txt-history').value;
-            let timestamp = `(${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()})`;
-            
+        function aceitarEvento(val, key) {
             if (key === 'metas') {
-                if (!db.metas) db.metas = [];
-                db.metas.push({ id: Date.now(), texto: evento, status: 'Pendente' });
-                document.getElementById('txt-history').value = atualText + (atualText ? "\n" : "") + `- Meta: ${evento} [PENDENTE] ${timestamp}`;
+                db.metas_pendentes.push(val);
+                db.historia += `\n[${new Date().toLocaleDateString()}] Meta Sorteada: ${val}`;
                 renderMetas();
+                showToast("Meta enviada para o Livro!");
             } else {
-                document.getElementById('txt-history').value = atualText + (atualText ? "\n" : "") + `- Evento do Oráculo aceito: ${evento} ${timestamp}`;
+                db.historia += `\n[${new Date().toLocaleDateString()}] [${key.toUpperCase()}] sorteado: ${val}`;
+                showToast("Registrado na História!");
             }
-            
-            db.historia = document.getElementById('txt-history').value;
             salvarTudo();
-            showToast("Adicionado ao Livro da História!");
-            renderDash();
         }
 
-        // --- METAS ---
-        function renderMetas() {
-            const list = document.getElementById('meta-list');
-            if (!list) return;
-            if (!db.metas || db.metas.length === 0) {
-                list.innerHTML = "<p style='color:#555;'>Nenhuma meta definida. Gere metas nas roletas da aba Dashboard!</p>";
-                return;
-            }
-            list.innerHTML = db.metas.map((m, i) => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f9f9f9; border-radius:10px; margin-bottom:10px; border-left:4px solid ${m.status === 'Pendente' ? '#ff9900' : 'var(--ts4-green)'};">
-                    <div>
-                        <strong>${m.texto}</strong><br>
-                        <small style="color:${m.status === 'Pendente' ? '#ff9900' : 'var(--ts4-green)'}; font-weight:bold;">Status: ${m.status}</small>
-                    </div>
-                    <div>
-                        ${m.status === 'Pendente' ? `<button onclick="concluirMeta(${i})" class="btn-main" style="margin:0; padding:5px 12px; font-size:12px; background:var(--ts4-green)">Concluir</button>` : ''}
-                        <button onclick="deletarMeta(${i})" class="btn-main" style="margin:0; padding:5px 12px; font-size:12px; background:#ff4d4d">Excluir</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function concluirMeta(i) {
-            db.metas[i].status = 'Concluída';
-            let atualText = document.getElementById('txt-history').value;
-            let metaText = db.metas[i].texto;
-            
-            db.historia = atualText + (atualText ? "\n" : "") + `- Meta Concluída: ${metaText} (${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()})`;
-            document.getElementById('txt-history').value = db.historia;
-            salvarTudo();
-            renderMetas();
-            showToast("Meta concluída!");
-        }
-
-        function deletarMeta(i) {
-            db.metas.splice(i, 1);
-            salvarTudo();
-            renderMetas();
-        }
-
-        // --- ÁRVORE ---
-        function calcularNivel(sim, visitados = new Set()) {
-            if (visitados.has(sim.id)) return 0;
-            visitados.add(sim.id);
-            let d1 = 0, d2 = 0;
-            if (sim.p1) { let p = db.sims.find(s => s.id == sim.p1); if (p) d1 = 1 + calcularNivel(p, visitados); }
-            if (sim.p2) { let p = db.sims.find(s => s.id == sim.p2); if (p) d2 = 1 + calcularNivel(p, visitados); }
-            return Math.max(d1, d2);
-        }
-
-        function renderTree() {
-            const container = document.getElementById('tree-display');
-            container.innerHTML = "";
-            let simsComNivel = db.sims.map(s => ({ ...s, nivel: calcularNivel(s) }));
-            
-            simsComNivel.forEach(s => {
-                if (s.nivel === 0 && s.spouse) {
-                    let parceiro = simsComNivel.find(p => p.id == s.spouse);
-                    if (parceiro && parceiro.nivel > 0) s.nivel = parceiro.nivel;
-                }
-            });
-
-            let niveis = [...new Set(simsComNivel.map(s => s.nivel))].sort((a,b) => a - b);
-            niveis.forEach(n => {
-                const row = document.createElement('div');
-                row.className = 'gen-level';
-                simsComNivel.filter(s => s.nivel === n).forEach(s => {
-                    const classeMorto = s.status?.includes('Morto') ? 'morto' : '';
-                    row.innerHTML += `
-                        <div class="sim-card ${classeMorto}" onclick="abrirPerfil(${s.id})">
-                            <div class="sim-img">${s.img?.includes('http') ? `<img src="${s.img}">` : s.img || "👤"}</div>
-                            <strong>${s.nome}</strong><br>
-                            <small style="font-size:10px">${s.status || "Vivo"}</small>
-                        </div>
-                    `;
-                });
-                container.appendChild(row);
-            });
-        }
-
-        // --- ORÁCULO ---
-        function renderGenList() {
-            const sel = document.getElementById('sel-sim-link');
-            sel.innerHTML = '<option value="">Apenas Gerar</option>' + db.sims.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
-        }
+        // --- ORÁCULO / PERSONALIDADE ---
+        function renderGenList() { document.getElementById('sel-sim-link').innerHTML = '<option value="">(Não vincular a ninguém)</option>' + db.sims.map(s => `<option value="${s.id}">${s.nome}</option>`).join(''); }
+        function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        function multiRand(arr, n) { return [...arr].sort(()=> 0.5 - Math.random()).slice(0,n).join(', '); }
+        function getPool(cat, sub) { return [...(BASE_DADOS[cat][sub] || BASE_DADOS[cat] || []), ...(db.custom[cat] || [])]; }
 
         function gerarOraculo() {
             const fase = document.getElementById('sel-fase').value;
-            const simId = document.getElementById('sel-sim-link').value;
             const det = document.getElementById('res-detalhes');
             document.getElementById('res-oraculo').style.display = 'block';
-            
-            const rand = (arr) => arr[Math.floor(Math.random()*arr.length)];
-            const multi = (arr, n) => [...arr].sort(() => 0.5 - Math.random()).slice(0, n);
+            let res = "";
 
-            let html = ""; let text = "";
-            if (fase === 'completo') {
-                const etapas = [{n:"Bebê Colo", t:0}, {n:"Bebê", t:1}, {n:"Criança", t:1, a:true}, {n:"Adolescente", t:2, a:true}, {n:"Jovem Adulto", t:3, a:true, c:true}];
-                etapas.forEach(e => {
-                    let t = e.t > 0 ? multi(db.dados.tracos, e.t).join(', ') : "Nenhum";
-                    let a = e.a ? ` | Aspiração: ${rand(db.dados.aspiracoes)}` : "";
-                    let c = e.c ? ` | Carreira: ${rand(db.dados.carreiras)}` : "";
-                    html += `<p><strong>${e.n}:</strong> ${t}${a}${c}</p>`;
-                    text += `${e.n}: ${t}${a}${c}\n`;
-                });
-            } else {
-                let count = (fase === 'adolescente') ? 2 : (fase.includes('adulto') ? 3 : (fase === 'bebe-colo' ? 0 : 1));
-                let t = count > 0 ? multi(db.dados.tracos, count).join(', ') : "Nenhum";
-                let a = (!fase.includes('bebe')) ? rand(db.dados.aspiracoes) : "---";
-                let c = (fase === 'adulto') ? rand(db.dados.carreiras) : "---";
-                html = `<p><strong>Traços:</strong> ${t}</p><p><strong>Sugestões Extras:</strong> Asp: ${a} | Car: ${c}</p>`;
-                text = `Traços: ${t} | Asp: ${a} | Car: ${c}`;
-            }
-            det.innerHTML = html; resultCache = text;
-            document.getElementById('btn-save-oraculo').style.display = simId ? 'block' : 'none';
+            if (fase === 'todas') {
+                res += `👶 Bebê de colo (1 traço):\nTraço: ${rand(getPool('tracos','bebe-colo'))}\n\n`;
+                res += `🍼 Bebê (1 traço):\nTraço: ${rand(getPool('tracos','bebe'))}\n\n`;
+                res += `🧒 Criança (1 traço + Asp. infantil):\nTraço: ${multiRand(getPool('tracos','crianca'), 1)}\nAspiração: ${rand(getPool('aspiracoes','crianca'))}\n\n`;
+                res += `🧑 Adolescente (2 traços + Aspiração):\nTraços: ${multiRand(getPool('tracos','adolescente'), 2)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\n\n`;
+                res += `👨 Jovem Adulto+ (3 traços + asp. + carreira):\nTraços: ${multiRand(getPool('tracos','adulto'), 3)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\nCarreira: ${rand(getPool('carreiras',''))}`;
+            } else if (fase === 'bebe-colo') { res = `👶 Bebê de colo:\nTraço: ${rand(getPool('tracos','bebe-colo'))}`;
+            } else if (fase === 'bebe') { res = `🍼 Bebê:\nTraço: ${rand(getPool('tracos','bebe'))}`;
+            } else if (fase === 'crianca') { res = `🧒 Criança:\nTraço: ${multiRand(getPool('tracos','crianca'), 1)}\nAspiração: ${rand(getPool('aspiracoes','crianca'))}`;
+            } else if (fase === 'adolescente') { res = `🧑 Adolescente:\nTraços: ${multiRand(getPool('tracos','adolescente'), 2)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}`;
+            } else if (fase === 'adulto') { res = `👨 Jovem Adulto+:\nTraços: ${multiRand(getPool('tracos','adulto'), 3)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\nCarreira: ${rand(getPool('carreiras',''))}`; }
+
+            det.innerText = res;
+            window.lastOraculo = res;
+            document.getElementById('btn-save-oraculo').style.display = document.getElementById('sel-sim-link').value ? 'block' : 'none';
+        }
+
+        function sortearRapido(tipo) {
+            let result = rand(getPool(tipo, tipo === 'aspiracoes' ? 'comum' : ''));
+            let label = tipo === 'carreiras' ? "Resultado Carreira" : "Resultado Aspiração";
+            document.getElementById('res-rapido').innerHTML = `<span style="color:var(--ts4-blue)">${label}:</span> <strong>${result}</strong>`;
         }
 
         function salvarOraculoNoSim() {
-            const simId = document.getElementById('sel-sim-link').value;
-            db.sims.find(s => s.id == simId).extra = resultCache;
-            salvarTudo(); showToast("Salvo com sucesso no perfil!");
+            const id = document.getElementById('sel-sim-link').value;
+            let s = db.sims.find(x => x.id == id);
+            s.extra = (s.extra ? s.extra + "\n\n" : "") + window.lastOraculo;
+            salvarTudo(); showToast("Atualizado no perfil do Sim!");
         }
 
-        // --- CONFIGURAÇÕES ---
-        function renderConfig() {
-            const dataArea = document.getElementById('config-data-area');
-            dataArea.innerHTML = Object.keys(db.dados).map(key => `
-                <div style="margin-bottom:15px;">
-                    <strong style="text-transform:capitalize">${key}:</strong>
-                    <div class="tag-list">${db.dados[key].map((v, i) => `<div class="tag">${v} <b onclick="removerItem('dados','${key}',${i})">×</b></div>`).join('')}</div>
-                    <div style="display:flex; gap:5px;"><input type="text" id="add-data-${key}"><button onclick="adicionarItem('dados','${key}')">+</button></div>
-                </div>
-            `).join('');
-
-            const roulArea = document.getElementById('config-roulettes-area');
-            roulArea.innerHTML = Object.keys(db.config).map(key => `
-                <div style="margin-bottom:15px;">
-                    <strong style="text-transform:capitalize">Roleta ${key}:</strong>
-                    <div class="tag-list">${db.config[key].map((v, i) => `<div class="tag">${v} <b onclick="removerItem('config','${key}',${i})">×</b></div>`).join('')}</div>
-                    <div style="display:flex; gap:5px;"><input type="text" id="add-roul-${key}"><button onclick="adicionarItem('config','${key}')">+</button></div>
-                </div>
-            `).join('');
-        }
-
-        function adicionarItem(secao, key) {
-            const input = document.getElementById(secao === 'dados' ? 'add-data-'+key : 'add-roul-'+key);
-            if(input.value) { db[secao][key].push(input.value); input.value = ""; salvarTudo(); renderConfig(); }
-        }
-        function removerItem(secao, key, i) { db[secao][key].splice(i, 1); salvarTudo(); renderConfig(); }
-        function criarNovaRoleta() {
-            const n = document.getElementById('new-roulette-name').value.trim().toLowerCase();
-            if(n && !db.config[n]) { db.config[n] = ["Exemplo"]; salvarTudo(); renderConfig(); }
-        }
-
-        // --- SISTEMA E BACKUP ---
-        function fazerBackup() {
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            let downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "ts4_companion_backup.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function exportarHistoria() {
-            let dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(db.historia || "Sem história registrada.");
-            let downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "livro_da_historia.txt");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importarDados() {
-            document.getElementById('import-file').click();
-        }
-
-        function importarArquivo(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        db = JSON.parse(e.target.result);
-                        if (!db.metas) db.metas = [];
-                        salvarTudo();
-                        renderConfig();
-                        renderTree();
-                        renderDash();
-                        document.getElementById('txt-history').value = db.historia || "";
-                        document.getElementById('txt-laws').value = db.regras || "";
-                        showToast("Dados importados com sucesso!");
-                    } catch(err) {
-                        showToast("Erro ao importar arquivo. Verifique o formato.");
-                    }
-                };
-                reader.readAsText(file);
+        // --- ÁRVORE GENEALÓGICA REAL (GRAFO) ---
+        function renderTree() {
+            const container = document.getElementById('tree-display');
+            
+            const isRoot = (s) => {
+                const hasP1 = db.sims.find(x => String(x.id) === String(s.p1));
+                const hasP2 = db.sims.find(x => String(x.id) === String(s.p2));
+                return !hasP1 && !hasP2;
+            };
+            
+            let roots = db.sims.filter(isRoot);
+            if(roots.length === 0 && db.sims.length > 0) roots = [db.sims[0]]; 
+            
+            let visited = new Set();
+            
+            function buildNode(sim, parentOnlyName = null) {
+                if(visited.has(sim.id)) return ""; 
+                visited.add(sim.id);
+                
+                // Se for filho exclusivo, esticamos o traço adicionando padding superior e adicionamos um selo explicativo
+                let extraStyle = parentOnlyName ? 'padding-top: 35px;' : '';
+                let html = `<li style="${extraStyle}">`;
+                
+                let spouseHtml = "";
+                if(sim.spouse && db.sims.find(x => String(x.id) === String(sim.spouse)) && !visited.has(Number(sim.spouse))) {
+                    let conj = db.sims.find(x => String(x.id) === String(sim.spouse));
+                    visited.add(conj.id);
+                    let iconeRel = sim.relStatus === 'separado' ? '💔' : '💍';
+                    spouseHtml = `<div style="display:flex; align-items:center; font-size:20px; padding:0 10px;">${iconeRel}</div>` + buildCard(conj);
+                }
+                
+                let tagExclusivo = parentOnlyName ? `<div style="font-size:10px; color:#ff4d4d; font-weight:bold; margin-bottom:5px;">Filho(a) apenas de ${parentOnlyName}</div>` : '';
+                
+                html += `${tagExclusivo}<div class="tree-family-group">${buildCard(sim)}${spouseHtml}</div>`;
+                
+                // Filhos: Apenas considera quem tem ESTE sim como p1 ou p2.
+                let filhos = db.sims.filter(x => String(x.p1) === String(sim.id) || String(x.p2) === String(sim.id));
+                
+                if(filhos.length > 0) {
+                    html += `<ul>`;
+                    filhos.forEach(f => { 
+                        // Verifica se o filho não pertence ao cônjuge atual do Sim
+                        let isExclusivo = sim.spouse && (String(f.p1) !== String(sim.spouse) && String(f.p2) !== String(sim.spouse));
+                        html += buildNode(f, isExclusivo ? sim.nome : null); 
+                    });
+                    html += `</ul>`;
+                }
+                html += `</li>`;
+                return html;
             }
+            
+            let treeHTML = `<div class="css-tree"><ul>`;
+            roots.forEach(r => { if(!visited.has(r.id)) { treeHTML += buildNode(r); } });
+            treeHTML += `</ul></div>`;
+            
+            container.innerHTML = treeHTML;
         }
 
-        function reiniciarConfiguracoes() {
-            if (confirm("Tem certeza que deseja reiniciar o sistema? Esta ação limpará todos os dados do jogo.")) {
-                localStorage.removeItem('ts4_v12_data');
-                db = {
-                    sims: [],
-                    historia: "", regras: "",
-                    metas: [],
-                    config: {
-                        destino: ["Incêndio!", "Promoção!", "Gravidez Inesperada", "Gêmeos!", "Traição!"],
-                        metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão"],
-                        casamento: ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse"],
-                        "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
-                        "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"]
-                    },
-                    dados: {
-                        tracos: ["Alegre", "Sombrio", "Ativo", "Genial", "Maligno", "Criativo", "Preguiçoso"],
-                        carreiras: ["Pintor", "Escritor", "Culinária", "Criminoso", "Tech Guru", "Médico"],
-                        aspiracoes: ["Pintor Extraordinário", "Amigo do Mundo", "Inimigo Público", "Mestre Cuca"]
-                    },
-                    dicas: {
-                        "Incêndio!": "Sugestão de execução: Faça o Sim cozinhar usando um fogão barato ou utilize a lareira sem tapete de proteção.",
-                        "Promoção!": "Sugestão de execução: Cumpra as tarefas diárias da profissão e incentive o Sim a interagir com os colegas de trabalho.",
-                        "Gravidez Inesperada": "Sugestão de execução: Faça os Sims 'Tentar o Bebê' sem planejar após um encontro romântico no parque.",
-                        "Gêmeos!": "Sugestão de execução: Compre o traço de recompensa de fertilidade ou coloque a televisão no lote no canal de música de crianças.",
-                        "Traição!": "Sugestão de execução: Faça um dos Sims flertar com outro na frente do parceiro para gerar o drama e criar um clima tenso."
-                    }
-                };
-                salvarTudo();
-                document.getElementById('txt-history').value = "";
-                document.getElementById('txt-laws').value = "";
-                renderConfig();
-                renderTree();
-                renderDash();
-                showToast("Sistema reinicializado.");
-            }
+        function buildCard(s) {
+            return `
+            <div class="sim-card ${s.status === 'Ancestral (Morto)' ? 'morto' : ''}" onclick="abrirPerfil(${s.id})">
+                <div class="sim-img-circle">${s.img?.includes('data:') || s.img?.includes('http') ? `<img src="${s.img}">` : s.img || '👤'}</div>
+                <strong>${s.nome}</strong>
+            </div>`;
         }
 
-        // --- SISTEMA E PERFIL ---
-        function salvarTudo() { localStorage.setItem('ts4_v12_data', JSON.stringify(db)); }
-        
-        function salvarGeral() {
-            db.historia = document.getElementById('txt-history').value;
-            db.regras = document.getElementById('txt-laws').value;
-            salvarTudo(); showToast();
-        }
-
-        function abrirNovoSim() { 
-            simAtualId = null; 
-            toggleEditMode(true); 
-            limparCampos(); 
-            document.getElementById('modal-sim').style.display='flex'; 
-        }
-
-        function adicionarFilhoPerfil() {
-            const s = db.sims.find(x => x.id == simAtualId);
-            if (!s) return;
-            abrirNovoSim();
-            document.getElementById('e-p1').value = s.id;
-        }
-
-        function limparCampos() {
-            document.getElementById('e-nome').value = "";
-            document.getElementById('e-img').value = "";
-            document.getElementById('e-status').value = "Vivo";
-            document.getElementById('e-p1').value = "";
-            document.getElementById('e-p2').value = "";
-            document.getElementById('e-spouse').value = "";
-            document.getElementById('e-tracos').value = "";
-            document.getElementById('e-extra').value = "";
+        function abrirNovoSim() {
+            currentSimId = null;
+            toggleEditMode(true);
+            document.getElementById('modal-sim').style.display = 'flex';
         }
 
         function abrirPerfil(id) {
-            simAtualId = id; 
-            let s = db.sims.find(x => x.id == id); 
+            currentSimId = id;
+            const s = db.sims.find(x => x.id == id);
             toggleEditMode(false);
             
             document.getElementById('v-nome').innerText = s.nome;
-            document.getElementById('v-status').innerText = s.status || "Vivo";
-            document.getElementById('v-tracos').innerText = s.tracos || "Nenhum";
-            document.getElementById('v-extra').innerText = s.extra || "---";
-            document.getElementById('v-img').innerHTML = s.img?.includes('http') ? `<img src="${s.img}">` : s.img || "👤";
+            document.getElementById('v-img').innerHTML = s.img?.includes('data:') || s.img?.includes('http') ? `<img src="${s.img}">` : s.img || '👤';
+            
+            const getNome = (fid) => db.sims.find(x => String(x.id) === String(fid))?.nome || "Nenhum";
+            document.getElementById('v-status').innerText = s.status;
+            document.getElementById('v-p1').innerText = getNome(s.p1);
+            document.getElementById('v-p2').innerText = getNome(s.p2);
+            document.getElementById('v-spouse').innerText = getNome(s.spouse) + (s.spouse && s.relStatus === 'separado' ? " (Separados)" : "");
 
-            const getNome = (id) => db.sims.find(x => x.id == id)?.nome || "Nenhum";
-            document.getElementById('v-parents').innerText = `${getNome(s.p1)} & ${getNome(s.p2)}`;
-            document.getElementById('v-spouse').innerText = getNome(s.spouse);
+            let filhos = db.sims.filter(x => String(x.p1) === String(s.id) || String(x.p2) === String(s.id));
+            document.getElementById('v-filhos').innerText = filhos.length > 0 ? filhos.map(x=>x.nome).join(', ') : "Nenhum";
 
-            let irmaos = db.sims.filter(x => x.id != s.id && (
-                (s.p1 && (x.p1 == s.p1 || x.p2 == s.p1)) || 
-                (s.p2 && (x.p1 == s.p2 || x.p2 == s.p2))
+            let irmaos = db.sims.filter(x => String(x.id) !== String(s.id) && (
+                (s.p1 && (String(x.p1) === String(s.p1) || String(x.p2) === String(s.p1))) || 
+                (s.p2 && (String(x.p1) === String(s.p2) || String(x.p2) === String(s.p2)))
             ));
-            document.getElementById('v-irmaos').innerText = irmaos.length > 0 ? irmaos.map(x => x.nome).join(', ') : "Nenhum";
+            document.getElementById('v-irmaos').innerText = irmaos.length > 0 ? irmaos.map(x=>x.nome).join(', ') : "Nenhum";
 
-            let filhos = db.sims.filter(x => x.p1 == s.id || x.p2 == s.id);
-            document.getElementById('v-filhos').innerText = filhos.length > 0 ? filhos.map(x => x.nome).join(', ') : "Nenhum";
-
-            document.getElementById('modal-sim').style.display='flex';
+            document.getElementById('v-tracos').innerText = s.tracos || '...';
+            document.getElementById('v-extra').innerText = s.extra || '...';
+            
+            document.getElementById('modal-sim').style.display = 'flex';
         }
 
-        function toggleEditMode(e) { 
-            document.getElementById('sim-view-mode').style.display = e ? 'none' : 'block';
-            document.getElementById('sim-edit-mode').style.display = e ? 'block' : 'none';
-            if(e) preencherSelects();
+        function marcarFalecidoRapido() {
+            let s = db.sims.find(x => x.id == currentSimId);
+            if(s) {
+                s.status = 'Ancestral (Morto)';
+                salvarTudo();
+                abrirPerfil(currentSimId);
+                renderTree();
+                showToast("Marcado como falecido!");
+            }
         }
 
-        function preencherSelects() {
+        function adicionarFilhoPerfil() {
+            const paiId = currentSimId;
+            abrirNovoSim();
+            document.getElementById('e-p1').value = paiId;
+        }
+
+        function toggleEditMode(isEdit) {
+            document.getElementById('mode-view').style.display = isEdit ? 'none' : 'block';
+            document.getElementById('mode-edit').style.display = isEdit ? 'block' : 'none';
+            if(isEdit) preencherFormEdicao();
+        }
+
+        function preencherFormEdicao() {
+            const s = db.sims.find(x => x.id == currentSimId) || { nome: "", status: "Vivo", p1: "", p2: "", spouse: "", relStatus: "casado", tracos: "", extra: "", img: "" };
+            ['e-nome','e-status','e-tracos','e-extra','e-img'].forEach(id => document.getElementById(id).value = s[id.replace('e-','')] || "");
+            
+            const opt = '<option value="">Nenhum</option>' + db.sims.filter(x => x.id != currentSimId).map(x => `<option value="${x.id}">${x.nome}</option>`).join('');
             ['e-p1','e-p2','e-spouse'].forEach(id => {
-                document.getElementById(id).innerHTML = '<option value="">Nenhum</option>' + db.sims.filter(s => s.id != simAtualId).map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+                const el = document.getElementById(id);
+                el.innerHTML = opt; el.value = s[id.replace('e-','')] || "";
             });
-            if(simAtualId) {
-                let s = db.sims.find(x => x.id == simAtualId);
-                document.getElementById('e-nome').value = s.nome;
-                document.getElementById('e-status').value = s.status || "Vivo";
-                document.getElementById('e-p1').value = s.p1 || "";
-                document.getElementById('e-p2').value = s.p2 || "";
-                document.getElementById('e-spouse').value = s.spouse || "";
-                document.getElementById('e-tracos').value = s.tracos || "";
-                document.getElementById('e-extra').value = s.extra || "";
-                document.getElementById('e-img').value = s.img || "";
-            } else {
-                limparCampos();
+            document.getElementById('e-rel').value = s.relStatus || "casado";
+        }
+
+        function carregarImagemComputador(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => { document.getElementById('e-img').value = ev.target.result; };
+                reader.readAsDataURL(file);
             }
         }
 
         function salvarSim() {
-            const s = { 
-                nome: document.getElementById('e-nome').value, 
-                status: document.getElementById('e-status').value, 
-                p1: document.getElementById('e-p1').value, 
-                p2: document.getElementById('e-p2').value, 
-                spouse: document.getElementById('e-spouse').value, 
-                tracos: document.getElementById('e-tracos').value, 
-                extra: document.getElementById('e-extra').value, 
-                img: document.getElementById('e-img').value 
+            const s = {
+                id: currentSimId || Date.now(),
+                nome: document.getElementById('e-nome').value,
+                status: document.getElementById('e-status').value,
+                img: document.getElementById('e-img').value,
+                p1: document.getElementById('e-p1').value,
+                p2: document.getElementById('e-p2').value,
+                spouse: document.getElementById('e-spouse').value,
+                relStatus: document.getElementById('e-rel').value,
+                tracos: document.getElementById('e-tracos').value,
+                extra: document.getElementById('e-extra').value
             };
 
-            if(simAtualId) { 
-                let i = db.sims.findIndex(x => x.id == simAtualId);
-                let oldSpouseId = db.sims[i].spouse;
-                let newSpouseId = s.spouse;
+            if(!s.nome) return alert("Preencha o nome do Sim!");
 
-                if (oldSpouseId && oldSpouseId !== newSpouseId) {
-                    let oldSpouse = db.sims.find(x => x.id == oldSpouseId);
-                    if (oldSpouse) oldSpouse.spouse = "";
-                }
-
-                if (newSpouseId) {
-                    let newSpouse = db.sims.find(x => x.id == newSpouseId);
-                    if (newSpouse) newSpouse.spouse = simAtualId;
-                }
-
-                db.sims[i] = {...db.sims[i], ...s}; 
-            } else { 
-                let newSimId = Date.now();
-                let newSim = {id: newSimId, ...s};
-
-                if (newSim.spouse) {
-                    let spouseSim = db.sims.find(x => x.id == newSim.spouse);
-                    if (spouseSim) {
-                        spouseSim.spouse = newSimId;
-                    }
-                }
-                db.sims.push(newSim);
+            if(currentSimId) {
+                let oldSim = db.sims.find(x => x.id == currentSimId);
+                if(oldSim.spouse && oldSim.spouse != s.spouse) { let ex = db.sims.find(x => x.id == oldSim.spouse); if(ex) ex.spouse = ""; }
+                if(s.spouse) { let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); if(novoConj) { novoConj.spouse = s.id; novoConj.relStatus = s.relStatus; } }
+                const idx = db.sims.findIndex(x => x.id == currentSimId); db.sims[idx] = s;
+            } else {
+                if(s.spouse) { let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); if(novoConj) { novoConj.spouse = s.id; novoConj.relStatus = s.relStatus; } }
+                db.sims.push(s);
             }
-            salvarTudo(); fecharModal(); renderTree();
+
+            salvarTudo(); fecharModal(); renderTree(); showToast("Perfil salvo!");
         }
 
-        function deletarSim() { 
-            if(confirm("Deseja mesmo excluir este Sim?")) {
-                let s = db.sims.find(x => x.id == simAtualId);
-                if (s && s.spouse) {
-                    let spouseSim = db.sims.find(x => x.id == s.spouse);
-                    if (spouseSim) spouseSim.spouse = "";
-                }
-                db.sims = db.sims.filter(x => x.id != simAtualId); 
-                salvarTudo(); fecharModal(); renderTree(); 
-            } 
+        function deletarSim() {
+            if(confirm("Tem certeza que deseja excluir este Sim?")) {
+                let s = db.sims.find(x => x.id == currentSimId);
+                if(s && s.spouse) { let conj = db.sims.find(x => x.id == s.spouse); if(conj) conj.spouse = ""; }
+                db.sims = db.sims.filter(x => x.id != currentSimId);
+                salvarTudo(); fecharModal(); renderTree();
+            }
         }
 
-        function fecharModal() { document.getElementById('modal-sim').style.display='none'; }
+        function fecharModal() { document.getElementById('modal-sim').style.display = 'none'; document.getElementById('e-img-file').value = ""; }
+
+        // --- CONFIGURAÇÕES ---
+        function renderConfig() {
+            const area = document.getElementById('custom-items-area');
+            area.innerHTML = `
+                ${['tracos', 'carreiras', 'aspiracoes'].map(tipo => `
+                    <div style="margin-bottom:15px;">
+                        <strong style="text-transform:capitalize">${tipo}</strong>
+                        <div class="tag-list">${db.custom[tipo].map((v, i) => `<div class="tag">${v} <span onclick="removeCustom('${tipo}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
+                        <div style="display:flex; gap:5px;"><input type="text" id="in-${tipo}" placeholder="Adicionar novo item..."><button class="btn-main" onclick="addCustom('${tipo}')" style="width:40px; margin:0">+</button></div>
+                    </div>
+                `).join('')}
+            `;
+
+            const rArea = document.getElementById('config-roulettes-area');
+            rArea.innerHTML = Object.keys(db.config).map(key => `
+                <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <strong style="text-transform:capitalize">Roleta: ${key}</strong>
+                    <div class="tag-list">${db.config[key].map((v, i) => `<div class="tag">${v} <span onclick="removeRoul('${key}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
+                    <div style="display:flex; gap:5px;"><input type="text" id="in-r-${key}" placeholder="Nova opção..."><button class="btn-main" onclick="addRoul('${key}')" style="width:40px; margin:0; background:var(--ts4-green)">+</button></div>
+                </div>
+            `).join('');
+        }
+
+        function addCustom(t) { const v = document.getElementById('in-'+t).value; if(v) { db.custom[t].push(v); salvarTudo(); renderConfig(); } }
+        function removeCustom(t, i) { db.custom[t].splice(i,1); salvarTudo(); renderConfig(); }
+        function addRoul(k) { const v = document.getElementById('in-r-'+k).value; if(v) { db.config[k].push(v); salvarTudo(); renderConfig(); } }
+        function removeRoul(k, i) { db.config[k].splice(i,1); salvarTudo(); renderConfig(); }
+        function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Exemplo"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
         
-        function showToast(mensagem) { 
-            const t = document.getElementById('toast'); 
-            t.innerText = mensagem || "✓ Salvo com sucesso!";
-            t.style.display = 'block'; 
-            setTimeout(() => t.style.display='none', 3000); 
+        // --- HISTORIA E METAS ---
+        function addHistoriaManual() {
+            const input = document.getElementById('nova-historia-manual');
+            if(input.value.trim()) { db.historia += `\n[${new Date().toLocaleDateString()}] ${input.value}`; document.getElementById('txt-history').value = db.historia; input.value = ""; salvarTudo(); }
         }
+
+        function renderMetas() {
+            const container = document.getElementById('lista-metas');
+            if(db.metas_pendentes.length === 0) { container.innerHTML = "<p>Sem metas pendentes.</p>"; return; }
+            container.innerHTML = db.metas_pendentes.map((m, i) => `
+                <div style="display:flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; border-left: 4px solid #FFC83D; margin-bottom: 5px; border-radius: 5px;">
+                    <span>⏳ ${m}</span>
+                    <button class="btn-main" style="width:auto; margin:0; padding:5px 15px; background:var(--ts4-green); font-size:11px;" onclick="concluirMeta(${i})">Concluir</button>
+                </div>
+            `).join('');
+        }
+
+        function addMeta() { const input = document.getElementById('nova-meta'); if(input.value.trim()) { db.metas_pendentes.push(input.value.trim()); input.value = ""; salvarTudo(); renderMetas(); } }
+        function concluirMeta(i) { const m = db.metas_pendentes[i]; db.metas_pendentes.splice(i, 1); db.historia += `\n[${new Date().toLocaleDateString()}] 🏆 Meta Concluída: ${m}`; document.getElementById('txt-history').value = db.historia; salvarTudo(); renderMetas(); }
+
+        function exportarHistoria() { let dl = document.createElement('a'); dl.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(db.historia || "")); dl.setAttribute("download", "historia.txt"); dl.click(); }
+        function salvarGeral() { db.historia = document.getElementById('txt-history').value; db.regras = document.getElementById('txt-laws').value; salvarTudo(); showToast("Salvo!"); }
+        function fazerBackup() { const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db))); dl.setAttribute("download", "backup.json"); dl.click(); }
+        function exportarDados() { fazerBackup(); }
+        function importarArquivo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { try { db = JSON.parse(e.target.result); salvarTudo(); location.reload(); } catch(err) { alert("Erro!"); } }; 
+                reader.readAsText(file);
+            }
+        }
+        function reiniciarConfiguracoes() { if(confirm("Apagar TUDO?")) { localStorage.removeItem('ts4_v27_data'); location.reload(); } }
+        function showToast(msg) { const t = document.getElementById('toast'); t.style.display='block'; t.innerText=msg; setTimeout(()=>t.style.display='none',2000); }
+        function salvarTudo() { localStorage.setItem('ts4_v27_data', JSON.stringify(db)); }
 
         // Inicialização
-        document.getElementById('txt-history').value = db.historia || "";
-        document.getElementById('txt-laws').value = db.regras || "";
-        renderTree(); 
-        renderDash();
+        document.getElementById('txt-history').value = db.historia;
+        document.getElementById('txt-laws').value = db.regras;
+        renderDash(); renderTree(); renderMetas();
     </script>
-</body>
+
+    </body>
 </html>
