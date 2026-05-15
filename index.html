@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Companion Narrativo - v27</title>
+    <title>Companion Narrativo - v28</title>
     <style>
         :root {
             --ts4-blue: #0079C1;
@@ -143,6 +143,18 @@
         </div>
 
         <div id="tab-history" class="tab-pane">
+            
+            <div style="background: #e6f2ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--ts4-blue);">
+                <h3 style="margin-top:0; color: var(--ts4-blue);">🤖 Sinopse Inteligente (I.A. Local)</h3>
+                <p style="font-size:14px;">Este gerador analisa os Sims que você criou na Árvore Genealógica e cria um ponto de partida baseado neles.</p>
+                <button class="btn-main" style="width:250px; background:var(--ts4-blue)" onclick="gerarSinopseDinamica()">Analisar Família e Gerar História</button>
+                
+                <div id="res-sinopse" style="margin-top:20px; display:none; background:white; padding:20px; border-radius:15px; border:1px solid #ddd; line-height:1.6;">
+                    <div id="sinopse-texto"></div>
+                    <button class="btn-main btn-sec" onclick="addSinopseAoLivro()">📥 Registrar no Livro de História</button>
+                </div>
+            </div>
+
             <div class="panel">
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
                     <h2 style="margin:0;">📖 Livro da História</h2>
@@ -177,18 +189,18 @@
             <div class="panel">
                 <h2>Ajustes do Sistema</h2>
                 
-                <div class="config-header">📂 MEUS ITENS ADICIONADOS</div>
-                <div id="custom-items-area"></div>
+                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 MEUS ITENS ADICIONADOS</div>
+                <div id="custom-items-area" style="margin-top: 15px;"></div>
 
-                <div class="config-header">🎲 GERENCIAR ROLETAS DE EVENTOS</div>
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎲 GERENCIAR ROLETAS DE EVENTOS</div>
+                <div style="display:flex; gap:10px; margin:15px 0;">
                     <input type="text" id="new-roulette-name" placeholder="Nome da nova roleta...">
                     <button class="btn-main" style="width:150px; margin:0" onclick="criarNovaRoleta()">+ Criar</button>
                 </div>
                 <div id="config-roulettes-area"></div>
 
-                <div class="config-header">🔄 SISTEMA DE DADOS</div>
-                <div style="display:flex; flex-direction:column; gap:10px;">
+                <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🔄 SISTEMA DE DADOS</div>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top: 15px;">
                     <input type="file" id="import-file" style="display:none" onchange="importarArquivo(event)">
                     <button class="btn-main btn-sec" style="margin:0;" onclick="fazerBackup()">💾 Backup dos Dados</button>
                     <button class="btn-main btn-sec" style="margin:0;" onclick="exportarDados()">📂 Exportar Dados</button>
@@ -199,9 +211,9 @@
         </div>
 
         <div id="tab-feedback" class="tab-pane">
-            <div class="panel" style="max-width: 600px; margin: auto;">
-                <h2>💬 Fale com a Criadora</h2>
-                <p style="font-size:14px; color:#666; margin-bottom:20px;">Encontrou algum erro, tem uma ideia genial para o Companion ou quer apenas dar um alô? Sua opinião ajuda a construir as próximas versões!</p>
+            <div class="panel" style="max-width: 600px; margin: 40px auto;">
+                <h2 style="text-align: center;">💬 Fale com a Criadora</h2>
+                <p style="font-size:14px; color:#666; margin-bottom:20px; text-align: center;">Encontrou algum erro, tem uma ideia genial para o Companion ou quer apenas dar um alô? Sua opinião ajuda a construir as próximas versões!</p>
                 
                 <form action="https://formspree.io/f/xeenvoaj" method="POST">
                     <label>Seu Nome/Nick (Opcional):</label>
@@ -215,9 +227,7 @@
             </div>
         </div>
 
-    </div>
-
-    <div class="modal-overlay" id="modal-sim">
+    </div> <div class="modal-overlay" id="modal-sim">
         <div class="modal-content">
             <div id="mode-view">
                 <button class="btn-main" style="width:100px; float:left; font-size:10px; margin:0; background:#555;" onclick="marcarFalecidoRapido()">✝️ FALECEU</button>
@@ -229,7 +239,8 @@
                 </div>
                 <div class="profile-view-grid" id="profile-details-view">
                     <div class="profile-field"><strong>Status</strong><span id="v-status">Vivo</span></div>
-                    <div class="profile-field"><strong>Ancestral (Morto)</strong><span id="v-morto"></span></div> <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
+                    <div class="profile-field"><strong>Ancestral (Morto)</strong><span id="v-morto"></span></div> 
+                    <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
                     <div class="profile-field"><strong>Progenitor(a) 2</strong><span id="v-p2">Nenhum</span></div>
                     <div class="profile-field"><strong>Cônjuge</strong><span id="v-spouse">Nenhum</span></div>
                     <div class="profile-field" style="grid-column: span 2;"><strong>Filhos(as)</strong><span id="v-filhos">Nenhum</span></div>
@@ -332,21 +343,49 @@
             carreiras: ["Agente Secreto", "Artista", "Astronauta", "Atleta", "Culinária", "Escritor", "Freelancer", "Guru da Tecnologia", "Negócios", "Pintor", "Conservacionista", "Crítico", "Designer Civil", "Direito", "Educação", "Engenharia", "Jardineiro", "Militar", "Político", "Redes Sociais", "Ator/Atriz", "Cientista", "Detetive", "Médico"]
         };
 
-        // --- SISTEMA DE DADOS (DB) ---
-        let db = JSON.parse(localStorage.getItem('ts4_v27_data')) || {
-            sims: [], historia: "", regras: "", metas_pendentes: [],
-            config: {
-                "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
-                metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
-                "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
-                "gênero": ["Masculino", "Feminino"],
-                "idade": ["Bebê de colo", "Bebê", "Criança", "Adolescente", "Jovem Adulto", "Adulto", "Idoso"],
-                "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
-                "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
-                "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"]
-            },
-            custom: { tracos: [], carreiras: [], aspiracoes: [] }
+        const SINOPSE_DADOS = {
+            tema: ["uma fuga desesperada de um escândalo terrível na cidade antiga", "uma herança misteriosa deixada por um parente distante", "a busca por fama e fortuna começando absolutamente do zero", "um recomeço forçado após uma grande tragédia pessoal", "uma aposta muito arriscada que custou tudo o que tinham", "a necessidade de proteger um segredo de família perigoso", "a vontade cega de provar que a família rica (que os desprezou) estava errada", "um chamado místico inegável atraindo-os para este lote", "a descoberta de que são descendentes de uma linhagem real esquecida", "uma dívida astronômica com um agiota local que não aceita 'não' como resposta", "a tentativa de limpar o nome da família após uma geração de Sims malvados", "um naufrágio que os deixou apenas com as roupas do corpo nesta nova cidade", "a fuga de uma seita estranha que cultua a Planta Vaca", "uma crise de meia-idade coletiva que os fez largar tudo na dedicação à arte", "o sonho de transformar um lote abandonado e sujo no santuário mais luxuoso do mundo", "uma maldição antiga que diz que nenhum herdeiro pode morrer de velhice", "a busca por um portal mágico que dizem estar escondido sob as fundações da casa", "um reality show de sobrevivência onde o prêmio é a mansão dos sonhos", "a participação em um reality show de subcelebridades falidas chamado 'Quem Quer ser um Simoleonário?'", "uma confusão no hospital que resultou na troca de bebês com uma família de vampiros", "a descoberta de que todos os membros da família são, na verdade, clones de um experimento científico que deu errado", "o despejo imediato da mansão anterior por causa de uma festa que literalmente destruiu o bairro", "uma herança que só pode ser sacada se a família conseguir viver 30 dias sem usar eletricidade", "a fuga de um ex-fã obsessivo que agora persegue a família em todos os lotes", "um contrato assinado com uma emissora de TV que obriga a família a ter um drama novo toda semana", "a tentativa de transformar a casa em um 'Bed and Breakfast' para fantasmas mal-humorados", "um erro no sistema do governo que deu à família o título de 'Sims mais chatos do ano' e agora eles querem provar o contrário", "a suspeita de que um dos membros da família é, na verdade, um alienígena disfarçado tentando entender o conceito de 'almoço em família'", "a participação em um reality show de subcelebridades falidas chamado 'Quem Quer ser um Simoleonário?'", "uma confusão no hospital que resultou na troca de bebês com uma família de vampiros", "a descoberta de que todos os membros da família são clones de um experimento que deu errado", "o despejo imediato por causa de uma festa que literalmente destruiu o bairro", "uma herança que só pode ser sacada se a família viver 30 dias sem usar eletricidade (Desafio Fora da Grade)", "a fuga de um fã obsessivo que agora persegue a família em todos os lotes", "um contrato com uma emissora de TV que obriga a família a ter um drama novo toda semana", "a tentativa de transformar a casa em um 'Bed and Breakfast' para fantasmas mal-humorados", "um erro no sistema do governo que deu à família o título de 'Sims mais chatos do ano'", "a suspeita de que um dos membros é um alienígena disfarçado tentando entender o conceito de 'almoço em família'", "uma maldição de 'Mofo Assassino' herdada de um apartamento mal cuidado em Tomarang", "a decisão impulsiva de morar em um lote 'Desafiador' com 8 Sims e apenas 1 banheiro"],
+            dinamica: ["são super protetores um com o outro e fariam qualquer coisa para se defenderem", "têm um relacionamento distante, mas se toleram pela sobrevivência", "escondem segredos obscuros um do outro, o que gera uma tensão silenciosa", "são inseparáveis, os melhores amigos, e enfrentam o mundo juntos", "vivem em constante atrito e caos, mas no fundo, bem no fundo, se amam", "um sente que deve a vida ao outro, criando uma dívida de gratidão pesada", "competem secretamente em absolutamente tudo que fazem", "agem como se fossem perfeitos em público, mas brigam por qualquer prato sujo em casa", "possuem uma conexão telepática estranha e sempre sabem o que o outro está pensando", "são rivais declarados que foram forçados a morar juntos por um testamento", "um deles é o 'cérebro' do grupo enquanto o outro é puro caos e impulsividade", "não conseguem tomar nenhuma decisão sem jogar uma moeda ou usar o dado", "tratam-se com uma cortesia exagerada e suspeita o tempo todo", "são unidos apenas pelo ódio em comum a um vizinho específico", "dependem emocionalmente um do outro para absolutamente tudo", "vivem em mundos totalmente diferentes, quase não se cruzando apesar de morarem juntos", "comunicam-se apenas através de notas sarcásticas deixadas na porta da geladeira", "estão em uma competição constante para ver quem consegue ser o centro das atenções em qualquer evento social", "tratam-se como se estivessem permanentemente em um confessionário de reality show, falando para as paredes", "um deles acredita piamente que é o protagonista da história e os outros são apenas figurantes", "possuem um pacto de nunca contar a verdade uns aos outros, mesmo para coisas simples como 'o café acabou'", "vivem em um estado de 'guerra fria' por causa de um sanduíche de queijo derretido que sumiu em 1998", "sabotam as carreiras uns dos outros por puro tédio e falta de entretenimento", "são excessivamente dramáticos e transformam qualquer poça de água no chão em um evento catastrófico", "comportam-se como se houvesse uma plateia invisível assistindo e aplaudindo suas falhas", "um tenta ser o 'influenciador' perfeito enquanto o outro faz de tudo para aparecer ao fundo das fotos fazendo caretas", "comunicam-se apenas através de notas sarcásticas na porta da geladeira", "estão em uma competição constante para ver quem consegue ser o centro das atenções", "tratam-se como se estivessem permanentemente em um confessionário de reality show", "um deles acredita piamente que é o protagonista e os outros são apenas figurantes", "possuem um pacto de nunca contar a verdade uns aos outros", "vivem em um estado de 'guerra fria' por causa de um sanduíche de queijo derretido sumido", "sabotam as carreiras uns dos outros por puro tédio", "transformam qualquer poça de água no chão em um evento catastrófico", "comportam-se como se houvesse uma plateia invisível assistindo e aplaudindo", "um tenta ser o 'influenciador' perfeito enquanto o outro faz caretas ao fundo das fotos", "possuem uma 'Compatibilidade Social' terrível e faíscas (de ódio) voam em cada conversa", "estão em um 'Triângulo Amoroso' involuntário causado por um erro de mensagem no Dia do Amor"],
+            objetivo: ["construir um império financeiro imbatível", "restaurar a honra e o prestígio do nome da família", "encontrar o amor verdadeiro e finalmente ter estabilidade emocional", "dominar o mundo sobrenatural da região", "criar a maior linhagem que a cidade já viu", "viver exclusivamente da terra e fugir da sociedade moderna", "virar a estrela número um da cidade a qualquer custo", "ter um descendente de cada criatura oculta existente no mundo", "tornar-se o proprietário de todos os estabelecimentos comerciais da cidade", "escrever a biografia definitiva que revelará os podres de todos os vizinhos", "alcançar o nível máximo de todas as habilidades possíveis antes de envelhecer", "colecionar 10 tipos diferentes de fantasmas vivendo no mesmo lote", "transformar a linhagem na família mais odiada (ou amada) de todo o mundo", "conquistar o coração de todos os membros da família rica local por pura vingança", "criar um jardim botânico com todas as plantas raras e proibidas", "abrir um museu privado com relíquias encontradas em viagens", "garantir que nenhum membro da família jamais precise trabalhar em um emprego convencional", "ter o maior número de divórcios e casamentos no menor tempo possível", "ser expulso de todos os lotes comunitários da cidade pelo menos uma vez", "alcançar o topo da carreira de Vilão apenas para poder rir maldosamente dos vizinhos", "fazer com que todos os membros da família apareçam nas fofocas do jornal local na mesma semana", "organizar uma festa de casamento onde o objetivo principal é que alguém saia no tapa", "gastar todo o dinheiro da família em decorações de gosto duvidoso e estátuas de ouro", "convencer a cidade inteira de que a família possui poderes mágicos (mesmo que não tenham)", "chegar ao nível 10 de uma habilidade inútil apenas para ostentar o certificado no banheiro", "adotar sete gatos e dar a eles nomes de celebridades que a família odeia", "conseguir que a Dona Morte se torne uma convidada frequente para os jantares de domingo", "ter o maior número de divórcios e casamentos no menor tempo possível", "ser expulso de todos os lotes comunitários da cidade", "alcançar o topo da carreira de Vilão apenas para rir dos vizinhos", "fazer com que todos apareçam nas fofocas do jornal na mesma semana", "organizar uma festa de casamento onde o objetivo principal é que alguém saia no tapa", "gastar todo o dinheiro em decorações de gosto duvidoso e estátuas de ouro", "convencer a cidade de que a família possui poderes mágicos (mesmo que não tenham)", "chegar ao nível 10 de uma habilidade inútil apenas para ostentar o certificado no banheiro", "adotar sete gatos e dar a eles nomes de celebridades que a família odeia", "conseguir que a Dona Morte se torne uma convidada frequente para os jantares", "ter um bebê com o Papai Inverno apenas pelo status (e pelos simoleons)", "ganhar o prêmio de 'Pior Vizinho do Bairro' no pacote Aluga-se"]
         };
+
+        // --- LISTA DE ROLETAS NATIVAS QUE NÃO PODEM SER APAGADAS ---
+        const DEFAULT_ROULETTES = ["eventos diários", "metas", "relações românticas", "gênero", "idade", "sexualidade", "sim oculto", "modo de morte", "mundos a morar", "simoleons a começar"];
+
+        // --- SISTEMA DE DADOS (DB) ---
+        let db = JSON.parse(localStorage.getItem('ts4_v27_data'));
+        
+        // Inicializa ou atualiza os dados
+        if (!db) {
+            db = {
+                sims: [], historia: "", regras: "", metas_pendentes: [],
+                config: {
+                    "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
+                    metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
+                    "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
+                    "gênero": ["Masculino", "Feminino"],
+                    "idade": ["Bebê de colo", "Bebê", "Criança", "Adolescente", "Jovem Adulto", "Adulto", "Idoso"],
+                    "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
+                    "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
+                    "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"],
+                    "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"],
+                    "simoleons a começar": ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"]
+                },
+                custom: { tracos: [], carreiras: [], aspiracoes: [] }
+            };
+        } else {
+            // Trava de segurança para saves antigos
+            let atualizou = false;
+            if (!db.config["mundos a morar"]) {
+                db.config["mundos a morar"] = ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"];
+                atualizou = true;
+            }
+            if (!db.config["simoleons a começar"]) {
+                db.config["simoleons a começar"] = ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"];
+                atualizou = true;
+            }
+            if(atualizou) salvarTudo();
+        }
 
         let lastRotation = {};
         let currentSimId = null;
@@ -366,16 +405,15 @@
         }
 
         // --- RENDERIZAR ROLETAS (Dashboard e Lab) ---
+        const LAB_KEYS = ["gênero", "idade", "sexualidade", "sim oculto", "mundos a morar"];
+
         function renderDash() {
-            // No Dashboard, mostramos apenas Eventos, Metas, Relações e Morte
-            const keys = ["eventos diários", "metas", "relações românticas", "modo de morte"];
-            renderWheels('dash-cards', keys);
+            const dashKeys = Object.keys(db.config).filter(key => !LAB_KEYS.includes(key));
+            renderWheels('dash-cards', dashKeys);
         }
 
         function renderLab() {
-            // No Lab, mostramos Gênero, Idade, Sexualidade e Oculto
-            const keys = ["gênero", "idade", "sexualidade", "sim oculto"];
-            renderWheels('lab-cards', keys);
+            renderWheels('lab-cards', LAB_KEYS);
         }
 
         function renderWheels(containerId, keys) {
@@ -403,7 +441,6 @@
                 </div>`;
             }).join('');
             
-            // Reposiciona as roletas no ângulo que pararam
             keys.forEach(k => {
                 const e = document.getElementById('rol-'+k);
                 if(e && lastRotation[k]) e.style.transform = `rotate(${lastRotation[k]}deg)`;
@@ -497,6 +534,55 @@
             salvarTudo(); showToast("Atualizado no perfil do Sim!");
         }
 
+        // --- MOTOR DE I.A. LOCAL (SINOPSE DINÂMICA) ---
+        function gerarSinopseDinamica() {
+            if(db.sims.length === 0) return alert("Crie alguns Sims na Árvore primeiro!");
+            
+            const sims = db.sims;
+            const temBebe = sims.some(s => s.faseVida === 'bebe' || s.faseVida === 'bebe-colo');
+            const adultos = sims.filter(s => s.faseVida === 'adulto');
+            
+            let intro = "";
+            let conflito = "";
+            let missao = "";
+
+            const temaAleatorio = rand(SINOPSE_DADOS.tema);
+            const dinamicaAleatoria = rand(SINOPSE_DADOS.dinamica);
+            const objetivoAleatorio = rand(SINOPSE_DADOS.objetivo);
+
+            // Lógica de Contexto com Randomização Ativa
+            if (adultos.length === 1 && temBebe) {
+                const intros = [
+                    `${adultos[0].nome} nunca planejou ser progenitor solo, mas o destino interviu.`,
+                    `${adultos[0].nome} vive o drama de criar um filho no meio de ${temaAleatorio}.`
+                ];
+                intro = rand(intros);
+                conflito = `O maior mistério que os envolve é ${temaAleatorio}.`;
+                missao = `Agora, o desafio principal para a sobrevivência deles é ${objetivoAleatorio}.`;
+            } else if (adultos.length >= 2) {
+                const s1 = adultos[0].nome;
+                const s2 = adultos[1].nome;
+                intro = `${s1} e ${s2} enfrentam no momento ${temaAleatorio}.`;
+                conflito = `O grande problema é que eles ${dinamicaAleatoria}.`;
+                missao = `Unidos (ou não), a missão atual que assumiram é ${objetivoAleatorio}.`;
+            } else {
+                intro = `A família liderada por ${sims[0].nome} está lutando com ${temaAleatorio}.`;
+                conflito = `A dinâmica de sobrevivência deles é curiosa, pois eles ${dinamicaAleatoria}.`;
+                missao = `Apesar dos obstáculos, eles estão determinados a ${objetivoAleatorio}.`;
+            }
+
+            const textoFinal = `📜 **SINOPSE DA FAMÍLIA**\n\n${intro}\n\n${conflito}\n\n${missao}`;
+            document.getElementById('sinopse-texto').innerHTML = textoFinal.replace(/\n/g, '<br>');
+            document.getElementById('res-sinopse').style.display = 'block';
+            window.tempSinopse = textoFinal;
+        }
+
+        function addSinopseAoLivro() {
+            db.historia = window.tempSinopse + "\n\n---\n\n" + db.historia;
+            salvarTudo();
+            showToast("Sinopse adicionada ao livro!");
+        }
+        
         // --- ÁRVORE GENEALÓGICA REAL (GRAFO) ---
         function renderTree() {
             const container = document.getElementById('tree-display');
@@ -516,7 +602,6 @@
                 if(visited.has(sim.id)) return ""; 
                 visited.add(sim.id);
                 
-                // Se for filho exclusivo, esticamos o traço adicionando padding superior e adicionamos um selo explicativo
                 let extraStyle = parentOnlyName ? 'padding-top: 35px;' : '';
                 let html = `<li style="${extraStyle}">`;
                 
@@ -532,13 +617,11 @@
                 
                 html += `${tagExclusivo}<div class="tree-family-group">${buildCard(sim)}${spouseHtml}</div>`;
                 
-                // Filhos: Apenas considera quem tem ESTE sim como p1 ou p2.
                 let filhos = db.sims.filter(x => String(x.p1) === String(sim.id) || String(x.p2) === String(sim.id));
                 
                 if(filhos.length > 0) {
                     html += `<ul>`;
                     filhos.forEach(f => { 
-                        // Verifica se o filho não pertence ao cônjuge atual do Sim
                         let isExclusivo = sim.spouse && (String(f.p1) !== String(sim.spouse) && String(f.p2) !== String(sim.spouse));
                         html += buildNode(f, isExclusivo ? sim.nome : null); 
                     });
@@ -682,6 +765,55 @@
 
         function fecharModal() { document.getElementById('modal-sim').style.display = 'none'; document.getElementById('e-img-file').value = ""; }
 
+        // --- METAS E HISTORIA ---
+        function renderMetas() {
+            document.getElementById('lista-metas').innerHTML = db.metas_pendentes.map((m, i) => `
+                <div style="background:#f9f9f9; padding:10px; border-radius:8px; border-left:4px solid var(--ts4-blue); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>${m}</span>
+                    <button class="btn-main" style="width:auto; margin:0; padding:5px 10px; background:var(--ts4-green)" onclick="concluirMeta(${i})">✓ Concluir</button>
+                </div>
+            `).join('');
+        }
+
+        function addMeta() {
+            const v = document.getElementById('nova-meta').value;
+            if(v) { db.metas_pendentes.push(v); document.getElementById('nova-meta').value = ""; salvarTudo(); renderMetas(); }
+        }
+
+        function concluirMeta(i) {
+            const m = db.metas_pendentes[i];
+            db.metas_pendentes.splice(i, 1);
+            db.historia += `\n[${new Date().toLocaleDateString()}] 🏆 META CONCLUÍDA: ${m}`;
+            document.getElementById('txt-history').value = db.historia;
+            salvarTudo(); renderMetas(); showToast("Meta concluída e registrada!");
+        }
+
+        function addHistoriaManual() {
+            const v = document.getElementById('nova-historia-manual').value;
+            if(v) {
+                db.historia += `\n[${new Date().toLocaleDateString()}] ${v}`;
+                document.getElementById('txt-history').value = db.historia;
+                document.getElementById('nova-historia-manual').value = "";
+                salvarTudo();
+            }
+        }
+
+        function salvarGeral() {
+            db.historia = document.getElementById('txt-history').value;
+            db.regras = document.getElementById('txt-laws').value;
+            salvarTudo(); showToast("Livros salvos com sucesso!");
+        }
+
+        function exportarHistoria() {
+            const textToSave = document.getElementById('txt-history').value;
+            const blob = new Blob([textToSave], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "Historia_Familia_Sims4.txt";
+            a.click();
+        }
+
+
         // --- CONFIGURAÇÕES ---
         function renderConfig() {
             const area = document.getElementById('custom-items-area');
@@ -696,13 +828,21 @@
             `;
 
             const rArea = document.getElementById('config-roulettes-area');
-            rArea.innerHTML = Object.keys(db.config).map(key => `
+            rArea.innerHTML = Object.keys(db.config).map(key => {
+                const isCustom = !DEFAULT_ROULETTES.includes(key);
+                const btnDeletar = isCustom ? `<button class="btn-main" style="width:auto; margin:0; background:#ff4d4d; padding: 5px 10px; font-size: 11px;" onclick="deletarRoleta('${key}')">Excluir Roleta</button>` : '';
+
+                return `
                 <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <strong style="text-transform:capitalize">Roleta: ${key}</strong>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
+                        <strong style="text-transform:capitalize">Roleta: ${key}</strong>
+                        ${btnDeletar}
+                    </div>
                     <div class="tag-list">${db.config[key].map((v, i) => `<div class="tag">${v} <span onclick="removeRoul('${key}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
                     <div style="display:flex; gap:5px;"><input type="text" id="in-r-${key}" placeholder="Nova opção..."><button class="btn-main" onclick="addRoul('${key}')" style="width:40px; margin:0; background:var(--ts4-green)">+</button></div>
                 </div>
-            `).join('');
+                `
+            }).join('');
         }
 
         function addCustom(t) { const v = document.getElementById('in-'+t).value; if(v) { db.custom[t].push(v); salvarTudo(); renderConfig(); } }
@@ -711,28 +851,15 @@
         function removeRoul(k, i) { db.config[k].splice(i,1); salvarTudo(); renderConfig(); }
         function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Exemplo"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
         
-        // --- HISTORIA E METAS ---
-        function addHistoriaManual() {
-            const input = document.getElementById('nova-historia-manual');
-            if(input.value.trim()) { db.historia += `\n[${new Date().toLocaleDateString()}] ${input.value}`; document.getElementById('txt-history').value = db.historia; input.value = ""; salvarTudo(); }
+        function deletarRoleta(key) {
+            if(confirm(`Tem certeza que deseja excluir a roleta "${key}" inteira?`)) {
+                delete db.config[key];
+                salvarTudo();
+                renderConfig();
+                renderDash();
+            }
         }
 
-        function renderMetas() {
-            const container = document.getElementById('lista-metas');
-            if(db.metas_pendentes.length === 0) { container.innerHTML = "<p>Sem metas pendentes.</p>"; return; }
-            container.innerHTML = db.metas_pendentes.map((m, i) => `
-                <div style="display:flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; border-left: 4px solid #FFC83D; margin-bottom: 5px; border-radius: 5px;">
-                    <span>⏳ ${m}</span>
-                    <button class="btn-main" style="width:auto; margin:0; padding:5px 15px; background:var(--ts4-green); font-size:11px;" onclick="concluirMeta(${i})">Concluir</button>
-                </div>
-            `).join('');
-        }
-
-        function addMeta() { const input = document.getElementById('nova-meta'); if(input.value.trim()) { db.metas_pendentes.push(input.value.trim()); input.value = ""; salvarTudo(); renderMetas(); } }
-        function concluirMeta(i) { const m = db.metas_pendentes[i]; db.metas_pendentes.splice(i, 1); db.historia += `\n[${new Date().toLocaleDateString()}] 🏆 Meta Concluída: ${m}`; document.getElementById('txt-history').value = db.historia; salvarTudo(); renderMetas(); }
-
-        function exportarHistoria() { let dl = document.createElement('a'); dl.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(db.historia || "")); dl.setAttribute("download", "historia.txt"); dl.click(); }
-        function salvarGeral() { db.historia = document.getElementById('txt-history').value; db.regras = document.getElementById('txt-laws').value; salvarTudo(); showToast("Salvo!"); }
         function fazerBackup() { const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db))); dl.setAttribute("download", "backup.json"); dl.click(); }
         function exportarDados() { fazerBackup(); }
         function importarArquivo(event) {
@@ -753,5 +880,5 @@
         renderDash(); renderTree(); renderMetas();
     </script>
 
-    </body>
+</body>
 </html>
