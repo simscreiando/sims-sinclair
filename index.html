@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Companion Narrativo - v29</title>
+    <title>Companion Narrativo - v30</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
         :root {
             --ts4-blue: #0079C1;
@@ -240,7 +242,18 @@
             <div class="panel">
                 <h2>⚙️ Ajustes do Sistema</h2>
                 
-                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 TRAÇOS, CARREIRAS E ASPIRAÇÕES (CUSTOM)</div>
+                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">☁️ SINCRONIZAÇÃO NA NUVEM (GOOGLE DRIVE)</div>
+                <p style="font-size: 12px; color: #666;">Faça login com o Google para salvar e carregar seus dados na nuvem. (Os dados ficam numa pasta oculta do seu próprio Google Drive).</p>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top: 15px;">
+                    <button class="btn-main" style="background:#4285F4; margin:0;" onclick="autenticarGoogle()" id="btn-login-google">G Conectar com o Google</button>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-main btn-sec" style="margin:0; display:none;" onclick="salvarNaNuvem()" id="btn-save-cloud">⬆️ Salvar na Nuvem</button>
+                        <button class="btn-main btn-sec" style="margin:0; display:none;" onclick="carregarDaNuvem()" id="btn-load-cloud">⬇️ Baixar da Nuvem</button>
+                    </div>
+                    <div id="google-status" style="font-size: 12px; font-weight: bold; color: #4285F4;">Status: Desconectado</div>
+                </div>
+
+                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 TRAÇOS, CARREIRAS E ASPIRAÇÕES (CUSTOM)</div>
                 <div id="custom-items-area" style="margin-top: 15px;"></div>
 
                 <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎲 GERENCIAR ROLETAS E EVENTOS</div>
@@ -251,8 +264,8 @@
                 <div id="config-roulettes-area"></div>
                 <button class="btn-main btn-sec" style="margin-top:20px; font-size:12px;" onclick="restaurarRoletasFabrica()">🔄 Restaurar Roletas de Fábrica</button>
 
-                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🔄 BACKUP E SISTEMA DE DADOS</div>
-                <p style="font-size: 12px; color: #666;">Os seus dados estão seguros na versão 29 do banco de dados local.</p>
+                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🔄 BACKUP MANUAL (OFFLINE)</div>
+                <p style="font-size: 12px; color: #666;">Se não quiser usar a nuvem, pode exportar o arquivo e guardar no PC.</p>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-top: 15px;">
                     <input type="file" id="import-file" style="display:none" onchange="importarArquivo(event)">
                     <button class="btn-main btn-sec" style="margin:0;" onclick="fazerBackup()">💾 Download Backup (Salvar no PC)</button>
@@ -261,6 +274,7 @@
                 </div>
             </div>
         </div>
+        
         <div id="tab-feedback" class="tab-pane">
             <div class="panel" style="max-width: 600px; margin: 40px auto;">
                 <h2 style="text-align: center;">💬 Fale com a Criadora</h2>
@@ -353,7 +367,15 @@
     <div id="toast">✓ Sucesso!</div>
 
     <script>
-       // --- DADOS NARRATIVOS ---
+        // --- CONSTANTES DA NUVEM (GOOGLE DRIVE) ---
+        // AVISO PARA A CRIADORA: Cole o seu Client ID gerado no Google Cloud Console aqui embaixo:
+        const CLIENT_ID = "79661785248-q5l1vkh6oja916nlpenbablk34c7vgi2.apps.googleusercontent.com"; 
+        const SCOPES = "https://www.googleapis.com/auth/drive.appdata";
+
+        let tokenClient;
+        let accessToken = null;
+
+        // --- DADOS NARRATIVOS ---
         const SUGESTOES = {
             "Incêndio": "Como fazer: Deixe um Sim sem habilidade cozinhando em um fogão barato sem alarme.",
             "Promoção": "Como fazer: Vá para o trabalho com o humor ideal e use a opção 'Trabalhar Duro'.",
@@ -462,16 +484,17 @@
         
         const DEFAULT_CONFIG_WHEELS = {
             "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
-                    metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
-                    "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
-                    "gênero": ["Masculino", "Feminino"],
-                    "idade": ["Bebê de colo", "Bebê", "Criança", "Adolescente", "Jovem Adulto", "Adulto", "Idoso"],
-                    "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
-                    "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
-                    "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"],
-                    "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"],
-                    "simoleons a começar": ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"],
-                    "estações": ["Primavera", "Verão", "Outono", "Inverno"]        };
+            "metas": ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
+            "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
+            "gênero": ["Masculino", "Feminino"],
+            "idade": ["Bebê de colo", "Bebê", "Criança", "Adolescente", "Jovem Adulto", "Adulto", "Idoso"],
+            "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
+            "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
+            "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"],
+            "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"],
+            "simoleons a começar": ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"],
+            "estações": ["Primavera", "Verão", "Outono", "Inverno"]
+        };
 
         // --- SISTEMA DE MIGRAÇÃO E DADOS ---
         let db = JSON.parse(localStorage.getItem('ts4_companion_data'));
@@ -492,12 +515,123 @@
             salvarTudo();
         }
 
-        // Verifica Integridade da v29
+        // Verifica Integridade da v30
         if (!db.custom_sugestoes) db.custom_sugestoes = {};
-        db.sims.forEach(s => { if(s.crush === undefined) s.crush = ""; }); // Campo novo
+        db.sims.forEach(s => { if(s.crush === undefined) s.crush = ""; });
 
         let lastRotation = {};
         let currentSimId = null;
+
+        // --- GOOGLE CLOUD SYNC FUNCTIONS ---
+        function autenticarGoogle() {
+            if(CLIENT_ID.includes('SEU_CLIENT_ID')) {
+                alert("AVISO PARA A CRIADORA: Você precisa gerar um 'Client ID' no Google Cloud Console e colar no código para o login na nuvem funcionar. Leia as instruções da I.A.!");
+                return;
+            }
+            if (typeof google === 'undefined') {
+                alert("A API do Google ainda está carregando. Tente novamente em alguns segundos ou verifique sua internet.");
+                return;
+            }
+            if(!tokenClient) {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: (tokenResponse) => {
+                        if (tokenResponse && tokenResponse.access_token) {
+                            accessToken = tokenResponse.access_token;
+                            document.getElementById('google-status').innerText = "Status: 🟢 Conectado à Nuvem!";
+                            document.getElementById('btn-login-google').style.display = 'none';
+                            document.getElementById('btn-save-cloud').style.display = 'block';
+                            document.getElementById('btn-load-cloud').style.display = 'block';
+                            showToast("Autenticado com sucesso!");
+                        }
+                    },
+                });
+            }
+            tokenClient.requestAccessToken({prompt: 'consent'});
+        }
+
+        async function getCloudFileId() {
+            try {
+                let res = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="ts4_companion_db.json"', {
+                    headers: { 'Authorization': 'Bearer ' + accessToken }
+                });
+                let data = await res.json();
+                if(data.files && data.files.length > 0) return data.files[0].id;
+                return null;
+            } catch (e) {
+                console.error("Erro ao buscar arquivo na nuvem", e);
+                return null;
+            }
+        }
+
+        async function salvarNaNuvem() {
+            if(!accessToken) return alert("Faça login no Google primeiro!");
+            showToast("Salvando na nuvem... aguarde.");
+            try {
+                let fileId = await getCloudFileId();
+                const metadata = { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
+                const fileContent = JSON.stringify(db);
+                const file = new Blob([fileContent], {type: 'application/json'});
+                
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
+                form.append('file', file);
+
+                let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+                let method = 'POST';
+
+                if(fileId) {
+                    url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`;
+                    method = 'PATCH';
+                }
+
+                let res = await fetch(url, {
+                    method: method,
+                    headers: { 'Authorization': 'Bearer ' + accessToken },
+                    body: form
+                });
+
+                if(res.ok) {
+                    showToast("✅ Salvo na nuvem com sucesso!");
+                } else {
+                    alert("Erro ao salvar na nuvem.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Erro na conexão com o Google Drive.");
+            }
+        }
+
+        async function carregarDaNuvem() {
+            if(!accessToken) return alert("Faça login no Google primeiro!");
+            if(!confirm("Atenção: Baixar da nuvem vai substituir os dados atuais desta tela. Tem certeza?")) return;
+            
+            showToast("Baixando backup da nuvem...");
+            try {
+                let fileId = await getCloudFileId();
+                if(!fileId) return alert("Nenhum backup foi encontrado na sua nuvem.");
+                
+                let res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                    headers: { 'Authorization': 'Bearer ' + accessToken }
+                });
+                
+                if(res.ok) {
+                    let cloudDb = await res.json();
+                    if(cloudDb && cloudDb.sims) {
+                        db = cloudDb;
+                        salvarTudo(); 
+                        showToast("✅ Backup baixado! Atualizando a página...");
+                        setTimeout(() => location.reload(), 1500); 
+                    }
+                } else {
+                    alert("Falha ao baixar o arquivo.");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao ler dados da nuvem.");
+            }
+        }
 
         // --- NAVEGAÇÃO ---
         function switchTab(id) {
@@ -658,9 +792,11 @@
             
             // 1. O Protagonista e o Pecado
             let protagonista = vivos[Math.floor(Math.random() * vivos.length)];
-            let pecados = ["Ganância", "Soberba", "Abandono", "Controle Obsessivo", "Mentira", "Inveja", "Luxúria",
-    "Irresponsabilidade Crônica", "Rancor Guardado", "Vaidade Extrema", "Negligência Afetiva",
-    "Falso Puritanismo", "Obsessão por Status", "Cobrança Desmedida", "Paranoia Coletiva"];
+            let pecados = [
+                "Ganância", "Soberba", "Abandono", "Controle Obsessivo", "Mentira", "Inveja", "Luxúria",
+                "Irresponsabilidade Crônica", "Rancor Guardado", "Vaidade Extrema", "Negligência Afetiva",
+                "Falso Puritanismo", "Obsessão por Status", "Cobrança Desmedida", "Paranoia Coletiva"
+            ];
             let pecadoAtual = rand(pecados);
             
             // 2. Energia da Casa
@@ -706,143 +842,143 @@
             let objSecreto = "";
             let hook = "";
             
-if (tom === "Dramático" || tom === "Aleatório") {
-    let metasDramaticas = [
-        `Secretamente, ${protagonista.nome} tem um único objetivo: expulsar os outros da herança.`,
-        `No fundo, ${protagonista.nome} planeja expor o pior segredo da família no pior momento possível.`,
-        `O desejo oculto de ${protagonista.nome} é sumir do mapa e apagar qualquer rastro de sua existência nesta linhagem.`,
-        `Em segredo, ${protagonista.nome} quer provar que todos na casa são hipócritas, custe o que custar.`
-    ];
-    let ganchosDramaticos = [
-        "Existe uma grande chance desta geração destruir tudo o que foi construído.",
-        "Um racha definitivo está prestes a dividir a casa em duas facções rivais.",
-        "O preço do silêncio nesta casa acabou de ficar caro demais.",
-        "Uma traição friamente calculada vai mudar as regras do jogo nos próximos dias."
-    ];
-    objSecreto = rand(metasDramaticas);
-    hook = rand(ganchosDramaticos);
+            if (tom === "Dramático" || tom === "Aleatório") {
+                let metasDramaticas = [
+                    `Secretamente, ${protagonista.nome} tem um único objetivo: expulsar os outros da herança.`,
+                    `No fundo, ${protagonista.nome} planeja expor o pior segredo da família no pior momento possível.`,
+                    `O desejo oculto de ${protagonista.nome} é sumir do mapa e apagar qualquer rastro de sua existência nesta linhagem.`,
+                    `Em segredo, ${protagonista.nome} quer provar que todos na casa são hipócritas, custe o que custar.`
+                ];
+                let ganchosDramaticos = [
+                    "Existe uma grande chance desta geração destruir tudo o que foi construído.",
+                    "Um racha definitivo está prestes a dividir a casa em duas facções rivais.",
+                    "O preço do silêncio nesta casa acabou de ficar caro demais.",
+                    "Uma traição friamente calculada vai mudar as regras do jogo nos próximos dias."
+                ];
+                objSecreto = rand(metasDramaticas);
+                hook = rand(ganchosDramaticos);
 
-} else if (tom === "Caótico") {
-    let metasCaoticas = [
-        `O caos é inevitável. ${protagonista.nome} está prestes a tomar a pior decisão possível, só pelo puro entretenimento.`,
-        `Secretamente, ${protagonista.nome} quer ver o circo pegar fogo e vai sabotar os planos de todo mundo na casa.`,
-        `A meta de ${protagonista.nome} é gastar cada centavo do fundo familiar em caprichos absurdos e impulsivos.`,
-        `${protagonista.nome} decidiu adotar um estilo de vida completamente imprevisível que vai tirar a paz de todos.`
-    ];
-    let ganchosCaoticos = [
-        "A polícia, os bombeiros, ou a Dona Morte. Um dos três será chamado em breve.",
-        "Prepare-se: um incêndio, um desmaio ou uma demissão em massa está batendo à porta.",
-        "As leis da lógica não se aplicam mais a este lote a partir de agora.",
-        "Um rastro de destruição financeira e emocional está prestes a começar."
-    ];
-    objSecreto = rand(metasCaoticas);
-    hook = rand(ganchosCaoticos);
+            } else if (tom === "Caótico") {
+                let metasCaoticas = [
+                    `O caos é inevitável. ${protagonista.nome} está prestes a tomar a pior decisão possível, só pelo puro entretenimento.`,
+                    `Secretamente, ${protagonista.nome} quer ver o circo pegar fogo e vai sabotar os planos de todo mundo na casa.`,
+                    `A meta de ${protagonista.nome} é gastar cada centavo do fundo familiar em caprichos absurdos e impulsivos.`,
+                    `${protagonista.nome} decidiu adotar um estilo de vida completamente imprevisível que vai tirar a paz de todos.`
+                ];
+                let ganchosCaoticos = [
+                    "A polícia, os bombeiros, ou a Dona Morte. Um dos três será chamado em breve.",
+                    "Prepare-se: um incêndio, um desmaio ou uma demissão em massa está batendo à porta.",
+                    "As leis da lógica não se aplicam mais a este lote a partir de agora.",
+                    "Um rastro de destruição financeira e emocional está prestes a começar."
+                ];
+                objSecreto = rand(metasCaoticas);
+                hook = rand(ganchosCaoticos);
 
-} else if (tom === "Romântico") {
-    let metasRomanticas = [
-        `A verdade é que ${protagonista.nome} quer fugir da família para viver uma paixão proibida.`,
-        `Em segredo, ${protagonista.nome} está tentando reconquistar um amor do passado que a família detesta.`,
-        `O objetivo de ${protagonista.nome} é transformar a rotina da casa em um grande (e arriscado) triângulo amoroso.`,
-        `Silenciosamente, ${protagonista.nome} planeja abrir mão de tudo por alguém que acabou de conhecer.`
-    ];
-    let ganchosRomanticos = [
-        "O ciúme vai engolir este lote. Alguém vai ser pego no flagra.",
-        "Uma declaração de amor desastrosa vai acontecer na frente das pessoas erradas.",
-        "Corações partidos vão gerar comportamentos obsessivos nos corredores.",
-        "Uma noite de paixão secreta deixará rastros impossíveis de esconder."
-    ];
-    objSecreto = rand(metasRomanticas);
-    hook = rand(ganchosRomanticos);
+            } else if (tom === "Romântico") {
+                let metasRomanticas = [
+                    `A verdade é que ${protagonista.nome} quer fugir da família para viver uma paixão proibida.`,
+                    `Em segredo, ${protagonista.nome} está tentando reconquistar um amor do passado que a família detesta.`,
+                    `O objetivo de ${protagonista.nome} é transformar a rotina da casa em um grande (e arriscado) triângulo amoroso.`,
+                    `Silenciosamente, ${protagonista.nome} planeja abrir mão de tudo por alguém que acabou de conhecer.`
+                ];
+                let ganchosRomanticos = [
+                    "O ciúme vai engolir este lote. Alguém vai ser pego no flagra.",
+                    "Uma declaração de amor desastrosa vai acontecer na frente das pessoas erradas.",
+                    "Corações partidos vão gerar comportamentos obsessivos nos corredores.",
+                    "Uma noite de paixão secreta deixará rastros impossíveis de esconder."
+                ];
+                objSecreto = rand(metasRomanticas);
+                hook = rand(ganchosRomanticos);
 
-} else if (tom === "Místico") {
-    let metasMisticas = [
-        `${protagonista.nome} deseja secretamente se transformar e dominar a linhagem com poderes obscuros.`,
-        `O plano oculto de ${protagonista.nome} envolve pactos, rituais no quintal ou o despertar de uma antiga maldição familiar.`,
-        `Secretamente, ${protagonista.nome} acredita ouvir as vozes dos ancestrais mortos ordenando uma punição.`,
-        `O grande objetivo de ${protagonista.nome} é encontrar um artefato ou segredo sobrenatural escondido no lote.`
-    ];
-    let ganchosMisticos = [
-        "O passado não está morto. Há fantasmas neste lote que ainda exigem reparação.",
-        "A energia da casa está prestes a quebrar aparelhos eletrônicos e congelar a atmosfera.",
-        "Eventos bizarros e inexplicáveis vão desafiar a sanidade dos moradores à noite.",
-        "Um preço espiritual ou cármico muito alto será cobrado da próxima geração."
-    ];
-    objSecreto = rand(metasMisticas);
-    hook = rand(ganchosMisticos);
+            } else if (tom === "Místico") {
+                let metasMisticas = [
+                    `${protagonista.nome} deseja secretamente se transformar e dominar a linhagem com poderes obscuros.`,
+                    `O plano oculto de ${protagonista.nome} envolve pactos, rituais no quintal ou o despertar de uma antiga maldição familiar.`,
+                    `Secretamente, ${protagonista.nome} acredita ouvir as vozes dos ancestrais mortos ordenando uma punição.`,
+                    `O grande objetivo de ${protagonista.nome} é encontrar um artefato ou segredo sobrenatural escondido no lote.`
+                ];
+                let ganchosMisticos = [
+                    "O passado não está morto. Há fantasmas neste lote que ainda exigem reparação.",
+                    "A energia da casa está prestes a quebrar aparelhos eletrônicos e congelar a atmosfera.",
+                    "Eventos bizarros e inexplicáveis vão desafiar a sanidade dos moradores à noite.",
+                    "Um preço espiritual ou cármico muito alto será cobrado da próxima geração."
+                ];
+                objSecreto = rand(metasMisticas);
+                hook = rand(ganchosMisticos);
 
-} else if (tom === "Social") {
-    let metasSociais = [
-        `A meta de vida de ${protagonista.nome} não é o amor, mas sim destruir a reputação de seus grandes inimigos.`,
-        `Secretamente, ${protagonista.nome} quer expor a intimidade da própria família na internet/vizinhança por status.`,
-        `O plano de ${protagonista.nome} é escalar socialmente usando e descartando as pessoas do lote.`,
-        `Tudo o que ${protagonista.nome} quer é ser o centro das atenções, mesmo que isso humilhe os parentes.`
-    ];
-    let ganchosSociais = [
-        "As fofocas na vizinhança já não podem ser controladas. A guerra social começou.",
-        "Um escândalo público vai arrastar o nome da família pela lama.",
-        "A fachada de 'família perfeita' vai desmoronar na próxima visita de um vizinho.",
-        "Alianças serão desfeitas em troca de um punhado de status e seguidores."
-    ];
-    objSecreto = rand(metasSociais);
-    hook = rand(ganchosSociais);
+            } else if (tom === "Social") {
+                let metasSociais = [
+                    `A meta de vida de ${protagonista.nome} não é o amor, mas sim destruir a reputação de seus grandes inimigos.`,
+                    `Secretamente, ${protagonista.nome} quer expor a intimidade da própria família na internet/vizinhança por status.`,
+                    `O plano de ${protagonista.nome} é escalar socialmente usando e descartando as pessoas do lote.`,
+                    `Tudo o que ${protagonista.nome} quer é ser o centro das atenções, mesmo que isso humilhe os parentes.`
+                ];
+                let ganchosSociais = [
+                    "As fofocas na vizinhança já não podem ser controladas. A guerra social começou.",
+                    "Um escândalo público vai arrastar o nome da família pela lama.",
+                    "A fachada de 'família perfeita' vai desmoronar na próxima visita de um vizinho.",
+                    "Alianças serão desfeitas em troca de um punhado de status e seguidores."
+                ];
+                objSecreto = rand(metasSociais);
+                hook = rand(ganchosSociais);
 
-} else { // Tradicional
-    let metasTradicionais = [
-        `Tudo o que ${protagonista.nome} mais deseja é quebrar o ciclo tóxico e ter uma vida perfeitamente normal.`,
-        `O maior sonho oculto de ${protagonista.nome} é conseguir unir a família e colocar um fim nas brigas.`,
-        `Silenciosamente, ${protagonista.nome} foca em construir uma base financeira sólida para proteger quem ama.`,
-        `O plano de ${protagonista.nome} é simples: honrar o legado dos antigos sem repetir os erros deles.`
-    ];
-    let ganchosTradicionais = [
-        "Talvez esta seja a primeira geração capaz de curar os traumas desta família.",
-        "Um momento de genuína conexão familiar testará se eles conseguem perdoar o passado.",
-        "Uma oportunidade de ouro para reerguer o sobrenome da família vai surgir.",
-        "O esforço para manter as aparências saudáveis exigirá sacrifícios pesados."
-    ];
-    objSecreto = rand(metasTradicionais);
-    hook = rand(ganchosTradicionais);
-}
+            } else { // Tradicional
+                let metasTradicionais = [
+                    `Tudo o que ${protagonista.nome} mais deseja é quebrar o ciclo tóxico e ter uma vida perfeitamente normal.`,
+                    `O maior sonho oculto de ${protagonista.nome} é conseguir unir a família e colocar um fim nas brigas.`,
+                    `Silenciosamente, ${protagonista.nome} foca em construir uma base financeira sólida para proteger quem ama.`,
+                    `O plano de ${protagonista.nome} é simples: honrar o legado dos antigos sem repetir os erros deles.`
+                ];
+                let ganchosTradicionais = [
+                    "Talvez esta seja a primeira geração capaz de curar os traumas desta família.",
+                    "Um momento de genuína conexão familiar testará se eles conseguem perdoar o passado.",
+                    "Uma oportunidade de ouro para reerguer o sobrenome da família vai surgir.",
+                    "O esforço para manter as aparências saudáveis exigirá sacrifícios pesados."
+                ];
+                objSecreto = rand(metasTradicionais);
+                hook = rand(ganchosTradicionais);
+            }
 
             // 5. Cenas Cinematográficas
-let cenas = [
-    "Durante um jantar aparentemente comum, uma frase jogada ao ar destruirá a paz da casa.",
-    "Na próxima tempestade pesada, alguém desaparecerá do lote durante horas sem explicações.",
-    "O próximo aniversário terminará numa briga física impossível de ser esquecida.",
-    "Uma ligação no meio da noite trará à tona um segredo do passado enterrado há gerações.",
-    "Um objeto quebrado intencionalmente na cozinha será o estopim para uma lavagem de roupa suja.",
-    "Alguém será flagrado chorando trancado no banheiro enquanto um evento importante acontece na sala.",
-    "Uma visita inesperada baterá à porta trazendo uma cobrança (ou um fantasma) que ninguém queria encarar.",
-    "Um flagrante nos fundos do lote revelará um romance ou uma conspiração que mudará tudo.",
-    "No meio da madrugada, um Sim será pego mexendo nos pertences ou no computador de outro morador.",
-    "Um colapso emocional repentino fará com que um dos membros da casa arrume as malas no meio do dia."
-];
+            let cenas = [
+                "Durante um jantar aparentemente comum, uma frase jogada ao ar destruirá a paz da casa.",
+                "Na próxima tempestade pesada, alguém desaparecerá do lote durante horas sem explicações.",
+                "O próximo aniversário terminará numa briga física impossível de ser esquecida.",
+                "Uma ligação no meio da noite trará à tona um segredo do passado enterrado há gerações.",
+                "Um objeto quebrado intencionalmente na cozinha será o estopim para uma lavagem de roupa suja.",
+                "Alguém será flagrado chorando trancado no banheiro enquanto um evento importante acontece na sala.",
+                "Uma visita inesperada baterá à porta trazendo uma cobrança (ou um fantasma) que ninguém queria encarar.",
+                "Um flagrante nos fundos do lote revelará um romance ou uma conspiração que mudará tudo.",
+                "No meio da madrugada, um Sim será pego mexendo nos pertences ou no computador de outro morador.",
+                "Um colapso emocional repentino fará com que um dos membros da casa arrume as malas no meio do dia."
+            ];
             let cenaFinal = rand(cenas);
 
-          // MONTAGEM DO TEXTO BASEADO NO FORMATO
-let cabecalho = ""; let corpo = "";
+            // MONTAGEM DO TEXTO BASEADO NO FORMATO
+            let cabecalho = ""; let corpo = "";
 
-if (formato === "clinico") {
-    cabecalho = "🔬 RELATÓRIO DE OBSERVAÇÃO CLÍNICA";
-    corpo = `SUJEITO CENTRAL: ${protagonista.nome}.\nESTADO AMBIENTAL: ${energiaCasa}\nANÁLISE DE COMPATIBILIDADE: ${secaoDinamicas.replace(/tensão/g, 'picos de cortisol').replace(/amor/g, 'dependência química emocional')}\nPATOLOGIA GERACIONAL: A linhagem sofre cronicamente de ${pecadoAtual}.\nPROGNÓSTICO: ${objSecreto} ${hook}\nTESTE SUGERIDO: Observar a reação do sujeito no evento simulado: "${cenaFinal}"`;
-} else if (formato === "boato") {
-    cabecalho = "🗣️ FOFOCA DE CORREDOR";
-    corpo = `"Gente, vocês viram a casa de ${protagonista.nome}? ${energiaCasa} Mas ó, o bafo é que o problema da família toda sempre foi a bendita ${pecadoAtual} né?\n\nEu ouvi dizer que ${secaoDinamicas}\n\nOlha, pra mim, ${objSecreto} ${hook} Fica de olho que logo rola barraco: ${cenaFinal}"`;
-} else if (formato === "diario") {
-    cabecalho = "📔 DIÁRIO PERDIDO DA CASA";
-    corpo = `"Mais um dia tentando entender esta família. ${energiaCasa} Às vezes sinto que carregamos a maldição da ${pecadoAtual} no nosso sangue.\n\nConviver aqui é exaustivo. ${secaoDinamicas}\n\nSei que, no fundo, ${objSecreto} E eu tenho medo do futuro. ${hook}\n\nTenho um pressentimento terrível de que ${cenaFinal.toLowerCase()}"`;
-} else if (formato === "cartomante") {
-    cabecalho = "🔮 PREVISÃO DAS CARTAS DA SRA. CRR";
-    corpo = `As cartas não mentem. Sobre o teto de ${protagonista.nome}, vejo que ${energiaCasa}\n\nA névoa da ${pecadoAtual} cobre os olhos desta linhagem, gerando discórdia. O destino avisa: ${secaoDinamicas}\n\nHá forças ocultas agindo: ${objSecreto} E o aviso final dos espíritos é claro: ${hook}\n\n⚠️ Revelação Profética: O fio do destino se romperá quando acontecer isto: "${cenaFinal}"`;
-} else if (formato === "juridico") {
-    cabecalho = "⚖️ ANEXO DO TESTAMENTO FAMILIAR";
-    corpo = `Fica registrado para fins legais que o herdeiro principal, ${protagonista.nome}, reside sob as seguintes condições: ${energiaCasa}\n\nNota-se uma clara predisposição da família ao vício comportamental em ${pecadoAtual}, o que corrobora os atritos listados: ${secaoDinamicas}\n\nInvestigações particulares indicam que ${objSecreto} Diante do exposto, há o risco iminente de que ${hook.toLowerCase()}\n\nCláusula de Quebra de Contrato: Este testamento será invalidado caso ocorra o seguinte incidente: "${cenaFinal}"`;
-} else if (formato === "policial") {
-    cabecalho = "🚨 BOLETIM DE OCORRÊNCIA EM ANDAMENTO";
-    corpo = `OCORRÊNCIA REGISTRADA NO LOTE DE: ${protagonista.nome}.\nSITUAÇÃO DO LOCAL: ${energiaCasa}\nDEPOIMENTOS PRELIMINARES DOS VIZINHOS: Indicação de desentendimento familiar crônico motivado por ${pecadoAtual}. Histórico de distúrbio: ${secaoDinamicas}\nMOTIVAÇÃO DO SUSPEITO: Investigadores apontam que ${objSecreto} ${hook}\nALERTA DA CENTRAL: Unidades devem permanecer em prontidão, pois há risco imediato de: "${cenaFinal}"`;
-} else {
-    cabecalho = "📜 SINOPSE NARRATIVA (Série)";
-    corpo = `Tudo parece girar em torno das decisões instáveis de ${protagonista.nome}. A atmosfera da casa denuncia: ${energiaCasa}\n\nA família carrega o forte pecado da ${pecadoAtual}, o que alimenta atritos constantes. ${secaoDinamicas}\n\nO motor da próxima crise é oculto: ${objSecreto} ${hook}\n\n🎬 Gancho de Gameplay Sugerido: ${cenaFinal}`;
-}
+            if (formato === "clinico") {
+                cabecalho = "🔬 RELATÓRIO DE OBSERVAÇÃO CLÍNICA";
+                corpo = `SUJEITO CENTRAL: ${protagonista.nome}.\nESTADO AMBIENTAL: ${energiaCasa}\nANÁLISE DE COMPATIBILIDADE: ${secaoDinamicas.replace(/tensão/g, 'picos de cortisol').replace(/amor/g, 'dependência química emocional')}\nPATOLOGIA GERACIONAL: A linhagem sofre cronicamente de ${pecadoAtual}.\nPROGNÓSTICO: ${objSecreto} ${hook}\nTESTE SUGERIDO: Observar a reação do sujeito no evento simulado: "${cenaFinal}"`;
+            } else if (formato === "boato") {
+                cabecalho = "🗣️ FOFOCA DE CORREDOR";
+                corpo = `"Gente, vocês viram a casa de ${protagonista.nome}? ${energiaCasa} Mas ó, o bafo é que o problema da família toda sempre foi a bendita ${pecadoAtual} né?\n\nEu ouvi dizer que ${secaoDinamicas}\n\nOlha, pra mim, ${objSecreto} ${hook} Fica de olho que logo rola barraco: ${cenaFinal}"`;
+            } else if (formato === "diario") {
+                cabecalho = "📔 DIÁRIO PERDIDO DA CASA";
+                corpo = `"Mais um dia tentando entender esta família. ${energiaCasa} Às vezes sinto que carregamos a maldição da ${pecadoAtual} no nosso sangue.\n\nConviver aqui é exaustivo. ${secaoDinamicas}\n\nSei que, no fundo, ${objSecreto} E eu tenho medo do futuro. ${hook}\n\nTenho um pressentimento terrível de que ${cenaFinal.toLowerCase()}"`;
+            } else if (formato === "cartomante") {
+                cabecalho = "🔮 PREVISÃO DAS CARTAS DA SRA. CRR";
+                corpo = `As cartas não mentem. Sobre o teto de ${protagonista.nome}, vejo que ${energiaCasa}\n\nA névoa da ${pecadoAtual} cobre os olhos desta linhagem, gerando discórdia. O destino avisa: ${secaoDinamicas}\n\nHá forças ocultas agindo: ${objSecreto} E o aviso final dos espíritos é claro: ${hook}\n\n⚠️ Revelação Profética: O fio do destino se romperá quando acontecer isto: "${cenaFinal}"`;
+            } else if (formato === "juridico") {
+                cabecalho = "⚖️ ANEXO DO TESTAMENTO FAMILIAR";
+                corpo = `Fica registrado para fins legais que o herdeiro principal, ${protagonista.nome}, reside sob as seguintes condições: ${energiaCasa}\n\nNota-se uma clara predisposição da família ao vício comportamental em ${pecadoAtual}, o que corrobora os atritos listados: ${secaoDinamicas}\n\nInvestigações particulares indicam que ${objSecreto} Diante do exposto, há o risco iminente de que ${hook.toLowerCase()}\n\nCláusula de Quebra de Contrato: Este testamento será invalidado caso ocorra o seguinte incidente: "${cenaFinal}"`;
+            } else if (formato === "policial") {
+                cabecalho = "🚨 BOLETIM DE OCORRÊNCIA EM ANDAMENTO";
+                corpo = `OCORRÊNCIA REGISTRADA NO LOTE DE: ${protagonista.nome}.\nSITUAÇÃO DO LOCAL: ${energiaCasa}\nDEPOIMENTOS PRELIMINARES DOS VIZINHOS: Indicação de desentendimento familiar crônico motivado por ${pecadoAtual}. Histórico de distúrbio: ${secaoDinamicas}\nMOTIVAÇÃO DO SUSPEITO: Investigadores apontam que ${objSecreto} ${hook}\nALERTA DA CENTRAL: Unidades devem permanecer em prontidão, pois há risco imediato de: "${cenaFinal}"`;
+            } else {
+                cabecalho = "📜 SINOPSE NARRATIVA (Série)";
+                corpo = `Tudo parece girar em torno das decisões instáveis de ${protagonista.nome}. A atmosfera da casa denuncia: ${energiaCasa}\n\nA família carrega o forte pecado da ${pecadoAtual}, o que alimenta atritos constantes. ${secaoDinamicas}\n\nO motor da próxima crise é oculto: ${objSecreto} ${hook}\n\n🎬 Gancho de Gameplay Sugerido: ${cenaFinal}`;
+            }
 
             const formatacaoHTML = `<span class="narrative-tag">${cabecalho} | TOM: ${tom.toUpperCase()}</span><br><br>${corpo.replace(/\n/g, '<br>')}`;
             
@@ -1164,3 +1300,4 @@ if (formato === "clinico") {
 
 </body>
 </html>
+}
