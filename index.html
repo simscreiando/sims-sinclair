@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Companion Narrativo - v28</title>
+    <title>Companion Narrativo - v29</title>
     <style>
         :root {
             --ts4-blue: #0079C1;
@@ -31,7 +31,6 @@
         
         .wheel-wrapper { position: relative; width: 160px; height: 160px; margin: 15px auto; }
         .roulette-display { width: 100%; height: 100%; border-radius: 50%; position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.2, 1); overflow: hidden; border: 4px solid #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); transform: rotate(0deg); }
-        
         .roulette-label { position: absolute; top: 50%; left: 50%; width: 50%; transform-origin: left center; text-align: right; padding-right: 15px; box-sizing: border-box; font-size: 9px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); white-space: nowrap; pointer-events: none; }
         .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid #ff4d4d; z-index: 10; }
         .suggestion-box { font-size: 12px; color: #444; background: #fffdf2; padding: 12px; border-radius: 10px; border-left: 4px solid #ffcc00; margin-top: 10px; min-height: 45px; line-height: 1.4; }
@@ -49,18 +48,21 @@
         .css-tree li:first-child::after { border-radius: 5px 0 0 0; }
         .css-tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid var(--ts4-blue); width: 0; height: 20px; transform: translateX(-50%); }
         
-        .tree-family-group { display: inline-flex; gap: 10px; justify-content: center; align-items: center; background: #f0f4f8; padding: 10px; border-radius: 20px; border: 1px dashed var(--ts4-blue); position: relative; }
+        .tree-family-group { display: inline-flex; gap: 10px; justify-content: center; align-items: center; background: #f0f4f8; padding: 10px; border-radius: 20px; border: 1px dashed var(--ts4-blue); position: relative; transition: 0.3s; }
         .sim-card { background: white; border: 2px solid #ddd; padding: 10px; border-radius: 15px; width: 110px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .sim-card.morto { opacity: 0.6; filter: grayscale(100%); border-style: dashed; }
+        .sim-card.separado { border: 2px dashed #ff4d4d; background: #fff5f5; opacity: 0.8; }
+        .tree-container.hide-dead .sim-card.morto { opacity: 0.15; filter: grayscale(100%) blur(1px); } /* Filtro visual */
+        
         .sim-img-circle { width: 50px; height: 50px; border-radius: 50%; background: #eee; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; overflow: hidden; border: 2px solid var(--ts4-blue); }
         .sim-img-circle img { width: 100%; height: 100%; object-fit: cover; }
 
         /* MODAL PERFIL */
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; z-index:100; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 95%; max-width: 600px; padding: 25px; border-radius: 25px; max-height: 90vh; overflow-y: auto; }
-        .profile-view-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .profile-field { background: #f8f9fa; padding: 10px; border-radius: 10px; border-left: 3px solid var(--ts4-blue); }
-        .profile-field strong { display: block; font-size: 11px; color: var(--ts4-blue); text-transform: uppercase; }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; z-index:100; justify-content: center; align-items: center; overflow-y: auto; padding: 20px 0; }
+        .modal-content { background: white; width: 95%; max-width: 650px; padding: 25px; border-radius: 25px; margin: auto; }
+        .profile-view-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
+        .profile-field { background: #f8f9fa; padding: 10px; border-radius: 10px; border-left: 3px solid var(--ts4-blue); word-break: break-word; }
+        .profile-field strong { display: block; font-size: 11px; color: var(--ts4-blue); text-transform: uppercase; margin-bottom: 2px; }
 
         /* BOTOES E INPUTS */
         .btn-main { background: var(--ts4-blue); color: white; width: 100%; padding: 12px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
@@ -69,6 +71,7 @@
         input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; box-sizing: border-box; }
         .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 5px 0 10px 0; }
         .tag { background: #d4e4f7; border: 1px solid #0079C1; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+        .narrative-tag { display: inline-block; background: #2B2B2B; color: white; padding: 3px 10px; border-radius: 15px; font-size: 11px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; margin-bottom: 10px;}
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--ts4-green); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 200; font-weight:bold; }
@@ -82,7 +85,8 @@
         <button class="nav-btn" onclick="switchTab('tab-lab')">🧪 Laboratório de Sims</button>
         <button class="nav-btn" onclick="switchTab('tab-gen')">🔮 Personalidade</button>
         <button class="nav-btn" onclick="switchTab('tab-tree')">🌳 Árvore Genealógica</button>
-        <button class="nav-btn" onclick="switchTab('tab-history')">📖 Livro da História</button>
+        <button class="nav-btn" onclick="switchTab('tab-ia')">🤖 I.A. e Geradores</button>
+        <button class="nav-btn" onclick="switchTab('tab-history')">📖 Livro e Metas</button>
         <button class="nav-btn" onclick="switchTab('tab-laws')">📜 Livro de Regras</button>
         <button class="nav-btn" onclick="switchTab('tab-config')">⚙️ Configurações</button>
         <button class="nav-btn" onclick="switchTab('tab-feedback')">💬 Enviar Feedback</button>
@@ -97,7 +101,7 @@
 
         <div id="tab-lab" class="tab-pane">
             <h2>🧬 Laboratório: Gerar Base do Sim</h2>
-            <p style="font-size:14px; color:#666; margin-bottom:20px;">Use estas roletas para definir as características biológicas e sociais básicas do Sim antes de criar a personalidade.</p>
+            <p style="font-size:14px; color:#666; margin-bottom:20px;">Use estas roletas para definir as características biológicas, sociais e o ponto de partida material do seu Sim.</p>
             <div class="card-grid" id="lab-cards"></div>
         </div>
 
@@ -135,39 +139,86 @@
         </div>
 
         <div id="tab-tree" class="tab-pane">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
-                <h2>Linhagem da Família</h2>
-                <button class="btn-main" style="width:180px; margin:0" onclick="abrirNovoSim()">+ Novo Sim</button>
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin:0;">Linhagem da Família</h2>
+                <div style="display:flex; gap: 10px;">
+                    <button class="btn-main btn-sec" style="width:auto; margin:0;" onclick="toggleMortosArvore()" id="btn-toggle-mortos">👁️ Ocultar Mortos</button>
+                    <button class="btn-main" style="width:180px; margin:0" onclick="abrirNovoSim()">+ Novo Sim</button>
+                </div>
             </div>
             <div class="tree-container" id="tree-display"></div>
         </div>
 
-        <div id="tab-history" class="tab-pane">
-            
-            <div style="background: #e6f2ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--ts4-blue);">
-                <h3 style="margin-top:0; color: var(--ts4-blue);">🤖 Sinopse Inteligente (I.A. Local)</h3>
-                <p style="font-size:14px;">Este gerador analisa os Sims que você criou na Árvore Genealógica e cria um ponto de partida baseado neles.</p>
-                <button class="btn-main" style="width:250px; background:var(--ts4-blue)" onclick="gerarSinopseDinamica()">Analisar Família e Gerar História</button>
-                
-                <div id="res-sinopse" style="margin-top:20px; display:none; background:white; padding:20px; border-radius:15px; border:1px solid #ddd; line-height:1.6;">
-                    <div id="sinopse-texto"></div>
-                    <button class="btn-main btn-sec" onclick="addSinopseAoLivro()">📥 Registrar no Livro de História</button>
+        <div id="tab-ia" class="tab-pane">
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #ffc107;">
+                <h3 style="margin-top:0; color: #856404;">🎲 Ponto de Partida Criativo (Novo Save)</h3>
+                <p style="font-size:14px;">A I.A. montará uma família, um contexto e os traços iniciais para você criar no jogo.</p>
+                <div style="display:flex; gap:10px; flex-wrap: wrap; margin-bottom:10px;">
+                    <button class="btn-main" style="background:#dc3545; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Dramático')">Dramático</button>
+                    <button class="btn-main" style="background:#fd7e14; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Caótico')">Caótico</button>
+                    <button class="btn-main" style="background:#28a745; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Tradicional')">Tradicional</button>
+                    <button class="btn-main" style="background:#6f42c1; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Místico')">Místico</button>
+                    <button class="btn-main" style="background:#e83e8c; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Romântico')">Romântico</button>
+                    <button class="btn-main" style="background:#17a2b8; width:auto; padding:8px 15px;" onclick="gerarPontoPartida('Social')">Social/Comunitário</button>
                 </div>
+                <div id="res-partida" style="margin-top:15px; display:none; background:white; padding:15px; border-radius:10px; border:1px solid #ffeeba; line-height:1.6; font-size:14px;"></div>
             </div>
 
+            <div style="background: #e6f2ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--ts4-blue);">
+                <h3 style="margin-top:0; color: var(--ts4-blue);">🤖 Simulador de História Emergente (I.A. Local Avançada)</h3>
+                <p style="font-size:14px;">A I.A. lê a sua Árvore Genealógica cruzando <strong>Traços de Pais vs Filhos, Pecados Familiares, Energias da Casa e Objetivos Secretos</strong> para criar episódios imersivos.</p>
+                
+                <div style="display:flex; gap:15px; margin-top: 15px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <div style="flex:1; min-width: 200px;">
+                        <label style="display:block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Formato de Saída:</label>
+                        <select id="sel-tipo-sinopse">
+                            <option value="narrativa">Sinopse Narrativa</option>
+                            <option value="clinico">Relatório Clínico</option>
+                            <option value="boato">Fofoca de Corredor</option>
+                            <option value="diario">Diário Perdido</option>
+                            <option value="cartomante">Previsão da Cartomante</option>
+                            <option value="juridico">Testamento/Jurídico</option>
+                            <option value="policial">Boletim Policial</option>
+                        </select>
+                    </div>
+                    <div style="flex:1; min-width: 200px;">
+                        <label style="display:block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Tom da Temporada (Foco):</label>
+                        <select id="sel-tom-sinopse">
+                            <option value="Aleatório">🎲 Aleatório / Misto</option>
+                            <option value="Dramático">🎭 Dramático (Conflitos e Pecados)</option>
+                            <option value="Caótico">🔥 Caótico (Desastres Inevitáveis)</option>
+                            <option value="Tradicional">🏡 Tradicional (Casa e Gerações)</option>
+                            <option value="Místico">🔮 Místico (Profecias e Passado)</option>
+                            <option value="Romântico">❤️ Romântico (Crushes e Triângulos)</option>
+                            <option value="Social">🗣️ Social (Rivais e Status)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-main" style="width:100%; background:var(--ts4-blue); padding: 15px; font-size: 16px;" onclick="gerarSinopseDinamica()">CRIAR EXPERIÊNCIA NARRATIVA</button>
+                
+                <div id="res-sinopse" style="margin-top:20px; display:none; background:white; padding:20px; border-radius:15px; border:1px solid #ddd; line-height:1.6; font-size: 15px;">
+                    <div id="sinopse-texto"></div>
+                    <button class="btn-main btn-sec" style="margin-top: 15px;" onclick="addSinopseAoLivro()">📥 Enviar para o Livro Escrito</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-history" class="tab-pane">
             <div class="panel">
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px;">
-                    <h2 style="margin:0;">📖 Livro da História</h2>
-                    <button class="btn-main" style="width:auto; margin:0; padding:10px 20px; background:var(--ts4-green);" onclick="exportarHistoria()">📥 Exportar História (TXT)</button>
+                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px; flex-wrap: wrap;">
+                    <h2 style="margin:0;">📖 O Livro Escrito</h2>
+                    <button class="btn-main" style="width:auto; margin:0; padding:10px 20px; background:var(--ts4-green);" onclick="exportarHistoria()">📥 Exportar Diário (TXT)</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="nova-historia-manual" placeholder="Escreva algo novo...">
-                    <button class="btn-main" style="width:120px; margin:0;" onclick="addHistoriaManual()">Adicionar</button>
+                    <input type="text" id="nova-historia-manual" placeholder="Escreva algo que aconteceu no jogo...">
+                    <button class="btn-main" style="width:120px; margin:0;" onclick="addHistoriaManual()">Registrar</button>
                 </div>
-                <textarea id="txt-history" style="height:300px"></textarea>
-                <button class="btn-main" onclick="salvarGeral()">Salvar Livro</button>
+                <textarea id="txt-history" style="height:350px; padding: 15px; line-height: 1.5;"></textarea>
+                <button class="btn-main" onclick="salvarGeral()">Salvar Alterações do Livro</button>
 
                 <hr style="margin: 30px 0; border: 1px solid #eee;">
+                
                 <h2 style="margin-top:0;">🎯 Controle de Metas do Legado</h2>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <input type="text" id="nova-meta" placeholder="Ex: Chegar ao topo da carreira criminal...">
@@ -179,7 +230,7 @@
 
         <div id="tab-laws" class="tab-pane">
             <div class="panel">
-                <h2>📜 Livro de Regras</h2>
+                <h2>📜 Livro de Regras do Lote</h2>
                 <textarea id="txt-laws" style="height:450px"></textarea>
                 <button class="btn-main" onclick="salvarGeral()">Salvar Regras</button>
             </div>
@@ -187,29 +238,29 @@
 
         <div id="tab-config" class="tab-pane">
             <div class="panel">
-                <h2>Ajustes do Sistema</h2>
+                <h2>⚙️ Ajustes do Sistema</h2>
                 
-                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 MEUS ITENS ADICIONADOS</div>
+                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 TRAÇOS, CARREIRAS E ASPIRAÇÕES (CUSTOM)</div>
                 <div id="custom-items-area" style="margin-top: 15px;"></div>
 
-                <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎲 GERENCIAR ROLETAS DE EVENTOS</div>
+                <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🎲 GERENCIAR ROLETAS E EVENTOS</div>
                 <div style="display:flex; gap:10px; margin:15px 0;">
-                    <input type="text" id="new-roulette-name" placeholder="Nome da nova roleta...">
-                    <button class="btn-main" style="width:150px; margin:0" onclick="criarNovaRoleta()">+ Criar</button>
+                    <input type="text" id="new-roulette-name" placeholder="Nome da nova roleta (ex: Desastres)...">
+                    <button class="btn-main" style="width:150px; margin:0" onclick="criarNovaRoleta()">+ Criar Roleta</button>
                 </div>
                 <div id="config-roulettes-area"></div>
+                <button class="btn-main btn-sec" style="margin-top:20px; font-size:12px;" onclick="restaurarRoletasFabrica()">🔄 Restaurar Roletas de Fábrica</button>
 
-                <div class="config-header" style="font-weight: bold; margin-top: 25px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🔄 SISTEMA DE DADOS</div>
+                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🔄 BACKUP E SISTEMA DE DADOS</div>
+                <p style="font-size: 12px; color: #666;">Os seus dados estão seguros na versão 29 do banco de dados local.</p>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-top: 15px;">
                     <input type="file" id="import-file" style="display:none" onchange="importarArquivo(event)">
-                    <button class="btn-main btn-sec" style="margin:0;" onclick="fazerBackup()">💾 Backup dos Dados</button>
-                    <button class="btn-main btn-sec" style="margin:0;" onclick="exportarDados()">📂 Exportar Dados</button>
-                    <button class="btn-main btn-sec" style="margin:0;" onclick="document.getElementById('import-file').click()">📥 Importar Dados</button>
-                    <button class="btn-main" style="margin:0; background:#ff4d4d" onclick="reiniciarConfiguracoes()">⚠️ Reiniciar Configurações</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="fazerBackup()">💾 Download Backup (Salvar no PC)</button>
+                    <button class="btn-main btn-sec" style="margin:0;" onclick="document.getElementById('import-file').click()">📥 Importar Backup Existente</button>
+                    <button class="btn-main" style="margin:0; background:#ff4d4d" onclick="reiniciarConfiguracoes()">⚠️ EXCLUIR TUDO (Reset Completo)</button>
                 </div>
             </div>
         </div>
-
         <div id="tab-feedback" class="tab-pane">
             <div class="panel" style="max-width: 600px; margin: 40px auto;">
                 <h2 style="text-align: center;">💬 Fale com a Criadora</h2>
@@ -227,7 +278,9 @@
             </div>
         </div>
 
-    </div> <div class="modal-overlay" id="modal-sim">
+    </div> 
+    
+    <div class="modal-overlay" id="modal-sim">
         <div class="modal-content">
             <div id="mode-view">
                 <button class="btn-main" style="width:100px; float:left; font-size:10px; margin:0; background:#555;" onclick="marcarFalecidoRapido()">✝️ FALECEU</button>
@@ -238,15 +291,14 @@
                     <h2 id="v-nome" style="margin:10px 0">Nome</h2>
                 </div>
                 <div class="profile-view-grid" id="profile-details-view">
-                    <div class="profile-field"><strong>Status</strong><span id="v-status">Vivo</span></div>
-                    <div class="profile-field"><strong>Ancestral (Morto)</strong><span id="v-morto"></span></div> 
+                    <div class="profile-field"><strong>Status de Vida</strong><span id="v-status">Vivo</span></div>
                     <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
                     <div class="profile-field"><strong>Progenitor(a) 2</strong><span id="v-p2">Nenhum</span></div>
                     <div class="profile-field"><strong>Cônjuge</strong><span id="v-spouse">Nenhum</span></div>
                     <div class="profile-field" style="grid-column: span 2;"><strong>Filhos(as)</strong><span id="v-filhos">Nenhum</span></div>
-                    <div class="profile-field" style="grid-column: span 2;"><strong>Irmãos(ãs)</strong><span id="v-irmaos">Nenhum</span></div>
-                    <div class="profile-field" style="grid-column: span 2;"><strong>Traços</strong><span id="v-tracos">...</span></div>
-                    <div class="profile-field" style="grid-column: span 2;"><strong>Sugestões Extras</strong><span id="v-extra">...</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Relações Especiais (Crush, Inimigo, Amante)</strong><span id="v-crush">Nenhum</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Traços e Aspirações</strong><span id="v-tracos">...</span></div>
+                    <div class="profile-field" style="grid-column: span 2;"><strong>Anotações / História do Sim</strong><span id="v-extra">...</span></div>
                 </div>
                 <button class="btn-main" style="background:var(--ts4-green); margin-top:20px;" onclick="adicionarFilhoPerfil()">+ ADICIONAR FILHO(A)</button>
                 <button class="btn-main btn-sec" style="margin-top:10px;" onclick="fecharModal()">FECHAR</button>
@@ -254,24 +306,43 @@
 
             <div id="mode-edit" style="display:none;">
                 <h3>Perfil do Sim</h3>
-                <label>Nome:</label><input type="text" id="e-nome">
-                <label>Foto/Emoji:</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="e-img" placeholder="Link, Emoji ou Suba ->">
-                    <input type="file" id="e-img-file" accept="image/*" style="width:120px; font-size:11px;" onchange="carregarImagemComputador(event)">
+                <label>Nome Completo:</label><input type="text" id="e-nome">
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex:1;">
+                        <label>Foto (Link ou Arquivo):</label>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="e-img" placeholder="Link, Emoji...">
+                            <input type="file" id="e-img-file" accept="image/*" style="width:90px; font-size:10px; padding: 5px;" onchange="carregarImagemComputador(event)">
+                        </div>
+                    </div>
+                    <div style="flex:1;">
+                        <label>Status:</label>
+                        <select id="e-status"><option value="Vivo">Vivo</option><option value="Ancestral (Morto)">Ancestral (Morto)</option></select>
+                    </div>
                 </div>
-                <label>Status de Vida:</label>
-                <select id="e-status"><option value="Vivo">Vivo</option><option value="Ancestral (Morto)">Ancestral (Morto)</option></select>
-                <label>Progenitor(a) 1:</label><select id="e-p1"></select>
-                <label>Progenitor(a) 2:</label><select id="e-p2"></select>
-                <label>Cônjuge:</label><select id="e-spouse"></select>
-                <label>Status com Cônjuge:</label>
-                <select id="e-rel"><option value="casado">Casados 💍</option><option value="separado">Separados 💔</option></select>
-                <label>Traços:</label><textarea id="e-tracos" style="height:60px"></textarea>
-                <label>Sugestões Extras:</label><textarea id="e-extra" style="height:60px"></textarea>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex:1;"><label>Progenitor(a) 1:</label><select id="e-p1"></select></div>
+                    <div style="flex:1;"><label>Progenitor(a) 2:</label><select id="e-p2"></select></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex:1;"><label>Cônjuge:</label><select id="e-spouse"></select></div>
+                    <div style="flex:1;"><label>Status do Casal:</label><select id="e-rel"><option value="casado">Casados 💍</option><option value="separado">Separados 💔</option></select></div>
+                </div>
+
+                <label style="margin-top:10px; display:block;">Relações Especiais (Inimigo, Melhor Amigo, Amante...):</label>
+                <input type="text" id="e-crush" placeholder="Ex: Inimigo de fulano, Apaixonado por vizinho...">
+                
+                <label style="margin-top:10px; display:block;">Traços de Personalidade:</label>
+                <textarea id="e-tracos" style="height:50px"></textarea>
+                
+                <label>Notas Extras (História, Ocultismo, etc):</label>
+                <textarea id="e-extra" style="height:50px"></textarea>
                 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button class="btn-main" onclick="salvarSim()">SALVAR</button>
+                    <button class="btn-main" onclick="salvarSim()">SALVAR PERFIL</button>
                     <button class="btn-main" style="background:#ff4d4d" onclick="deletarSim()">EXCLUIR</button>
                 </div>
                 <button class="btn-main btn-sec" onclick="toggleEditMode(false)">CANCELAR</button>
@@ -282,7 +353,7 @@
     <div id="toast">✓ Sucesso!</div>
 
     <script>
-        // --- DADOS NARRATIVOS ---
+       // --- DADOS NARRATIVOS ---
         const SUGESTOES = {
             "Incêndio": "Como fazer: Deixe um Sim sem habilidade cozinhando em um fogão barato sem alarme.",
             "Promoção": "Como fazer: Vá para o trabalho com o humor ideal e use a opção 'Trabalhar Duro'.",
@@ -342,25 +413,55 @@
             },
             carreiras: ["Agente Secreto", "Artista", "Astronauta", "Atleta", "Culinária", "Escritor", "Freelancer", "Guru da Tecnologia", "Negócios", "Pintor", "Conservacionista", "Crítico", "Designer Civil", "Direito", "Educação", "Engenharia", "Jardineiro", "Militar", "Político", "Redes Sociais", "Ator/Atriz", "Cientista", "Detetive", "Médico"]
         };
-
-        const SINOPSE_DADOS = {
-            tema: ["uma fuga desesperada de um escândalo terrível na cidade antiga", "uma herança misteriosa deixada por um parente distante", "a busca por fama e fortuna começando absolutamente do zero", "um recomeço forçado após uma grande tragédia pessoal", "uma aposta muito arriscada que custou tudo o que tinham", "a necessidade de proteger um segredo de família perigoso", "a vontade cega de provar que a família rica (que os desprezou) estava errada", "um chamado místico inegável atraindo-os para este lote", "a descoberta de que são descendentes de uma linhagem real esquecida", "uma dívida astronômica com um agiota local que não aceita 'não' como resposta", "a tentativa de limpar o nome da família após uma geração de Sims malvados", "um naufrágio que os deixou apenas com as roupas do corpo nesta nova cidade", "a fuga de uma seita estranha que cultua a Planta Vaca", "uma crise de meia-idade coletiva que os fez largar tudo na dedicação à arte", "o sonho de transformar um lote abandonado e sujo no santuário mais luxuoso do mundo", "uma maldição antiga que diz que nenhum herdeiro pode morrer de velhice", "a busca por um portal mágico que dizem estar escondido sob as fundações da casa", "um reality show de sobrevivência onde o prêmio é a mansão dos sonhos", "a participação em um reality show de subcelebridades falidas chamado 'Quem Quer ser um Simoleonário?'", "uma confusão no hospital que resultou na troca de bebês com uma família de vampiros", "a descoberta de que todos os membros da família são, na verdade, clones de um experimento científico que deu errado", "o despejo imediato da mansão anterior por causa de uma festa que literalmente destruiu o bairro", "uma herança que só pode ser sacada se a família conseguir viver 30 dias sem usar eletricidade", "a fuga de um ex-fã obsessivo que agora persegue a família em todos os lotes", "um contrato assinado com uma emissora de TV que obriga a família a ter um drama novo toda semana", "a tentativa de transformar a casa em um 'Bed and Breakfast' para fantasmas mal-humorados", "um erro no sistema do governo que deu à família o título de 'Sims mais chatos do ano' e agora eles querem provar o contrário", "a suspeita de que um dos membros da família é, na verdade, um alienígena disfarçado tentando entender o conceito de 'almoço em família'", "a participação em um reality show de subcelebridades falidas chamado 'Quem Quer ser um Simoleonário?'", "uma confusão no hospital que resultou na troca de bebês com uma família de vampiros", "a descoberta de que todos os membros da família são clones de um experimento que deu errado", "o despejo imediato por causa de uma festa que literalmente destruiu o bairro", "uma herança que só pode ser sacada se a família viver 30 dias sem usar eletricidade (Desafio Fora da Grade)", "a fuga de um fã obsessivo que agora persegue a família em todos os lotes", "um contrato com uma emissora de TV que obriga a família a ter um drama novo toda semana", "a tentativa de transformar a casa em um 'Bed and Breakfast' para fantasmas mal-humorados", "um erro no sistema do governo que deu à família o título de 'Sims mais chatos do ano'", "a suspeita de que um dos membros é um alienígena disfarçado tentando entender o conceito de 'almoço em família'", "uma maldição de 'Mofo Assassino' herdada de um apartamento mal cuidado em Tomarang", "a decisão impulsiva de morar em um lote 'Desafiador' com 8 Sims e apenas 1 banheiro"],
-            dinamica: ["são super protetores um com o outro e fariam qualquer coisa para se defenderem", "têm um relacionamento distante, mas se toleram pela sobrevivência", "escondem segredos obscuros um do outro, o que gera uma tensão silenciosa", "são inseparáveis, os melhores amigos, e enfrentam o mundo juntos", "vivem em constante atrito e caos, mas no fundo, bem no fundo, se amam", "um sente que deve a vida ao outro, criando uma dívida de gratidão pesada", "competem secretamente em absolutamente tudo que fazem", "agem como se fossem perfeitos em público, mas brigam por qualquer prato sujo em casa", "possuem uma conexão telepática estranha e sempre sabem o que o outro está pensando", "são rivais declarados que foram forçados a morar juntos por um testamento", "um deles é o 'cérebro' do grupo enquanto o outro é puro caos e impulsividade", "não conseguem tomar nenhuma decisão sem jogar uma moeda ou usar o dado", "tratam-se com uma cortesia exagerada e suspeita o tempo todo", "são unidos apenas pelo ódio em comum a um vizinho específico", "dependem emocionalmente um do outro para absolutamente tudo", "vivem em mundos totalmente diferentes, quase não se cruzando apesar de morarem juntos", "comunicam-se apenas através de notas sarcásticas deixadas na porta da geladeira", "estão em uma competição constante para ver quem consegue ser o centro das atenções em qualquer evento social", "tratam-se como se estivessem permanentemente em um confessionário de reality show, falando para as paredes", "um deles acredita piamente que é o protagonista da história e os outros são apenas figurantes", "possuem um pacto de nunca contar a verdade uns aos outros, mesmo para coisas simples como 'o café acabou'", "vivem em um estado de 'guerra fria' por causa de um sanduíche de queijo derretido que sumiu em 1998", "sabotam as carreiras uns dos outros por puro tédio e falta de entretenimento", "são excessivamente dramáticos e transformam qualquer poça de água no chão em um evento catastrófico", "comportam-se como se houvesse uma plateia invisível assistindo e aplaudindo suas falhas", "um tenta ser o 'influenciador' perfeito enquanto o outro faz de tudo para aparecer ao fundo das fotos fazendo caretas", "comunicam-se apenas através de notas sarcásticas na porta da geladeira", "estão em uma competição constante para ver quem consegue ser o centro das atenções", "tratam-se como se estivessem permanentemente em um confessionário de reality show", "um deles acredita piamente que é o protagonista e os outros são apenas figurantes", "possuem um pacto de nunca contar a verdade uns aos outros", "vivem em um estado de 'guerra fria' por causa de um sanduíche de queijo derretido sumido", "sabotam as carreiras uns dos outros por puro tédio", "transformam qualquer poça de água no chão em um evento catastrófico", "comportam-se como se houvesse uma plateia invisível assistindo e aplaudindo", "um tenta ser o 'influenciador' perfeito enquanto o outro faz caretas ao fundo das fotos", "possuem uma 'Compatibilidade Social' terrível e faíscas (de ódio) voam em cada conversa", "estão em um 'Triângulo Amoroso' involuntário causado por um erro de mensagem no Dia do Amor"],
-            objetivo: ["construir um império financeiro imbatível", "restaurar a honra e o prestígio do nome da família", "encontrar o amor verdadeiro e finalmente ter estabilidade emocional", "dominar o mundo sobrenatural da região", "criar a maior linhagem que a cidade já viu", "viver exclusivamente da terra e fugir da sociedade moderna", "virar a estrela número um da cidade a qualquer custo", "ter um descendente de cada criatura oculta existente no mundo", "tornar-se o proprietário de todos os estabelecimentos comerciais da cidade", "escrever a biografia definitiva que revelará os podres de todos os vizinhos", "alcançar o nível máximo de todas as habilidades possíveis antes de envelhecer", "colecionar 10 tipos diferentes de fantasmas vivendo no mesmo lote", "transformar a linhagem na família mais odiada (ou amada) de todo o mundo", "conquistar o coração de todos os membros da família rica local por pura vingança", "criar um jardim botânico com todas as plantas raras e proibidas", "abrir um museu privado com relíquias encontradas em viagens", "garantir que nenhum membro da família jamais precise trabalhar em um emprego convencional", "ter o maior número de divórcios e casamentos no menor tempo possível", "ser expulso de todos os lotes comunitários da cidade pelo menos uma vez", "alcançar o topo da carreira de Vilão apenas para poder rir maldosamente dos vizinhos", "fazer com que todos os membros da família apareçam nas fofocas do jornal local na mesma semana", "organizar uma festa de casamento onde o objetivo principal é que alguém saia no tapa", "gastar todo o dinheiro da família em decorações de gosto duvidoso e estátuas de ouro", "convencer a cidade inteira de que a família possui poderes mágicos (mesmo que não tenham)", "chegar ao nível 10 de uma habilidade inútil apenas para ostentar o certificado no banheiro", "adotar sete gatos e dar a eles nomes de celebridades que a família odeia", "conseguir que a Dona Morte se torne uma convidada frequente para os jantares de domingo", "ter o maior número de divórcios e casamentos no menor tempo possível", "ser expulso de todos os lotes comunitários da cidade", "alcançar o topo da carreira de Vilão apenas para rir dos vizinhos", "fazer com que todos apareçam nas fofocas do jornal na mesma semana", "organizar uma festa de casamento onde o objetivo principal é que alguém saia no tapa", "gastar todo o dinheiro em decorações de gosto duvidoso e estátuas de ouro", "convencer a cidade de que a família possui poderes mágicos (mesmo que não tenham)", "chegar ao nível 10 de uma habilidade inútil apenas para ostentar o certificado no banheiro", "adotar sete gatos e dar a eles nomes de celebridades que a família odeia", "conseguir que a Dona Morte se torne uma convidada frequente para os jantares", "ter um bebê com o Papai Inverno apenas pelo status (e pelos simoleons)", "ganhar o prêmio de 'Pior Vizinho do Bairro' no pacote Aluga-se"]
+        const GERADOR_PARTIDA = {
+            'Dramático': [
+                "Uma viúva/viúvo recente que precisa criar a criança do casal sozinho.", 
+                "Dois irmãos adolescentes tentando sobreviver após perderem os pais num trágico acidente.",
+                "Um filho renegado que retorna à cidade anos depois para reivindicar a antiga casa dos pais.",
+                "Um pai/mãe solteiro lutando contra a falência iminente com um bebê e um idoso sob sua responsabilidade.",
+                "Um jovem que acabou de descobrir um segredo terrível sobre a própria origem e rompeu com os pais protetores."
+            ],
+            'Caótico': [
+                "Uma república com três jovens adultos de personalidades absurdamente opostas dividindo as contas.", 
+                "Um pai solo desempregado com três bebês de colo.",
+                "Um cleptomaníaco e um policial dividindo o mesmo teto por causa de um contrato de aluguel confuso.",
+                "Sete Sims com traços mentais instáveis trancados em uma casa com apenas uma cama e uma geladeira.",
+                "Um herdeiro impulsivo que gasta todo o dinheiro da família em festas diárias, ignorando as contas atrasadas."
+            ],
+            'Tradicional': [
+                "Um casal de recém-casados prontos para construir a casa dos sonhos.", 
+                "Uma família clássica com uma criança e um pet querendo vida tranquila.",
+                "Três gerações sob o mesmo teto (avós, pais e netos) tentando manter os velhos costumes vivos.",
+                "Um jovem casal do interior tentando se estabelecer no subúrbio e focado em subir na carreira.",
+                "Dois amigos de infância decidem comprar um lote juntos para construir famílias vizinhas."
+            ],
+            'Místico': [
+                "Um vampiro antigo que adota, por acidente, um bebê humano barulhento.", 
+                "Uma linhagem de bruxos disfarçados numa vizinhança normal.",
+                "Um lobisomem tentando controlar seus impulsos enquanto cuida de uma estufa de plantas mágicas.",
+                "Um fantasma esquecido no sótão que decide guiar (ou assombrar) o novo morador vivo da casa.",
+                "Um cientista que acidentalmente abriu um portal para outra dimensão no porão e agora convive com alienígenas."
+            ],
+            'Romântico': [
+                "Dois pombinhos fugiram de suas famílias rivais para viverem um amor proibido.", 
+                "Um triângulo amoroso sob o mesmo teto.",
+                "Um Sim romântico incurável que vive de encontros desastrosos tentando achar a alma gêmea na vizinhança.",
+                "Ex-namorados que se odeiam, mas são obrigados por lei a dividir o mesmo lote por um ano.",
+                "Um casamento de aparências/conveniência onde um dos cônjuges está secretamente apaixonado pelo vizinho."
+            ],
+            'Social': [
+                "O líder da vizinhança decidiu fundar um clube exclusivo e fará de tudo para derrubar rivais.", 
+                "Um grupo de velhos amigos de infância com um terrível segredo.",
+                "Um influenciador digital falido fingindo uma vida de luxo enquanto divide o lote com inquilinos comuns.",
+                "Um político ambicioso focado em dar as melhores festas da cidade para manipular a opinião pública.",
+                "Uma família de fofoqueiros profissionais cujo objetivo principal é descobrir os podres de cada morador do mapa."
+            ]
         };
 
-        // --- LISTA DE ROLETAS NATIVAS QUE NÃO PODEM SER APAGADAS ---
-        const DEFAULT_ROULETTES = ["eventos diários", "metas", "relações românticas", "gênero", "idade", "sexualidade", "sim oculto", "modo de morte", "mundos a morar", "simoleons a começar"];
-
-        // --- SISTEMA DE DADOS (DB) ---
-        let db = JSON.parse(localStorage.getItem('ts4_v27_data'));
+        const DEFAULT_ROULETTES = ["eventos diários", "metas", "relações românticas", "gênero", "idade", "sexualidade", "sim oculto", "modo de morte", "mundos a morar", "simoleons a começar", "estações"];
         
-        // Inicializa ou atualiza os dados
-        if (!db) {
-            db = {
-                sims: [], historia: "", regras: "", metas_pendentes: [],
-                config: {
-                    "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
+        const DEFAULT_CONFIG_WHEELS = {
+            "eventos diários": ["Incêndio", "Promoção", "Gravidez Inesperada", "Gêmeos", "Traição", "Visita Inesperada", "Dilema Ético", "Inimigo Declarado", "Crise de Identidade", "Dia de Folga Forçado", "Investimento de Risco", "Multa Ambiental", "Bônus por Mérito", "O Objeto Amaldiçoado", "Segredo de Família", "Tradição Esquecida", "Desejo Repentino", "Lei Seca de Eletrônicos", "Incêndio Culinário", "Fuga Espiritual"],
                     metas: ["Juntar 10k", "Topo da carreira", "Ter um herdeiro", "Comprar mansão", "Alcançar o topo da carreira atual", "Completar uma Aspiração de vida", "Ter um herdeiro com três traços positivos", "Economizar 50.000 simoleons sem cheats", "Construir um porão ou sótão memorial", "Ter um retrato pintado de cada herdeiro", "Dominar completamente uma habilidade", "Fazer amizade com a Dona Morte", "Ter três filhos com o traço de recompensa de notas altas", "Viajar para todos os mundos disponíveis", "Possuir uma coleção completa de itens colecionáveis", "Organizar cinco festas padrão ouro", "Manter um jardim com plantas de qualidade perfeita", "Adotar e treinar um animal de estimação até o nível máximo", "Escrever uma biografia sobre o patriarca ou matriarca", "Realizar um casamento em um lote comunitário luxuoso", "Descobrir todos os segredos de um bairro específico", "Ter um Sim fantasma vivendo na casa da família", "Ganhar uma briga com um inimigo declarado", "Doar 1.000 simoleons para caridade via computador"],
                     "relações românticas": ["Festa Luxuosa", "Elopement", "Divórcio", "Interesse", "Encontro às Cegas", "Crise de Ciúme", "Pedido de Casamento Impulsivo", "Admirador Secreto", "Jantar Romântico Desastroso", "Fuga de Fim de Semana", "Redescobrir a Paixão", "Dilema do Ex-Namorado", "Amor Proibido", "DR de Noite Inteira", "Dia de Renovação de Votos", "Encontro Duplo", "Incompatibilidade de Signos", "Paixão Platônica", "Clima de Paquera no Trabalho", "Presente de Aniversário Esquecido", "Flerte Arriscado", "Decisão de Morar Junto", "Segunda Chance", "Término Dramático"],
                     "gênero": ["Masculino", "Feminino"],
@@ -369,23 +470,31 @@
                     "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
                     "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"],
                     "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"],
-                    "simoleons a começar": ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"]
-                },
-                custom: { tracos: [], carreiras: [], aspiracoes: [] }
-            };
-        } else {
-            // Trava de segurança para saves antigos
-            let atualizou = false;
-            if (!db.config["mundos a morar"]) {
-                db.config["mundos a morar"] = ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "Strangerville", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood"];
-                atualizou = true;
+                    "simoleons a começar": ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"],
+                    "estações": ["Primavera", "Verão", "Outono", "Inverno"]        };
+
+        // --- SISTEMA DE MIGRAÇÃO E DADOS ---
+        let db = JSON.parse(localStorage.getItem('ts4_companion_data'));
+        
+        if (!db) {
+            // Tenta resgatar versão 27 antiga
+            let oldDb = JSON.parse(localStorage.getItem('ts4_v27_data'));
+            if (oldDb) {
+                db = oldDb; // Migra os dados antigos
+            } else {
+                // Instalação do Zero
+                db = {
+                    sims: [], historia: "", regras: "", metas_pendentes: [],
+                    config: JSON.parse(JSON.stringify(DEFAULT_CONFIG_WHEELS)),
+                    custom: { tracos: [], carreiras: [], aspiracoes: [] }
+                };
             }
-            if (!db.config["simoleons a começar"]) {
-                db.config["simoleons a começar"] = ["0 (Desafio do Lixo ao Luxo)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000 (Herança)", "100.000 (Loteria)", "Fundos Ilimitados"];
-                atualizou = true;
-            }
-            if(atualizou) salvarTudo();
+            salvarTudo();
         }
+
+        // Verifica Integridade da v29
+        if (!db.custom_sugestoes) db.custom_sugestoes = {};
+        db.sims.forEach(s => { if(s.crush === undefined) s.crush = ""; }); // Campo novo
 
         let lastRotation = {};
         let currentSimId = null;
@@ -404,8 +513,8 @@
             if(id === 'tab-gen') renderGenList();
         }
 
-        // --- RENDERIZAR ROLETAS (Dashboard e Lab) ---
-        const LAB_KEYS = ["gênero", "idade", "sexualidade", "sim oculto", "mundos a morar"];
+        // --- ROLETAS ---
+        const LAB_KEYS = ["gênero", "idade", "sexualidade", "sim oculto", "mundos a morar", "simoleons a começar", "estações"];
 
         function renderDash() {
             const dashKeys = Object.keys(db.config).filter(key => !LAB_KEYS.includes(key));
@@ -470,7 +579,7 @@
             lastRotation[key] = finalDeg;
 
             setTimeout(() => {
-                const dica = SUGESTOES[sorteado] || "Como fazer: Justifique este acontecimento na narrativa da sua família.";
+                const dica = db.custom_sugestoes[sorteado] || SUGESTOES[sorteado] || "Determine as consequências deste sorteio no gameplay.";
                 sug.innerHTML = `<strong style="font-size:14px; color:var(--ts4-blue)">Sorteado: ${sorteado}</strong><br><br>💡 <em>${dica}</em>`;
                 ctrl.innerHTML = `
                     <button class="btn-main" style="background:var(--ts4-green); margin:0;" onclick="aceitarEvento('${sorteado}', '${key}')">Registrar</button>
@@ -492,7 +601,7 @@
             salvarTudo();
         }
 
-        // --- ORÁCULO / PERSONALIDADE ---
+        // --- ORÁCULO E RÁPIDOS ---
         function renderGenList() { document.getElementById('sel-sim-link').innerHTML = '<option value="">(Não vincular a ninguém)</option>' + db.sims.map(s => `<option value="${s.id}">${s.nome}</option>`).join(''); }
         function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
         function multiRand(arr, n) { return [...arr].sort(()=> 0.5 - Math.random()).slice(0,n).join(', '); }
@@ -505,11 +614,7 @@
             let res = "";
 
             if (fase === 'todas') {
-                res += `👶 Bebê de colo (1 traço):\nTraço: ${rand(getPool('tracos','bebe-colo'))}\n\n`;
-                res += `🍼 Bebê (1 traço):\nTraço: ${rand(getPool('tracos','bebe'))}\n\n`;
-                res += `🧒 Criança (1 traço + Asp. infantil):\nTraço: ${multiRand(getPool('tracos','crianca'), 1)}\nAspiração: ${rand(getPool('aspiracoes','crianca'))}\n\n`;
-                res += `🧑 Adolescente (2 traços + Aspiração):\nTraços: ${multiRand(getPool('tracos','adolescente'), 2)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\n\n`;
-                res += `👨 Jovem Adulto+ (3 traços + asp. + carreira):\nTraços: ${multiRand(getPool('tracos','adulto'), 3)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\nCarreira: ${rand(getPool('carreiras',''))}`;
+                res += `👶 Bebê de colo:\nTraço: ${rand(getPool('tracos','bebe-colo'))}\n\n🍼 Bebê:\nTraço: ${rand(getPool('tracos','bebe'))}\n\n🧒 Criança:\nTraço: ${multiRand(getPool('tracos','crianca'), 1)}\nAspiração: ${rand(getPool('aspiracoes','crianca'))}\n\n🧑 Adolescente:\nTraços: ${multiRand(getPool('tracos','adolescente'), 2)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\n\n👨 Jovem Adulto+:\nTraços: ${multiRand(getPool('tracos','adulto'), 3)}\nAspiração: ${rand(getPool('aspiracoes','comum'))}\nCarreira: ${rand(getPool('carreiras',''))}`;
             } else if (fase === 'bebe-colo') { res = `👶 Bebê de colo:\nTraço: ${rand(getPool('tracos','bebe-colo'))}`;
             } else if (fase === 'bebe') { res = `🍼 Bebê:\nTraço: ${rand(getPool('tracos','bebe'))}`;
             } else if (fase === 'crianca') { res = `🧒 Criança:\nTraço: ${multiRand(getPool('tracos','crianca'), 1)}\nAspiração: ${rand(getPool('aspiracoes','crianca'))}`;
@@ -523,75 +628,254 @@
 
         function sortearRapido(tipo) {
             let result = rand(getPool(tipo, tipo === 'aspiracoes' ? 'comum' : ''));
-            let label = tipo === 'carreiras' ? "Resultado Carreira" : "Resultado Aspiração";
-            document.getElementById('res-rapido').innerHTML = `<span style="color:var(--ts4-blue)">${label}:</span> <strong>${result}</strong>`;
+            document.getElementById('res-rapido').innerHTML = `<span style="color:var(--ts4-blue)">${tipo}:</span> <strong>${result}</strong>`;
         }
-
         function salvarOraculoNoSim() {
-            const id = document.getElementById('sel-sim-link').value;
-            let s = db.sims.find(x => x.id == id);
+            let s = db.sims.find(x => x.id == document.getElementById('sel-sim-link').value);
             s.extra = (s.extra ? s.extra + "\n\n" : "") + window.lastOraculo;
-            salvarTudo(); showToast("Atualizado no perfil do Sim!");
+            salvarTudo(); showToast("Salvo no perfil do Sim!");
         }
 
-        // --- MOTOR DE I.A. LOCAL (SINOPSE DINÂMICA) ---
+        function gerarPontoPartida(tom) {
+            let html = `<strong>Tom:</strong> <span class="narrative-tag" style="background:var(--ts4-blue)">${tom}</span><br><br>
+            <strong>A Estrutura Inicial:</strong><br>${rand(GERADOR_PARTIDA[tom])}<br><br>
+            <strong>Detalhes do Protagonista:</strong><br>Deverá ter o traço <em>"${rand(getPool('tracos', 'adulto'))}"</em>, aspirar a <em>"${rand(getPool('aspiracoes', 'comum'))}"</em> e ingressar em <em>"${rand(getPool('carreiras', ''))}"</em>.<br><br>
+            <strong>Primeira Grande Meta:</strong><br>${rand(db.config['metas'])}`;
+            document.getElementById('res-partida').innerHTML = html;
+            document.getElementById('res-partida').style.display = 'block';
+        }
+
+        // --- MOTOR DE HISTÓRIA EMERGENTE (V29 - O SIMULADOR) ---
         function gerarSinopseDinamica() {
-            if(db.sims.length === 0) return alert("Crie alguns Sims na Árvore primeiro!");
+            if(db.sims.length === 0) return alert("Crie Sims na Árvore Genealógica primeiro!");
             
-            const sims = db.sims;
-            const temBebe = sims.some(s => s.faseVida === 'bebe' || s.faseVida === 'bebe-colo');
-            const adultos = sims.filter(s => s.faseVida === 'adulto');
+            const vivos = db.sims.filter(s => s.status !== 'Ancestral (Morto)');
+            const mortos = db.sims.filter(s => s.status === 'Ancestral (Morto)');
+            if(vivos.length === 0) return alert("Não há Sims vivos para narrar a história atual.");
+
+            const tom = document.getElementById('sel-tom-sinopse').value;
+            const formato = document.getElementById('sel-tipo-sinopse').value;
             
-            let intro = "";
-            let conflito = "";
-            let missao = "";
+            // 1. O Protagonista e o Pecado
+            let protagonista = vivos[Math.floor(Math.random() * vivos.length)];
+            let pecados = ["Ganância", "Soberba", "Abandono", "Controle Obsessivo", "Mentira", "Inveja", "Luxúria",
+    "Irresponsabilidade Crônica", "Rancor Guardado", "Vaidade Extrema", "Negligência Afetiva",
+    "Falso Puritanismo", "Obsessão por Status", "Cobrança Desmedida", "Paranoia Coletiva"];
+            let pecadoAtual = rand(pecados);
+            
+            // 2. Energia da Casa
+            let energiaCasa = "";
+            let temTraçosMaus = vivos.some(s => s.tracos.match(/maldoso|maligno|clepto/i));
+            let temRiqueza = db.historia.match(/mansão|rico|milionário/i) || false;
+            
+            if (temRiqueza && temTraçosMaus) energiaCasa = "Tudo parece perfeito e luxuoso por fora... perfeito demais para ser verdade. O ar na casa é frio.";
+            else if (vivos.length >= 5) energiaCasa = "A casa é um caos ensurdecedor e apertado, cheia de passos, gritos e falta de privacidade.";
+            else if (mortos.length >= 3 && vivos.length <= 2) energiaCasa = "Os corredores enormes fazem a casa parecer mais solitária e assombrada pelas gerações passadas.";
+            else energiaCasa = "Apesar das falhas normais, existe uma energia de tentativa de recomeço e calor familiar nestas paredes.";
 
-            const temaAleatorio = rand(SINOPSE_DADOS.tema);
-            const dinamicaAleatoria = rand(SINOPSE_DADOS.dinamica);
-            const objetivoAleatorio = rand(SINOPSE_DADOS.objetivo);
+            // 3. Conflitos Geracionais (Pais vs Filhos) & Casais
+            let dinamicasText = [];
+            vivos.forEach(sim => {
+                // Checa conflito com pais vivos
+                ['p1', 'p2'].forEach(p => {
+                    let pai = vivos.find(x => String(x.id) === String(sim[p]));
+                    if (pai && pai.tracos && sim.tracos) {
+                        if (pai.tracos.match(/asseado|perfeccionista|ambicioso/i) && sim.tracos.match(/preguiçoso|relaxado/i)) {
+                            dinamicasText.push(`A tensão atinge o limite porque ${pai.nome} simplesmente não suporta ver o desleixo e as falhas constantes de ${sim.nome}.`);
+                        }
+                        if (pai.tracos.match(/maligno|maldoso/i) && sim.tracos.match(/bondoso|alegre/i)) {
+                            dinamicasText.push(`${sim.nome} tenta manter a luz na casa, mas a presença tóxica de ${pai.nome} esmaga qualquer esperança.`);
+                        }
+                    }
+                });
+                
+                // Checa triângulos amorosos (Esposo + Crush)
+                if (sim.spouse && sim.crush) {
+                    let conjuge = db.sims.find(x => x.id == sim.spouse);
+                    dinamicasText.push(`${sim.nome} dorme ao lado de ${conjuge ? conjuge.nome : 'seu amor'}, mas seu coração (e seus segredos) parecem pertencer a [${sim.crush}].`);
+                } else if (sim.crush) {
+                    dinamicasText.push(`O fascínio obsessivo ou as intrigas de ${sim.nome} com [${sim.crush}] ameaçam trazer problemas externos para dentro de casa.`);
+                }
+            });
+            
+            // Elimina dinâmicas repetidas e pega max 2
+            let dinamicasUnicas = [...new Set(dinamicasText)].sort(() => 0.5 - Math.random()).slice(0,2);
+            let secaoDinamicas = dinamicasUnicas.length > 0 ? dinamicasUnicas.join(" ") : "No momento, as relações diretas estão numa estranha calmaria... aguardando a próxima tempestade.";
 
-            // Lógica de Contexto com Randomização Ativa
-            if (adultos.length === 1 && temBebe) {
-                const intros = [
-                    `${adultos[0].nome} nunca planejou ser progenitor solo, mas o destino interviu.`,
-                    `${adultos[0].nome} vive o drama de criar um filho no meio de ${temaAleatorio}.`
-                ];
-                intro = rand(intros);
-                conflito = `O maior mistério que os envolve é ${temaAleatorio}.`;
-                missao = `Agora, o desafio principal para a sobrevivência deles é ${objetivoAleatorio}.`;
-            } else if (adultos.length >= 2) {
-                const s1 = adultos[0].nome;
-                const s2 = adultos[1].nome;
-                intro = `${s1} e ${s2} enfrentam no momento ${temaAleatorio}.`;
-                conflito = `O grande problema é que eles ${dinamicaAleatoria}.`;
-                missao = `Unidos (ou não), a missão atual que assumiram é ${objetivoAleatorio}.`;
-            } else {
-                intro = `A família liderada por ${sims[0].nome} está lutando com ${temaAleatorio}.`;
-                conflito = `A dinâmica de sobrevivência deles é curiosa, pois eles ${dinamicaAleatoria}.`;
-                missao = `Apesar dos obstáculos, eles estão determinados a ${objetivoAleatorio}.`;
-            }
+            // 4. Objetivos Secretos / Profecias baseadas no TOM
+            let objSecreto = "";
+            let hook = "";
+            
+if (tom === "Dramático" || tom === "Aleatório") {
+    let metasDramaticas = [
+        `Secretamente, ${protagonista.nome} tem um único objetivo: expulsar os outros da herança.`,
+        `No fundo, ${protagonista.nome} planeja expor o pior segredo da família no pior momento possível.`,
+        `O desejo oculto de ${protagonista.nome} é sumir do mapa e apagar qualquer rastro de sua existência nesta linhagem.`,
+        `Em segredo, ${protagonista.nome} quer provar que todos na casa são hipócritas, custe o que custar.`
+    ];
+    let ganchosDramaticos = [
+        "Existe uma grande chance desta geração destruir tudo o que foi construído.",
+        "Um racha definitivo está prestes a dividir a casa em duas facções rivais.",
+        "O preço do silêncio nesta casa acabou de ficar caro demais.",
+        "Uma traição friamente calculada vai mudar as regras do jogo nos próximos dias."
+    ];
+    objSecreto = rand(metasDramaticas);
+    hook = rand(ganchosDramaticos);
 
-            const textoFinal = `📜 **SINOPSE DA FAMÍLIA**\n\n${intro}\n\n${conflito}\n\n${missao}`;
-            document.getElementById('sinopse-texto').innerHTML = textoFinal.replace(/\n/g, '<br>');
+} else if (tom === "Caótico") {
+    let metasCaoticas = [
+        `O caos é inevitável. ${protagonista.nome} está prestes a tomar a pior decisão possível, só pelo puro entretenimento.`,
+        `Secretamente, ${protagonista.nome} quer ver o circo pegar fogo e vai sabotar os planos de todo mundo na casa.`,
+        `A meta de ${protagonista.nome} é gastar cada centavo do fundo familiar em caprichos absurdos e impulsivos.`,
+        `${protagonista.nome} decidiu adotar um estilo de vida completamente imprevisível que vai tirar a paz de todos.`
+    ];
+    let ganchosCaoticos = [
+        "A polícia, os bombeiros, ou a Dona Morte. Um dos três será chamado em breve.",
+        "Prepare-se: um incêndio, um desmaio ou uma demissão em massa está batendo à porta.",
+        "As leis da lógica não se aplicam mais a este lote a partir de agora.",
+        "Um rastro de destruição financeira e emocional está prestes a começar."
+    ];
+    objSecreto = rand(metasCaoticas);
+    hook = rand(ganchosCaoticos);
+
+} else if (tom === "Romântico") {
+    let metasRomanticas = [
+        `A verdade é que ${protagonista.nome} quer fugir da família para viver uma paixão proibida.`,
+        `Em segredo, ${protagonista.nome} está tentando reconquistar um amor do passado que a família detesta.`,
+        `O objetivo de ${protagonista.nome} é transformar a rotina da casa em um grande (e arriscado) triângulo amoroso.`,
+        `Silenciosamente, ${protagonista.nome} planeja abrir mão de tudo por alguém que acabou de conhecer.`
+    ];
+    let ganchosRomanticos = [
+        "O ciúme vai engolir este lote. Alguém vai ser pego no flagra.",
+        "Uma declaração de amor desastrosa vai acontecer na frente das pessoas erradas.",
+        "Corações partidos vão gerar comportamentos obsessivos nos corredores.",
+        "Uma noite de paixão secreta deixará rastros impossíveis de esconder."
+    ];
+    objSecreto = rand(metasRomanticas);
+    hook = rand(ganchosRomanticos);
+
+} else if (tom === "Místico") {
+    let metasMisticas = [
+        `${protagonista.nome} deseja secretamente se transformar e dominar a linhagem com poderes obscuros.`,
+        `O plano oculto de ${protagonista.nome} envolve pactos, rituais no quintal ou o despertar de uma antiga maldição familiar.`,
+        `Secretamente, ${protagonista.nome} acredita ouvir as vozes dos ancestrais mortos ordenando uma punição.`,
+        `O grande objetivo de ${protagonista.nome} é encontrar um artefato ou segredo sobrenatural escondido no lote.`
+    ];
+    let ganchosMisticos = [
+        "O passado não está morto. Há fantasmas neste lote que ainda exigem reparação.",
+        "A energia da casa está prestes a quebrar aparelhos eletrônicos e congelar a atmosfera.",
+        "Eventos bizarros e inexplicáveis vão desafiar a sanidade dos moradores à noite.",
+        "Um preço espiritual ou cármico muito alto será cobrado da próxima geração."
+    ];
+    objSecreto = rand(metasMisticas);
+    hook = rand(ganchosMisticos);
+
+} else if (tom === "Social") {
+    let metasSociais = [
+        `A meta de vida de ${protagonista.nome} não é o amor, mas sim destruir a reputação de seus grandes inimigos.`,
+        `Secretamente, ${protagonista.nome} quer expor a intimidade da própria família na internet/vizinhança por status.`,
+        `O plano de ${protagonista.nome} é escalar socialmente usando e descartando as pessoas do lote.`,
+        `Tudo o que ${protagonista.nome} quer é ser o centro das atenções, mesmo que isso humilhe os parentes.`
+    ];
+    let ganchosSociais = [
+        "As fofocas na vizinhança já não podem ser controladas. A guerra social começou.",
+        "Um escândalo público vai arrastar o nome da família pela lama.",
+        "A fachada de 'família perfeita' vai desmoronar na próxima visita de um vizinho.",
+        "Alianças serão desfeitas em troca de um punhado de status e seguidores."
+    ];
+    objSecreto = rand(metasSociais);
+    hook = rand(ganchosSociais);
+
+} else { // Tradicional
+    let metasTradicionais = [
+        `Tudo o que ${protagonista.nome} mais deseja é quebrar o ciclo tóxico e ter uma vida perfeitamente normal.`,
+        `O maior sonho oculto de ${protagonista.nome} é conseguir unir a família e colocar um fim nas brigas.`,
+        `Silenciosamente, ${protagonista.nome} foca em construir uma base financeira sólida para proteger quem ama.`,
+        `O plano de ${protagonista.nome} é simples: honrar o legado dos antigos sem repetir os erros deles.`
+    ];
+    let ganchosTradicionais = [
+        "Talvez esta seja a primeira geração capaz de curar os traumas desta família.",
+        "Um momento de genuína conexão familiar testará se eles conseguem perdoar o passado.",
+        "Uma oportunidade de ouro para reerguer o sobrenome da família vai surgir.",
+        "O esforço para manter as aparências saudáveis exigirá sacrifícios pesados."
+    ];
+    objSecreto = rand(metasTradicionais);
+    hook = rand(ganchosTradicionais);
+}
+
+            // 5. Cenas Cinematográficas
+let cenas = [
+    "Durante um jantar aparentemente comum, uma frase jogada ao ar destruirá a paz da casa.",
+    "Na próxima tempestade pesada, alguém desaparecerá do lote durante horas sem explicações.",
+    "O próximo aniversário terminará numa briga física impossível de ser esquecida.",
+    "Uma ligação no meio da noite trará à tona um segredo do passado enterrado há gerações.",
+    "Um objeto quebrado intencionalmente na cozinha será o estopim para uma lavagem de roupa suja.",
+    "Alguém será flagrado chorando trancado no banheiro enquanto um evento importante acontece na sala.",
+    "Uma visita inesperada baterá à porta trazendo uma cobrança (ou um fantasma) que ninguém queria encarar.",
+    "Um flagrante nos fundos do lote revelará um romance ou uma conspiração que mudará tudo.",
+    "No meio da madrugada, um Sim será pego mexendo nos pertences ou no computador de outro morador.",
+    "Um colapso emocional repentino fará com que um dos membros da casa arrume as malas no meio do dia."
+];
+            let cenaFinal = rand(cenas);
+
+          // MONTAGEM DO TEXTO BASEADO NO FORMATO
+let cabecalho = ""; let corpo = "";
+
+if (formato === "clinico") {
+    cabecalho = "🔬 RELATÓRIO DE OBSERVAÇÃO CLÍNICA";
+    corpo = `SUJEITO CENTRAL: ${protagonista.nome}.\nESTADO AMBIENTAL: ${energiaCasa}\nANÁLISE DE COMPATIBILIDADE: ${secaoDinamicas.replace(/tensão/g, 'picos de cortisol').replace(/amor/g, 'dependência química emocional')}\nPATOLOGIA GERACIONAL: A linhagem sofre cronicamente de ${pecadoAtual}.\nPROGNÓSTICO: ${objSecreto} ${hook}\nTESTE SUGERIDO: Observar a reação do sujeito no evento simulado: "${cenaFinal}"`;
+} else if (formato === "boato") {
+    cabecalho = "🗣️ FOFOCA DE CORREDOR";
+    corpo = `"Gente, vocês viram a casa de ${protagonista.nome}? ${energiaCasa} Mas ó, o bafo é que o problema da família toda sempre foi a bendita ${pecadoAtual} né?\n\nEu ouvi dizer que ${secaoDinamicas}\n\nOlha, pra mim, ${objSecreto} ${hook} Fica de olho que logo rola barraco: ${cenaFinal}"`;
+} else if (formato === "diario") {
+    cabecalho = "📔 DIÁRIO PERDIDO DA CASA";
+    corpo = `"Mais um dia tentando entender esta família. ${energiaCasa} Às vezes sinto que carregamos a maldição da ${pecadoAtual} no nosso sangue.\n\nConviver aqui é exaustivo. ${secaoDinamicas}\n\nSei que, no fundo, ${objSecreto} E eu tenho medo do futuro. ${hook}\n\nTenho um pressentimento terrível de que ${cenaFinal.toLowerCase()}"`;
+} else if (formato === "cartomante") {
+    cabecalho = "🔮 PREVISÃO DAS CARTAS DA SRA. CRR";
+    corpo = `As cartas não mentem. Sobre o teto de ${protagonista.nome}, vejo que ${energiaCasa}\n\nA névoa da ${pecadoAtual} cobre os olhos desta linhagem, gerando discórdia. O destino avisa: ${secaoDinamicas}\n\nHá forças ocultas agindo: ${objSecreto} E o aviso final dos espíritos é claro: ${hook}\n\n⚠️ Revelação Profética: O fio do destino se romperá quando acontecer isto: "${cenaFinal}"`;
+} else if (formato === "juridico") {
+    cabecalho = "⚖️ ANEXO DO TESTAMENTO FAMILIAR";
+    corpo = `Fica registrado para fins legais que o herdeiro principal, ${protagonista.nome}, reside sob as seguintes condições: ${energiaCasa}\n\nNota-se uma clara predisposição da família ao vício comportamental em ${pecadoAtual}, o que corrobora os atritos listados: ${secaoDinamicas}\n\nInvestigações particulares indicam que ${objSecreto} Diante do exposto, há o risco iminente de que ${hook.toLowerCase()}\n\nCláusula de Quebra de Contrato: Este testamento será invalidado caso ocorra o seguinte incidente: "${cenaFinal}"`;
+} else if (formato === "policial") {
+    cabecalho = "🚨 BOLETIM DE OCORRÊNCIA EM ANDAMENTO";
+    corpo = `OCORRÊNCIA REGISTRADA NO LOTE DE: ${protagonista.nome}.\nSITUAÇÃO DO LOCAL: ${energiaCasa}\nDEPOIMENTOS PRELIMINARES DOS VIZINHOS: Indicação de desentendimento familiar crônico motivado por ${pecadoAtual}. Histórico de distúrbio: ${secaoDinamicas}\nMOTIVAÇÃO DO SUSPEITO: Investigadores apontam que ${objSecreto} ${hook}\nALERTA DA CENTRAL: Unidades devem permanecer em prontidão, pois há risco imediato de: "${cenaFinal}"`;
+} else {
+    cabecalho = "📜 SINOPSE NARRATIVA (Série)";
+    corpo = `Tudo parece girar em torno das decisões instáveis de ${protagonista.nome}. A atmosfera da casa denuncia: ${energiaCasa}\n\nA família carrega o forte pecado da ${pecadoAtual}, o que alimenta atritos constantes. ${secaoDinamicas}\n\nO motor da próxima crise é oculto: ${objSecreto} ${hook}\n\n🎬 Gancho de Gameplay Sugerido: ${cenaFinal}`;
+}
+
+            const formatacaoHTML = `<span class="narrative-tag">${cabecalho} | TOM: ${tom.toUpperCase()}</span><br><br>${corpo.replace(/\n/g, '<br>')}`;
+            
+            document.getElementById('sinopse-texto').innerHTML = formatacaoHTML;
             document.getElementById('res-sinopse').style.display = 'block';
-            window.tempSinopse = textoFinal;
+            window.tempSinopse = `[${cabecalho}]\n${corpo}`;
         }
 
         function addSinopseAoLivro() {
-            db.historia = window.tempSinopse + "\n\n---\n\n" + db.historia;
-            salvarTudo();
-            showToast("Sinopse adicionada ao livro!");
+            db.historia += `\n\n[GERADO POR I.A.]\n${window.tempSinopse}\n\n---\n`;
+            document.getElementById('txt-history').value = db.historia;
+            salvarTudo(); showToast("Enviado para o Livro!");
         }
         
-        // --- ÁRVORE GENEALÓGICA REAL (GRAFO) ---
+        // --- ÁRVORE GENEALÓGICA ---
+        let hideDead = false;
+        
+        function toggleMortosArvore() {
+            hideDead = !hideDead;
+            const container = document.getElementById('tree-display');
+            const btn = document.getElementById('btn-toggle-mortos');
+            if(hideDead) {
+                container.classList.add('hide-dead');
+                btn.innerHTML = "👁️‍🗨️ Mostrar Mortos";
+            } else {
+                container.classList.remove('hide-dead');
+                btn.innerHTML = "👁️ Ocultar Mortos";
+            }
+        }
+
         function renderTree() {
             const container = document.getElementById('tree-display');
-            
-            const isRoot = (s) => {
-                const hasP1 = db.sims.find(x => String(x.id) === String(s.p1));
-                const hasP2 = db.sims.find(x => String(x.id) === String(s.p2));
-                return !hasP1 && !hasP2;
-            };
+            const isRoot = (s) => !db.sims.find(x => String(x.id) === String(s.p1)) && !db.sims.find(x => String(x.id) === String(s.p2));
             
             let roots = db.sims.filter(isRoot);
             if(roots.length === 0 && db.sims.length > 0) roots = [db.sims[0]]; 
@@ -610,15 +894,14 @@
                     let conj = db.sims.find(x => String(x.id) === String(sim.spouse));
                     visited.add(conj.id);
                     let iconeRel = sim.relStatus === 'separado' ? '💔' : '💍';
-                    spouseHtml = `<div style="display:flex; align-items:center; font-size:20px; padding:0 10px;">${iconeRel}</div>` + buildCard(conj);
+                    let sepClass = sim.relStatus === 'separado' ? 'separado' : '';
+                    spouseHtml = `<div style="display:flex; align-items:center; font-size:20px; padding:0 10px;">${iconeRel}</div>` + buildCard(conj, sepClass);
                 }
                 
-                let tagExclusivo = parentOnlyName ? `<div style="font-size:10px; color:#ff4d4d; font-weight:bold; margin-bottom:5px;">Filho(a) apenas de ${parentOnlyName}</div>` : '';
-                
-                html += `${tagExclusivo}<div class="tree-family-group">${buildCard(sim)}${spouseHtml}</div>`;
+                let tagExclusivo = parentOnlyName ? `<div style="font-size:10px; color:#ff4d4d; font-weight:bold; margin-bottom:5px;">Filho apenas de ${parentOnlyName}</div>` : '';
+                html += `${tagExclusivo}<div class="tree-family-group">${buildCard(sim, "")}${spouseHtml}</div>`;
                 
                 let filhos = db.sims.filter(x => String(x.p1) === String(sim.id) || String(x.p2) === String(sim.id));
-                
                 if(filhos.length > 0) {
                     html += `<ul>`;
                     filhos.forEach(f => { 
@@ -634,21 +917,34 @@
             let treeHTML = `<div class="css-tree"><ul>`;
             roots.forEach(r => { if(!visited.has(r.id)) { treeHTML += buildNode(r); } });
             treeHTML += `</ul></div>`;
-            
             container.innerHTML = treeHTML;
         }
 
-        function buildCard(s) {
-            return `
-            <div class="sim-card ${s.status === 'Ancestral (Morto)' ? 'morto' : ''}" onclick="abrirPerfil(${s.id})">
+        function buildCard(s, extraClass) {
+            let mortoClass = s.status === 'Ancestral (Morto)' ? 'morto' : '';
+            return `<div class="sim-card ${mortoClass} ${extraClass}" onclick="abrirPerfil(${s.id})">
                 <div class="sim-img-circle">${s.img?.includes('data:') || s.img?.includes('http') ? `<img src="${s.img}">` : s.img || '👤'}</div>
                 <strong>${s.nome}</strong>
             </div>`;
         }
 
-        function abrirNovoSim() {
+        function abrirNovoSim(paiPadrao = null) {
             currentSimId = null;
             toggleEditMode(true);
+            
+            if(paiPadrao) {
+                document.getElementById('e-p1').value = String(paiPadrao);
+                let paiObj = db.sims.find(x => x.id == paiPadrao);
+                if (paiObj) {
+                    // Tenta adivinhar o sobrenome (última palavra do nome do pai)
+                    let partesNome = paiObj.nome.trim().split(" ");
+                    if(partesNome.length > 1) {
+                        document.getElementById('e-nome').value = "Bebê " + partesNome[partesNome.length - 1];
+                    }
+                }
+            } else {
+                document.getElementById('e-nome').value = "";
+            }
             document.getElementById('modal-sim').style.display = 'flex';
         }
 
@@ -669,12 +965,7 @@
             let filhos = db.sims.filter(x => String(x.p1) === String(s.id) || String(x.p2) === String(s.id));
             document.getElementById('v-filhos').innerText = filhos.length > 0 ? filhos.map(x=>x.nome).join(', ') : "Nenhum";
 
-            let irmaos = db.sims.filter(x => String(x.id) !== String(s.id) && (
-                (s.p1 && (String(x.p1) === String(s.p1) || String(x.p2) === String(s.p1))) || 
-                (s.p2 && (String(x.p1) === String(s.p2) || String(x.p2) === String(s.p2)))
-            ));
-            document.getElementById('v-irmaos').innerText = irmaos.length > 0 ? irmaos.map(x=>x.nome).join(', ') : "Nenhum";
-
+            document.getElementById('v-crush').innerText = s.crush || 'Nenhum';
             document.getElementById('v-tracos').innerText = s.tracos || '...';
             document.getElementById('v-extra').innerText = s.extra || '...';
             
@@ -683,20 +974,10 @@
 
         function marcarFalecidoRapido() {
             let s = db.sims.find(x => x.id == currentSimId);
-            if(s) {
-                s.status = 'Ancestral (Morto)';
-                salvarTudo();
-                abrirPerfil(currentSimId);
-                renderTree();
-                showToast("Marcado como falecido!");
-            }
+            if(s) { s.status = 'Ancestral (Morto)'; salvarTudo(); abrirPerfil(currentSimId); renderTree(); showToast("Marcado como falecido!"); }
         }
 
-        function adicionarFilhoPerfil() {
-            const paiId = currentSimId;
-            abrirNovoSim();
-            document.getElementById('e-p1').value = paiId;
-        }
+        function adicionarFilhoPerfil() { abrirNovoSim(currentSimId); }
 
         function toggleEditMode(isEdit) {
             document.getElementById('mode-view').style.display = isEdit ? 'none' : 'block';
@@ -705,13 +986,16 @@
         }
 
         function preencherFormEdicao() {
-            const s = db.sims.find(x => x.id == currentSimId) || { nome: "", status: "Vivo", p1: "", p2: "", spouse: "", relStatus: "casado", tracos: "", extra: "", img: "" };
-            ['e-nome','e-status','e-tracos','e-extra','e-img'].forEach(id => document.getElementById(id).value = s[id.replace('e-','')] || "");
+            const s = db.sims.find(x => x.id == currentSimId) || { nome: "", status: "Vivo", p1: "", p2: "", spouse: "", relStatus: "casado", crush: "", tracos: "", extra: "", img: "" };
+            ['e-nome','e-status','e-crush','e-tracos','e-extra','e-img'].forEach(id => {
+                if(document.getElementById(id) && !document.getElementById(id).value) document.getElementById(id).value = s[id.replace('e-','')] || "";
+            });
             
             const opt = '<option value="">Nenhum</option>' + db.sims.filter(x => x.id != currentSimId).map(x => `<option value="${x.id}">${x.nome}</option>`).join('');
             ['e-p1','e-p2','e-spouse'].forEach(id => {
                 const el = document.getElementById(id);
-                el.innerHTML = opt; el.value = s[id.replace('e-','')] || "";
+                el.innerHTML = opt; 
+                if(!el.value) el.value = s[id.replace('e-','')] || "";
             });
             document.getElementById('e-rel').value = s.relStatus || "casado";
         }
@@ -735,6 +1019,7 @@
                 p2: document.getElementById('e-p2').value,
                 spouse: document.getElementById('e-spouse').value,
                 relStatus: document.getElementById('e-rel').value,
+                crush: document.getElementById('e-crush').value,
                 tracos: document.getElementById('e-tracos').value,
                 extra: document.getElementById('e-extra').value
             };
@@ -755,17 +1040,28 @@
         }
 
         function deletarSim() {
-            if(confirm("Tem certeza que deseja excluir este Sim?")) {
-                let s = db.sims.find(x => x.id == currentSimId);
-                if(s && s.spouse) { let conj = db.sims.find(x => x.id == s.spouse); if(conj) conj.spouse = ""; }
-                db.sims = db.sims.filter(x => x.id != currentSimId);
-                salvarTudo(); fecharModal(); renderTree();
+            let filhos = db.sims.filter(x => String(x.p1) === String(currentSimId) || String(x.p2) === String(currentSimId));
+            if (filhos.length > 0) {
+                if(!confirm(`⚠️ ATENÇÃO: Este Sim possui ${filhos.length} filho(s) cadastrado(s). Excluir pode desvincular as crianças. Deseja prosseguir?`)) return;
+            } else {
+                if(!confirm("Tem certeza que deseja excluir este Sim da família?")) return;
             }
+
+            let s = db.sims.find(x => x.id == currentSimId);
+            if(s && s.spouse) { let conj = db.sims.find(x => x.id == s.spouse); if(conj) conj.spouse = ""; }
+            
+            db.sims = db.sims.filter(x => x.id != currentSimId);
+            db.sims.forEach(filho => {
+                if (String(filho.p1) === String(currentSimId)) filho.p1 = "";
+                if (String(filho.p2) === String(currentSimId)) filho.p2 = "";
+            });
+
+            salvarTudo(); fecharModal(); renderTree();
         }
 
-        function fecharModal() { document.getElementById('modal-sim').style.display = 'none'; document.getElementById('e-img-file').value = ""; }
+        function fecharModal() { document.getElementById('modal-sim').style.display = 'none'; document.getElementById('e-img-file').value = ""; document.getElementById('e-nome').value = ""; }
 
-        // --- METAS E HISTORIA ---
+        // --- LIVRO E METAS ---
         function renderMetas() {
             document.getElementById('lista-metas').innerHTML = db.metas_pendentes.map((m, i) => `
                 <div style="background:#f9f9f9; padding:10px; border-radius:8px; border-left:4px solid var(--ts4-blue); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
@@ -775,57 +1071,38 @@
             `).join('');
         }
 
-        function addMeta() {
-            const v = document.getElementById('nova-meta').value;
-            if(v) { db.metas_pendentes.push(v); document.getElementById('nova-meta').value = ""; salvarTudo(); renderMetas(); }
-        }
-
+        function addMeta() { const v = document.getElementById('nova-meta').value; if(v) { db.metas_pendentes.push(v); document.getElementById('nova-meta').value = ""; salvarTudo(); renderMetas(); } }
         function concluirMeta(i) {
-            const m = db.metas_pendentes[i];
-            db.metas_pendentes.splice(i, 1);
-            db.historia += `\n[${new Date().toLocaleDateString()}] 🏆 META CONCLUÍDA: ${m}`;
+            const m = db.metas_pendentes[i]; db.metas_pendentes.splice(i, 1);
+            db.historia += `\n\n[${new Date().toLocaleDateString()}] 🏆 META CONCLUÍDA: ${m}`;
             document.getElementById('txt-history').value = db.historia;
-            salvarTudo(); renderMetas(); showToast("Meta concluída e registrada!");
+            salvarTudo(); renderMetas(); showToast("Meta registrada no livro!");
         }
 
         function addHistoriaManual() {
             const v = document.getElementById('nova-historia-manual').value;
             if(v) {
                 db.historia += `\n[${new Date().toLocaleDateString()}] ${v}`;
-                document.getElementById('txt-history').value = db.historia;
-                document.getElementById('nova-historia-manual').value = "";
-                salvarTudo();
+                document.getElementById('txt-history').value = db.historia; document.getElementById('nova-historia-manual').value = ""; salvarTudo();
             }
         }
 
-        function salvarGeral() {
-            db.historia = document.getElementById('txt-history').value;
-            db.regras = document.getElementById('txt-laws').value;
-            salvarTudo(); showToast("Livros salvos com sucesso!");
-        }
-
+        function salvarGeral() { db.historia = document.getElementById('txt-history').value; db.regras = document.getElementById('txt-laws').value; salvarTudo(); showToast("Livros salvos com sucesso!"); }
         function exportarHistoria() {
-            const textToSave = document.getElementById('txt-history').value;
-            const blob = new Blob([textToSave], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "Historia_Familia_Sims4.txt";
-            a.click();
+            const blob = new Blob([document.getElementById('txt-history').value], { type: "text/plain" });
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "Historia_Familia_Sims4.txt"; a.click();
         }
-
 
         // --- CONFIGURAÇÕES ---
         function renderConfig() {
             const area = document.getElementById('custom-items-area');
-            area.innerHTML = `
-                ${['tracos', 'carreiras', 'aspiracoes'].map(tipo => `
-                    <div style="margin-bottom:15px;">
-                        <strong style="text-transform:capitalize">${tipo}</strong>
-                        <div class="tag-list">${db.custom[tipo].map((v, i) => `<div class="tag">${v} <span onclick="removeCustom('${tipo}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
-                        <div style="display:flex; gap:5px;"><input type="text" id="in-${tipo}" placeholder="Adicionar novo item..."><button class="btn-main" onclick="addCustom('${tipo}')" style="width:40px; margin:0">+</button></div>
-                    </div>
-                `).join('')}
-            `;
+            area.innerHTML = `${['tracos', 'carreiras', 'aspiracoes'].map(tipo => `
+                <div style="margin-bottom:15px;">
+                    <strong style="text-transform:capitalize">${tipo}</strong>
+                    <div class="tag-list">${db.custom[tipo].map((v, i) => `<div class="tag">${v} <span onclick="removeCustom('${tipo}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
+                    <div style="display:flex; gap:5px;"><input type="text" id="in-${tipo}" placeholder="Adicionar novo..."><button class="btn-main" onclick="addCustom('${tipo}')" style="width:40px; margin:0">+</button></div>
+                </div>
+            `).join('')}`;
 
             const rArea = document.getElementById('config-roulettes-area');
             rArea.innerHTML = Object.keys(db.config).map(key => {
@@ -833,46 +1110,51 @@
                 const btnDeletar = isCustom ? `<button class="btn-main" style="width:auto; margin:0; background:#ff4d4d; padding: 5px 10px; font-size: 11px;" onclick="deletarRoleta('${key}')">Excluir Roleta</button>` : '';
 
                 return `
-                <div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
-                        <strong style="text-transform:capitalize">Roleta: ${key}</strong>
-                        ${btnDeletar}
-                    </div>
+                <div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;"><strong style="text-transform:capitalize">Roleta: ${key}</strong>${btnDeletar}</div>
                     <div class="tag-list">${db.config[key].map((v, i) => `<div class="tag">${v} <span onclick="removeRoul('${key}',${i})" style="color:red; cursor:pointer">×</span></div>`).join('')}</div>
-                    <div style="display:flex; gap:5px;"><input type="text" id="in-r-${key}" placeholder="Nova opção..."><button class="btn-main" onclick="addRoul('${key}')" style="width:40px; margin:0; background:var(--ts4-green)">+</button></div>
-                </div>
-                `
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="in-r-${key}" placeholder="Nova opção..." style="flex:1;">
+                        <input type="text" id="in-rsug-${key}" placeholder="Dica / Consequência (Opcional)" style="flex:2;">
+                        <button class="btn-main" onclick="addRoul('${key}')" style="width:40px; margin:0; background:var(--ts4-green)">+</button>
+                    </div>
+                </div>`
             }).join('');
         }
 
         function addCustom(t) { const v = document.getElementById('in-'+t).value; if(v) { db.custom[t].push(v); salvarTudo(); renderConfig(); } }
         function removeCustom(t, i) { db.custom[t].splice(i,1); salvarTudo(); renderConfig(); }
-        function addRoul(k) { const v = document.getElementById('in-r-'+k).value; if(v) { db.config[k].push(v); salvarTudo(); renderConfig(); } }
+        function addRoul(k) { 
+            const v = document.getElementById('in-r-'+k).value; 
+            const sug = document.getElementById('in-rsug-'+k).value; 
+            if(v) { 
+                db.config[k].push(v); 
+                if (sug) db.custom_sugestoes[v] = sug;
+                salvarTudo(); renderConfig(); 
+            } 
+        }
         function removeRoul(k, i) { db.config[k].splice(i,1); salvarTudo(); renderConfig(); }
-        function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Exemplo"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
-        
-        function deletarRoleta(key) {
-            if(confirm(`Tem certeza que deseja excluir a roleta "${key}" inteira?`)) {
-                delete db.config[key];
-                salvarTudo();
-                renderConfig();
-                renderDash();
+        function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Opção 1"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
+        function deletarRoleta(key) { if(confirm(`Excluir a roleta "${key}"?`)) { delete db.config[key]; salvarTudo(); renderConfig(); renderDash(); } }
+        function restaurarRoletasFabrica() {
+            if(confirm("Deseja substituir todas as roletas pelas originais de fábrica? Isso vai apagar os eventos que você adicionou!")) {
+                db.config = JSON.parse(JSON.stringify(DEFAULT_CONFIG_WHEELS)); salvarTudo(); renderConfig(); renderDash(); showToast("Roletas restauradas!");
             }
         }
 
-        function fazerBackup() { const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db))); dl.setAttribute("download", "backup.json"); dl.click(); }
+        function fazerBackup() { const dl = document.createElement('a'); dl.setAttribute("href", "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db))); dl.setAttribute("download", "legacy_companion_backup.json"); dl.click(); }
         function exportarDados() { fazerBackup(); }
         function importarArquivo(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) { try { db = JSON.parse(e.target.result); salvarTudo(); location.reload(); } catch(err) { alert("Erro!"); } }; 
+                reader.onload = function(e) { try { db = JSON.parse(e.target.result); salvarTudo(); location.reload(); } catch(err) { alert("Arquivo corrompido!"); } }; 
                 reader.readAsText(file);
             }
         }
-        function reiniciarConfiguracoes() { if(confirm("Apagar TUDO?")) { localStorage.removeItem('ts4_v27_data'); location.reload(); } }
+        function reiniciarConfiguracoes() { if(confirm("Apagar TUDO irreversivelmente?")) { localStorage.removeItem('ts4_companion_data'); localStorage.removeItem('ts4_v27_data'); location.reload(); } }
         function showToast(msg) { const t = document.getElementById('toast'); t.style.display='block'; t.innerText=msg; setTimeout(()=>t.style.display='none',2000); }
-        function salvarTudo() { localStorage.setItem('ts4_v27_data', JSON.stringify(db)); }
+        function salvarTudo() { localStorage.setItem('ts4_companion_data', JSON.stringify(db)); }
 
         // Inicialização
         document.getElementById('txt-history').value = db.historia;
