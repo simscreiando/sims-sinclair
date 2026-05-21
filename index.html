@@ -644,23 +644,51 @@
         }
 
         async function salvarNaNuvem() {
-            if(!accessToken) return alert("Faça login no Google primeiro!");
-            showToast("Salvando...");
-            try {
-                let fileId = await getCloudFileId();
-                const metadata = { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
-                const fileContent = JSON.stringify(db);
-                const file = new Blob([fileContent], {type: 'application/json'});
-                const form = new FormData();
-                form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-                form.append('file', file);
-                let url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-                let method = fileId ? 'PATCH' : 'POST';
-                let res = await fetch(url, { method: method, headers: { 'Authorization': 'Bearer ' + accessToken }, body: form });
-                if(res.ok) showToast("✅ Salvo na nuvem!");
-                else alert("Erro ao salvar.");
-            } catch(e) { console.error(e); alert("Erro no Drive."); }
+    if(!accessToken) return alert("Faça login no Google primeiro!");
+    showToast("Salvando...");
+    try {
+        let fileId = await getCloudFileId();
+        const metadata = { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
+        const fileContent = JSON.stringify(db);
+        
+        // O Google Drive exige a construção manual do corpo da requisição (multipart/related)
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+
+        const multipartRequestBody =
+            delimiter +
+            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+            JSON.stringify(metadata) +
+            delimiter +
+            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+            fileContent +
+            close_delim;
+
+        let url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        let method = fileId ? 'PATCH' : 'POST';
+        
+        let res = await fetch(url, { 
+            method: method, 
+            headers: { 
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'multipart/related; boundary=' + boundary
+            }, 
+            body: multipartRequestBody 
+        });
+        
+        if(res.ok) {
+            showToast("✅ Salvo na nuvem!");
+        } else {
+            let errorData = await res.json();
+            console.error("Erro detalhado do Google:", errorData);
+            alert("Erro ao salvar. Pressione F12 e veja a aba 'Console' para descobrir o motivo exato.");
         }
+    } catch(e) { 
+        console.error("Erro na comunicação com o Drive:", e); 
+        alert("Erro de conexão com o Drive."); 
+    }
+}
 
         async function carregarDaNuvem() {
             if(!accessToken) return;
