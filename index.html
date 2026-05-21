@@ -680,9 +680,12 @@
         if(res.ok) {
             showToast("✅ Salvo na nuvem!");
         } else {
+            // Isso aqui vai abrir o erro detalhado no seu console
             let errorData = await res.json();
-            console.error("Erro detalhado do Google:", errorData);
-            alert("Erro ao salvar. Pressione F12 e veja a aba 'Console' para descobrir o motivo exato.");
+            console.error("--- ERRO DETALHADO DO GOOGLE ---");
+            console.error("Mensagem:", errorData.error.message);
+            console.error("Razão:", errorData.error.errors[0].reason);
+            alert("Erro: " + errorData.error.message);
         }
     } catch(e) { 
         console.error("Erro na comunicação com o Drive:", e); 
