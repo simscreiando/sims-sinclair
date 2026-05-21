@@ -643,18 +643,21 @@
             }
         }
 
-        async function salvarNaNuvem() {
+        async function async function salvarNaNuvem() {
     if(!accessToken) return alert("Faça login no Google primeiro!");
     showToast("Salvando...");
+    
     try {
-        let fileId = await getCloudFileId();
-        const metadata = { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
+        let fileId = await getCloudFileId(); // Mantém o ID que você já encontrou
         const fileContent = JSON.stringify(db);
         
-        // O Google Drive exige a construção manual do corpo da requisição (multipart/related)
         const boundary = '-------314159265358979323846';
         const delimiter = "\r\n--" + boundary + "\r\n";
         const close_delim = "\r\n--" + boundary + "--";
+
+        // Se o arquivo existe, enviamos apenas o conteúdo (PATCH)
+        // Se for novo, enviamos o nome e a pasta (POST)
+        let metadata = fileId ? {} : { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
 
         const multipartRequestBody =
             delimiter +
@@ -680,16 +683,12 @@
         if(res.ok) {
             showToast("✅ Salvo na nuvem!");
         } else {
-            // Isso aqui vai abrir o erro detalhado no seu console
             let errorData = await res.json();
-            console.error("--- ERRO DETALHADO DO GOOGLE ---");
-            console.error("Mensagem:", errorData.error.message);
-            console.error("Razão:", errorData.error.errors[0].reason);
+            console.error("Erro detalhado:", errorData);
             alert("Erro: " + errorData.error.message);
         }
     } catch(e) { 
-        console.error("Erro na comunicação com o Drive:", e); 
-        alert("Erro de conexão com o Drive."); 
+        console.error("Erro na comunicação:", e); 
     }
 }
 
