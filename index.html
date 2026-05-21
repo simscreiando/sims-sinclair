@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v32 (Sims Edition)</title>
+    <title>Companion Narrativo - v33 (Sims Edition)</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
@@ -122,6 +122,14 @@
         <button class="nav-btn" onclick="switchTab('tab-laws')">📜 Livro de Regras</button>
         <button class="nav-btn" onclick="switchTab('tab-config')">⚙️ Configurações</button>
         <button class="nav-btn" onclick="switchTab('tab-feedback')">💬 Enviar Feedback</button>
+
+        <div style="margin-top: 25px; border-top: 2px solid #eee; padding-top: 15px;">
+            <h3 style="font-size: 12px; color: var(--ts4-blue); text-transform: uppercase; margin-bottom: 10px;">📂 Minhas Famílias</h3>
+            <button class="btn-main btn-sec" style="margin-top: 0; margin-bottom: 10px; font-size: 12px; padding: 10px;" onclick="criarNovaFamilia()">✨ Criar Nova Família</button>
+            <div id="lista-familias-cloud" style="display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; padding-right: 5px;">
+                <span style="font-size:11px; color:#888;">Faça login (Configurações) para ver os saves.</span>
+            </div>
+        </div>
     </div>
 
     <div class="main-content">
@@ -283,12 +291,11 @@
                 <h2>⚙️ Ajustes do Sistema</h2>
                 
                 <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">☁️ SINCRONIZAÇÃO NA NUVEM (GOOGLE DRIVE)</div>
-                <p style="font-size: 12px; color: #666;">Faça login com o Google para salvar e carregar seus dados na nuvem. (Os dados ficam numa pasta oculta do seu próprio Google Drive).</p>
+                <p style="font-size: 12px; color: #666;">Faça login com o Google para salvar seus dados na nuvem. Você pode gerenciar suas famílias salvas diretamente pela aba "Minhas Famílias" no menu esquerdo.</p>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-top: 15px;">
                     <button class="btn-main" style="background:#4285F4; margin:0;" onclick="autenticarGoogle()" id="btn-login-google">G Conectar com o Google</button>
                     <div style="display:flex; gap:10px;">
-                        <button class="btn-main btn-sec" style="margin:0; display:none;" onclick="salvarNaNuvem()" id="btn-save-cloud">⬆️ Salvar na Nuvem</button>
-                        <button class="btn-main btn-sec" style="margin:0; display:none;" onclick="carregarDaNuvem()" id="btn-load-cloud">⬇️ Baixar da Nuvem</button>
+                        <button class="btn-main btn-sec" style="margin:0; display:none; border-color:var(--ts4-blue); color:var(--ts4-blue);" onclick="salvarNaNuvem()" id="btn-save-cloud">⬆️ Salvar Família Atual na Nuvem</button>
                     </div>
                     <div id="google-status" style="font-size: 12px; font-weight: bold; color: #4285F4;">Status: Desconectado</div>
                 </div>
@@ -442,6 +449,10 @@
 
         let tokenClient;
         let accessToken = null;
+
+        // --- SISTEMA DE ESTADO DA FAMÍLIA (NOVO) ---
+        let currentCloudFileId = localStorage.getItem('ts4_current_family_id') || null;
+        let currentFamilyName = localStorage.getItem('ts4_current_family_name') || "Família Padrão";
 
         // --- DADOS NARRATIVOS (THE SIMS 4) ---
         const SUGESTOES = {
@@ -620,7 +631,10 @@
                             document.getElementById('google-status').innerText = "Status: 🟢 Conectado à Nuvem!";
                             document.getElementById('btn-login-google').style.display = 'none';
                             document.getElementById('btn-save-cloud').style.display = 'block';
-                            document.getElementById('btn-load-cloud').style.display = 'block';
+                            
+                            // EXIBE E ATUALIZA A LISTA NA SIDEBAR
+                            document.getElementById('lista-familias-cloud').style.display = 'flex';
+                            atualizarListaFamilias();
                             showToast("Autenticado com sucesso!");
                         }
                     },
@@ -629,83 +643,163 @@
             tokenClient.requestAccessToken({prompt: 'consent'});
         }
 
-        async function getCloudFileId() {
+        // --- GESTÃO DE MÚLTIPLAS FAMÍLIAS NA NUVEM ---
+
+        // 1. LISTAR ARQUIVOS NO DRIVE
+        async function listarArquivosNoDrive() {
+            if(!accessToken) return [];
             try {
-                let res = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="ts4_companion_db.json"', {
-                    headers: { 'Authorization': 'Bearer ' + accessToken }
-                });
+                // Busca qualquer arquivo .json salvo pela aplicação
+                let url = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id, name)&q=name contains '.json'";
+                let res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + accessToken } });
                 let data = await res.json();
-                if(data.files && data.files.length > 0) return data.files[0].id;
-                return null;
+                return data.files || [];
             } catch (e) {
-                console.error("Erro na nuvem", e);
-                return null;
+                console.error("Erro ao listar:", e);
+                return [];
             }
         }
 
-        async function salvarNaNuvem() {
-    if(!accessToken) return alert("Faça login no Google primeiro!");
-    showToast("Salvando...");
-    
-    try {
-        let fileId = await getCloudFileId(); // Mantém o ID que você já encontrou
-        const fileContent = JSON.stringify(db);
-        
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
-
-        // Se o arquivo existe, enviamos apenas o conteúdo (PATCH)
-        // Se for novo, enviamos o nome e a pasta (POST)
-        let metadata = fileId ? {} : { name: 'ts4_companion_db.json', parents: ['appDataFolder'] };
-
-        const multipartRequestBody =
-            delimiter +
-            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-            JSON.stringify(metadata) +
-            delimiter +
-            'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-            fileContent +
-            close_delim;
-
-        let url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
-        let method = fileId ? 'PATCH' : 'POST';
-        
-        let res = await fetch(url, { 
-            method: method, 
-            headers: { 
-                'Authorization': 'Bearer ' + accessToken,
-                'Content-Type': 'multipart/related; boundary=' + boundary
-            }, 
-            body: multipartRequestBody 
-        });
-        
-        if(res.ok) {
-            showToast("✅ Salvo na nuvem!");
-        } else {
-            let errorData = await res.json();
-            console.error("Erro detalhado:", errorData);
-            alert("Erro: " + errorData.error.message);
+        // 2. ATUALIZAR INTERFACE DA LISTA
+        async function atualizarListaFamilias() {
+            let listaDiv = document.getElementById('lista-familias-cloud');
+            listaDiv.innerHTML = "<span style='font-size:11px'>Carregando...</span>";
+            
+            let arquivos = await listarArquivosNoDrive();
+            
+            if (arquivos.length === 0) {
+                listaDiv.innerHTML = "<span style='font-size:11px'>Nenhuma família salva na nuvem.</span>";
+                return;
+            }
+            
+            // Cria um botão para cada família encontrada no Drive
+            listaDiv.innerHTML = arquivos.map(f => 
+                `<button class="nav-btn" style="font-size: 11px; padding: 6px; border: 1px solid #ccc; background: ${f.id === currentCloudFileId ? 'var(--ts4-blue)' : '#f9f9f9'}; color: ${f.id === currentCloudFileId ? 'white' : '#333'}; margin-bottom: 3px;" onclick="carregarArquivoDaNuvem('${f.id}', '${f.name}')">⬇️ ${f.name.replace('.json', '')}</button>`
+            ).join('');
         }
-    } catch(e) { 
-        console.error("Erro na comunicação:", e); 
-    }
-}
 
-        async function carregarDaNuvem() {
+        // 3. CRIAR NOVA FAMÍLIA
+        async function criarNovaFamilia() {
+            if(!confirm("Criar uma nova família irá substituir o seu progresso local não salvo na nuvem. Continuar?")) return;
+            
+            let nome = prompt("Digite o nome da nova Família/Legado:");
+            if(!nome) return;
+            
+            // Limpa o banco de dados local para a nova família
+            db = {
+                sims: [], historia: "", regras: "", metas_pendentes: [],
+                config: JSON.parse(JSON.stringify(DEFAULT_CONFIG_WHEELS)),
+                custom: { tracos: [], carreiras: [], aspiracoes: [] }
+            };
+            if (!db.reactionAudio) db.reactionAudio = { geral: '', perigo: '', obaoba: '' };
+            
+            // Remove o ID atual para garantir que o sistema crie um arquivo novo em vez de sobrescrever
+            currentCloudFileId = null; 
+            currentFamilyName = nome;
+            localStorage.setItem('ts4_current_family_name', currentFamilyName);
+            localStorage.removeItem('ts4_current_family_id');
+            salvarTudo();
+            
+            // Se já estiver logado, salva a nova família direto no Drive
+            if(accessToken) {
+                await salvarNaNuvem();
+                atualizarListaFamilias();
+            }
+            
+            location.reload(); 
+        }
+
+        // 4. CARREGAR ARQUIVO ESPECÍFICO
+        async function carregarArquivoDaNuvem(id, nome) {
             if(!accessToken) return;
-            if(!confirm("Atenção: Baixar da nuvem substitui o progresso local. Tem certeza?")) return;
+            if(!confirm(`Deseja carregar a família "${nome.replace('.json', '')}"? O progresso não salvo da família atual será perdido.`)) return;
             showToast("Baixando...");
             try {
-                let fileId = await getCloudFileId();
-                if(!fileId) return alert("Backup não encontrado.");
-                let res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
+                let res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, { headers: { 'Authorization': 'Bearer ' + accessToken } });
                 if(res.ok) {
                     let cloudDb = await res.json();
-                    if(cloudDb && cloudDb.sims) { db = cloudDb; salvarTudo(); showToast("✅ Sucesso!"); setTimeout(() => location.reload(), 1500); }
+                    if(cloudDb) { 
+                        db = cloudDb; 
+                        
+                        // Define a família baixada como a ativa no sistema
+                        currentCloudFileId = id;
+                        currentFamilyName = nome.replace('.json', '');
+                        localStorage.setItem('ts4_current_family_id', id);
+                        localStorage.setItem('ts4_current_family_name', currentFamilyName);
+                        
+                        salvarTudo(); 
+                        showToast("✅ Família Carregada!"); 
+                        setTimeout(() => location.reload(), 1000); 
+                    }
                 } else alert("Falha ao baixar.");
-            } catch(e) { console.error(e); alert("Erro."); }
+            } catch(e) { console.error(e); alert("Erro ao carregar a família."); }
         }
+
+        // 5. ATUALIZAÇÃO DO SALVAR (Pode criar novo ou atualizar o existente)
+        async function salvarNaNuvem() {
+            if(!accessToken) return alert("Faça login no Google primeiro!");
+            showToast("Salvando...");
+            
+            try {
+                let fileId = currentCloudFileId; 
+                
+                // Se o arquivo ainda não existe na nuvem e o nome padrão não foi alterado, pede um nome.
+                if (!fileId && (!currentFamilyName || currentFamilyName === "Família Padrão")) {
+                    let n = prompt("Como deseja chamar esse save?");
+                    if(!n) return;
+                    currentFamilyName = n;
+                    localStorage.setItem('ts4_current_family_name', currentFamilyName);
+                }
+
+                const fileContent = JSON.stringify(db);
+                const boundary = '-------314159265358979323846';
+                const delimiter = "\r\n--" + boundary + "\r\n";
+                const close_delim = "\r\n--" + boundary + "--";
+
+                // Se temos o ID (o arquivo existe), mandamos vazio. Se não, informamos o nome.
+                let metadata = fileId ? {} : { name: currentFamilyName + '.json', parents: ['appDataFolder'] };
+
+                const multipartRequestBody =
+                    delimiter +
+                    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                    JSON.stringify(metadata) +
+                    delimiter +
+                    'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+                    fileContent +
+                    close_delim;
+
+                // PATCH atualiza. POST cria um novo.
+                let url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+                let method = fileId ? 'PATCH' : 'POST';
+                
+                let res = await fetch(url, { 
+                    method: method, 
+                    headers: { 
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'multipart/related; boundary=' + boundary
+                    }, 
+                    body: multipartRequestBody 
+                });
+                
+                if(res.ok) {
+                    let resData = await res.json();
+                    // Se criamos um novo arquivo, salvamos o ID retornado pelo Google para atualizá-lo nas próximas vezes
+                    if(!fileId) { 
+                        currentCloudFileId = resData.id;
+                        localStorage.setItem('ts4_current_family_id', currentCloudFileId);
+                        atualizarListaFamilias(); 
+                    }
+                    showToast("✅ Salvo na nuvem!");
+                } else {
+                    let errorData = await res.json();
+                    console.error("Erro detalhado:", errorData);
+                    alert("Erro: " + errorData.error.message);
+                }
+            } catch(e) { 
+                console.error("Erro na comunicação:", e); 
+            }
+        }
+
 
         // --- NAVEGAÇÃO ---
         function switchTab(id) {
