@@ -605,7 +605,7 @@
         db.sims.forEach(s => { 
             if(s.crush === undefined) s.crush = ""; 
             if(!s.relStatus) s.relStatus = "solteiro"; 
-            if(s.traicao === undefined) s.traicao = false; // Novo dado para indicador de traição
+            if(s.traicao === undefined) s.traicao = false; 
         });
 
         let lastRotation = {};
@@ -643,13 +643,33 @@
             tokenClient.requestAccessToken({prompt: 'consent'});
         }
 
+        // FUNÇÃO AUXILIAR PARA ATUALIZAR INTERFACE SEM RECARREGAR A PÁGINA
+        function recarregarInterface() {
+            document.getElementById('txt-history').value = db.historia || "";
+            document.getElementById('txt-laws').value = db.regras || "";
+            
+            // Oculta os resultados anteriores gerados para a outra família
+            document.getElementById('res-oraculo').style.display = 'none';
+            document.getElementById('res-partida').style.display = 'none';
+            document.getElementById('res-sinopse').style.display = 'none';
+            
+            renderDash();
+            renderLab();
+            renderTree();
+            renderMetas();
+            renderConfig();
+            renderGenList(); 
+            renderIaSimList();
+            
+            if(accessToken) atualizarListaFamilias();
+        }
+
         // --- GESTÃO DE MÚLTIPLAS FAMÍLIAS NA NUVEM ---
 
         // 1. LISTAR ARQUIVOS NO DRIVE
         async function listarArquivosNoDrive() {
             if(!accessToken) return [];
             try {
-                // Busca qualquer arquivo .json salvo pela aplicação
                 let url = "https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id, name)&q=name contains '.json'";
                 let res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + accessToken } });
                 let data = await res.json();
@@ -672,18 +692,14 @@
                 return;
             }
             
-            // Cria um botão para cada família encontrada no Drive
             listaDiv.innerHTML = arquivos.map(f => 
                 `<button class="nav-btn" style="font-size: 11px; padding: 6px; border: 1px solid #ccc; background: ${f.id === currentCloudFileId ? 'var(--ts4-blue)' : '#f9f9f9'}; color: ${f.id === currentCloudFileId ? 'white' : '#333'}; margin-bottom: 3px;" onclick="carregarArquivoDaNuvem('${f.id}', '${f.name}')">⬇️ ${f.name.replace('.json', '')}</button>`
             ).join('');
         }
 
-        // 3. CRIAR NOVA FAMÍLIA
+        // 3. CRIAR NOVA FAMÍLIA (Alterado para não pedir nome até o momento de salvar)
         async function criarNovaFamilia() {
             if(!confirm("Criar uma nova família irá substituir o seu progresso local não salvo na nuvem. Continuar?")) return;
-            
-            let nome = prompt("Digite o nome da nova Família/Legado:");
-            if(!nome) return;
             
             // Limpa o banco de dados local para a nova família
             db = {
@@ -695,21 +711,17 @@
             
             // Remove o ID atual para garantir que o sistema crie um arquivo novo em vez de sobrescrever
             currentCloudFileId = null; 
-            currentFamilyName = nome;
-            localStorage.setItem('ts4_current_family_name', currentFamilyName);
+            currentFamilyName = "Família Padrão";
+            localStorage.removeItem('ts4_current_family_name');
             localStorage.removeItem('ts4_current_family_id');
             salvarTudo();
             
-            // Se já estiver logado, salva a nova família direto no Drive
-            if(accessToken) {
-                await salvarNaNuvem();
-                atualizarListaFamilias();
-            }
-            
-            location.reload(); 
+            // Atualiza a tela sem recarregar e mantendo o token de conexão com o Google intacto
+            recarregarInterface();
+            showToast("✨ Novo tabuleiro em branco criado!");
         }
 
-        // 4. CARREGAR ARQUIVO ESPECÍFICO
+        // 4. CARREGAR ARQUIVO ESPECÍFICO (Alterado para não usar location.reload)
         async function carregarArquivoDaNuvem(id, nome) {
             if(!accessToken) return;
             if(!confirm(`Deseja carregar a família "${nome.replace('.json', '')}"? O progresso não salvo da família atual será perdido.`)) return;
@@ -721,21 +733,20 @@
                     if(cloudDb) { 
                         db = cloudDb; 
                         
-                        // Define a família baixada como a ativa no sistema
                         currentCloudFileId = id;
                         currentFamilyName = nome.replace('.json', '');
                         localStorage.setItem('ts4_current_family_id', id);
                         localStorage.setItem('ts4_current_family_name', currentFamilyName);
                         
-                        salvarTudo(); 
+                        salvarTudo();
+                        recarregarInterface();
                         showToast("✅ Família Carregada!"); 
-                        setTimeout(() => location.reload(), 1000); 
                     }
                 } else alert("Falha ao baixar.");
             } catch(e) { console.error(e); alert("Erro ao carregar a família."); }
         }
 
-        // 5. ATUALIZAÇÃO DO SALVAR (Pode criar novo ou atualizar o existente)
+        // 5. ATUALIZAÇÃO DO SALVAR 
         async function salvarNaNuvem() {
             if(!accessToken) return alert("Faça login no Google primeiro!");
             showToast("Salvando...");
@@ -746,7 +757,7 @@
                 // Se o arquivo ainda não existe na nuvem e o nome padrão não foi alterado, pede um nome.
                 if (!fileId && (!currentFamilyName || currentFamilyName === "Família Padrão")) {
                     let n = prompt("Como deseja chamar esse save?");
-                    if(!n) return;
+                    if(!n) return; // Se a pessoa cancelar, não salva
                     currentFamilyName = n;
                     localStorage.setItem('ts4_current_family_name', currentFamilyName);
                 }
@@ -756,7 +767,6 @@
                 const delimiter = "\r\n--" + boundary + "\r\n";
                 const close_delim = "\r\n--" + boundary + "--";
 
-                // Se temos o ID (o arquivo existe), mandamos vazio. Se não, informamos o nome.
                 let metadata = fileId ? {} : { name: currentFamilyName + '.json', parents: ['appDataFolder'] };
 
                 const multipartRequestBody =
@@ -768,7 +778,6 @@
                     fileContent +
                     close_delim;
 
-                // PATCH atualiza. POST cria um novo.
                 let url = fileId ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart` : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
                 let method = fileId ? 'PATCH' : 'POST';
                 
@@ -783,7 +792,6 @@
                 
                 if(res.ok) {
                     let resData = await res.json();
-                    // Se criamos um novo arquivo, salvamos o ID retornado pelo Google para atualizá-lo nas próximas vezes
                     if(!fileId) { 
                         currentCloudFileId = resData.id;
                         localStorage.setItem('ts4_current_family_id', currentCloudFileId);
@@ -1360,7 +1368,6 @@
             var tracoFoco = getTracoFocoCodex(protagonista);
             var contexto = contextoDoSimCodex(protagonista);
             
-            // 1 e 2. Expansão massiva das opções e garantia de aleatoriedade total usando múltiplos arrays internos
             var acoesMundanas = [
                 "parou de regar a planta favorita da casa",
                 "passou horas olhando para a estante de livros sem ler nada",
@@ -1383,11 +1390,9 @@
             var conjugue = protagonista.spouse ? getNomeSimCodex(protagonista.spouse) : "";
             var crush = protagonista.crush ? protagonista.crush.split(',')[0] : "";
             
-            // Trazendo dinâmica social aleatória pra garantir a relação de espelho mesmo se não houver família 
             var familiaAleatoria = db.sims.length > 1 ? rand(db.sims.filter(s => s.id !== protagonista.id)).nome : "o fantasma do passado";
             var espelho = conjugue || crush || familiaAleatoria;
 
-            // Expansão monstruosa dos Conflitos Narrativos
             var conflitos = {
                 "Dramático": [
                     `O desejo profundo de ser aceito colidiu com a falha de se sabotar. Ao acaso, ${protagonista.nome} ${acaoMundana}, revelando que a pressão familiar finalmente explodiu. ${espelho} viu tudo, mas escolheu o silêncio cortante.`,
@@ -1436,7 +1441,6 @@
             var conflitosArray = conflitos[tom] || conflitos["Aleatório"];
             var conflito = rand(conflitosArray);
 
-            // 3. Sistema de Consequências Narrativas Integrado (Impactos diretos no gameplay e futuro)
             var consequenciasGameplay = [
                 "Separação Iminente: A quebra de confiança foi longe demais e um relacionamento vital não tem mais salvação.",
                 "Medo Crônico: O Sim desenvolveu uma fobia irracional relacionada ao que acabou de acontecer.",
@@ -1522,7 +1526,6 @@
             exibirNarrativaCodex(narrativa.cabecalho, narrativa.corpo, tom); 
         }
 
-        // NOVO GERADOR DE PARTIDA 
         gerarPontoPartida = function(tom) { 
             playReactionSound(tom === "Romântico" ? "obaoba" : (tom === "Dramático" || tom === "Caótico" || tom === "Místico") ? "perigo" : "geral"); 
             
