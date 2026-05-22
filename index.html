@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v37 (Sims Edition)</title>
+    <title>Companion Narrativo - v36 (Sims Edition)</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -215,7 +215,7 @@
             </div>
 
             <div style="background: #e6f2ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--ts4-blue);">
-                <h3 style="margin-top:0; color: var(--ts4-blue);">🤖 Gerador de Lore (Dinâmica The Sims 4)</h3>
+                <h3 style="margin-top:0; color: var(--ts4-blue);">🤖 Gerador de Dinâmica The Sims 4</h3>
                 <p style="font-size:14px;">Integra o Contexto Atual, Personalidade e Fase do Sim. Se a Chave da API Anthropic estiver configurada nas Configurações, gera histórias avançadas e imersivas com Claude.</p>
                 
                 <div style="display:flex; gap:15px; margin-top: 15px; margin-bottom: 15px; flex-wrap: wrap;">
@@ -265,7 +265,7 @@
             <div class="panel">
                 <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:15px; flex-wrap: wrap;">
                     <h2 style="margin:0;">📖 O Livro da Família (Lore)</h2>
-                    <button class="btn-main" style="width:auto; margin:0; padding:10px 20px; background:var(--ts4-green);" onclick="exportarHistoria()">📥 Exportar Lore (TXT)</button>
+                    <button class="btn-main" style="width:auto; margin:0; padding:10px 20px; background:var(--ts4-green);" onclick="exportarHistoria()">📥 Exportar (TXT)</button>
                 </div>
                 
                 <div style="display:flex; gap:10px; margin-bottom:5px; flex-wrap:wrap; align-items:center;">
@@ -307,7 +307,22 @@
                 <div id="timeline-history" style="height:400px; padding: 15px; overflow-y: auto; background:#fffdfa; border: 1px solid #ddd; border-radius: 8px;"></div>
 
                 <hr style="margin: 30px 0; border: 1px solid #eee;">
-                
+
+                <h2 style="margin-top:0;">📋 Importar Log do MCCC (MC Command Center)</h2>
+                <p style="font-size:13px; color:#666; margin-bottom:10px;">
+                    Cole abaixo o conteúdo exportado do <strong>MC Command Center</strong> (arquivo de notificações .txt ou texto copiado). 
+                    O sistema irá <strong>traduzir automaticamente</strong> os termos do inglês para o português e registrar no Livro da Família.
+                    Também detectará nascimentos, casamentos e mortes para oferecer atalhos na Árvore Genealógica.
+                </p>
+                <textarea id="txt-mccc-import" style="height:120px;" placeholder="Cole aqui o log do MCCC... (ex: Sim Aged up to Adult, Had a pregnancy with...)"></textarea>
+                <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+                    <button class="btn-main" style="flex:1; min-width:180px; background:var(--ts4-blue);" onclick="importarLogMCCC()">📥 Importar e Traduzir Log</button>
+                    <button class="btn-main btn-sec" style="flex:1; min-width:140px;" onclick="document.getElementById('txt-mccc-import').value=''">🗑️ Limpar</button>
+                </div>
+                <div id="mccc-preview" style="display:none; margin-top:12px; background:#f0f7ff; border-radius:10px; padding:15px; border-left:4px solid var(--ts4-blue);"></div>
+
+                <hr style="margin: 30px 0; border: 1px solid #eee;">
+
                 <h2 style="margin-top:0;">🎯 Metas do Legado</h2>
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
                     <input type="text" id="nova-meta" placeholder="Ex: Dominar a habilidade de Culinária Gourmet...">
@@ -319,7 +334,7 @@
 
         <div id="tab-laws" class="tab-pane">
             <div class="panel">
-                <h2>📜 Livro de Regras do Lote</h2>
+                <h2>📜 Livro de Regras</h2>
                 <textarea id="txt-laws" style="height:450px" placeholder="Ex: Somente o primogênito herda a casa; Proibido usar a cama mais cara; etc..."></textarea>
                 <button class="btn-main" onclick="salvarGeral()">Salvar Regras</button>
             </div>
@@ -339,11 +354,36 @@
                     <div id="google-status" style="font-size: 12px; font-weight: bold; color: #4285F4;">Status: Desconectado</div>
                 </div>
 
-                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🤖 INTEGRAÇÃO COM I.A. (Ferramenta para Usuários Avançados)</div>
-                <p style="font-size: 12px; color: #666;">Para gerar histórias imersivas personalizadas com a inteligência do Claude, insira sua Chave de API da Anthropic abaixo. Ficará salva apenas localmente no seu navegador. Se deixada em branco, o sistema usará o gerador de histórias nativo do site.</p>
-                <div style="display:flex; gap:10px; margin-top: 15px;">
-                    <input type="password" id="api-key-anthropic" placeholder="sk-ant-api03-..." value="">
-                    <button class="btn-main" style="width:120px; margin:0;" onclick="salvarApiAnthropic()">Salvar API</button>
+                <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🤖 INTEGRAÇÃO COM I.A. — Ferramenta para Usuários Avançados (Opcional)</div>
+                <p style="font-size: 12px; color: #666; margin-bottom: 5px;">
+                    <strong>Se você não sabe o que é uma API, ignore esta seção.</strong> O sistema continuará funcionando normalmente com o gerador de histórias nativo — sem precisar de nada extra! 🎉<br><br>
+                    Se você é um usuário avançado e quer histórias ainda mais imersivas e personalizadas geradas por uma I.A. real, configure sua chave de API abaixo. Ela fica salva apenas no seu navegador, nunca em servidores externos.
+                </p>
+
+                <div style="background:#fffbea; border:1px solid #ffc107; border-radius:10px; padding:12px; margin-bottom:15px; font-size:12px; color:#856404;">
+                    💡 <strong>Dica:</strong> Todos os provedores abaixo oferecem um nível gratuito para começar. Clique em "Como conseguir grátis" ao lado do provedor escolhido para ver o tutorial.
+                </div>
+
+                <label style="font-weight:bold; font-size:13px;">Provedor de I.A.:</label>
+                <select id="sel-ia-provider" style="margin-top:5px; margin-bottom:10px;" onchange="atualizarInfoProvedor()">
+                    <option value="anthropic">🟣 Anthropic — Claude (Padrão do sistema)</option>
+                    <option value="openai">🟢 OpenAI — ChatGPT (GPT-4o / GPT-4o-mini)</option>
+                    <option value="gemini">🔵 Google — Gemini (gemini-2.0-flash)</option>
+                    <option value="windowai">🪟 Windows AI — Chrome Built-in (Experimental, sem API key)</option>
+                </select>
+
+                <div id="info-provedor" style="font-size:12px; background:#f0f4ff; padding:10px; border-radius:8px; margin-bottom:10px; border-left:3px solid var(--ts4-blue);"></div>
+
+                <div id="api-key-section" style="display:flex; gap:10px; margin-top:5px;">
+                    <input type="password" id="api-key-anthropic" placeholder="Cole sua chave aqui..." value="">
+                    <button class="btn-main" style="width:120px; margin:0;" onclick="salvarApiAnthropic()">Salvar</button>
+                    <button class="btn-main btn-sec" style="width:auto; margin:0; white-space:nowrap;" id="btn-como-conseguir" onclick="abrirTutorialApi()">❓ Como conseguir grátis</button>
+                </div>
+                <div id="windowai-section" style="display:none; padding:10px; background:#f0fff4; border-radius:8px; border:1px solid #28a745;">
+                    <p style="margin:0; font-size:13px; color:#155724;">🪟 <strong>Windows AI / Chrome Built-in AI</strong> detectado!<br>
+                    Esta opção usa a I.A. embutida no seu navegador Chrome — <strong>sem precisar de API key ou internet.</strong><br>
+                    Disponível apenas no Chrome 127+ com flag experimental ativada.</p>
+                    <div id="windowai-status" style="margin-top:8px; font-size:12px; font-weight:bold;"></div>
                 </div>
 
                 <div class="config-header" style="font-weight: bold; margin-top: 35px; border-bottom: 2px solid #eee; padding-bottom: 5px;">📂 TRAÇOS, CARREIRAS E ASPIRAÇÕES (CUSTOM)</div>
@@ -394,6 +434,19 @@
                         ☕ Pagar um café (Apoiar Projeto)
                     </button>
                 </a>
+
+                <div style="background:#f0fff4; border: 2px solid #28a745; border-radius: 15px; padding: 20px; margin-top: 25px;">
+                    <h3 style="margin-top:0; color:#28a745;">💸 Pagamento via PIX (Brasil)</h3>
+                    <p style="font-size:14px; color:#444; margin-bottom:12px;">Prefere pagar direto pelo PIX? Copie a chave abaixo e envie qualquer valor — até R$5,00 já ajuda muito!</p>
+                    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                        <div style="background:white; border:1px solid #ccc; border-radius:10px; padding:10px 16px; font-size:15px; font-weight:bold; letter-spacing:1px; flex:1; min-width:200px;" id="pix-key-display">
+                            <!-- EDITE AQUI: coloque sua chave PIX abaixo -->
+                            seuchave@pix.com
+                        </div>
+                        <button class="btn-main" style="width:auto; margin:0; padding:10px 18px; background:#28a745;" onclick="copiarChavePix()">📋 Copiar Chave</button>
+                    </div>
+                    <p style="font-size:11px; color:#888; margin-top:10px; margin-bottom:0;">Após o envio, não é necessário nenhum cadastro. Obrigada pelo apoio! 💚</p>
+                </div>
                 
                 <p style="font-size: 11px; color: #999; margin-top: 30px;">
                     *Este projeto é uma iniciativa de fã e não é afiliado, endossado ou patrocinado pela Electronic Arts.
@@ -663,9 +716,312 @@
         let currentSimId = null;
 
         document.getElementById('api-key-anthropic').value = localStorage.getItem('ts4_anthropic_key') || "";
+        document.getElementById('sel-ia-provider').value = localStorage.getItem('ts4_ia_provider') || "anthropic";
+
         function salvarApiAnthropic() {
             localStorage.setItem('ts4_anthropic_key', document.getElementById('api-key-anthropic').value);
-            showToast("Chave da Anthropic salva!");
+            localStorage.setItem('ts4_ia_provider', document.getElementById('sel-ia-provider').value);
+            showToast("✅ Configuração de I.A. salva!");
+        }
+
+        // --- MULTI-LLM: INFO POR PROVEDOR E TUTORIAIS ---
+        const PROVEDOR_INFO = {
+            anthropic: {
+                placeholder: "sk-ant-api03-...",
+                info: "🟣 <strong>Claude (Anthropic)</strong> — Excelente para narrativas criativas e coerentes. Nível gratuito disponível via <em>Console da Anthropic</em>.",
+                tutorial: "https://console.anthropic.com/",
+                label: "Anthropic Console (gratuito para começar)"
+            },
+            openai: {
+                placeholder: "sk-...",
+                info: "🟢 <strong>ChatGPT (OpenAI)</strong> — Use GPT-4o-mini (muito econômico) ou GPT-4o. Créditos gratuitos ao criar a conta.",
+                tutorial: "https://platform.openai.com/api-keys",
+                label: "OpenAI Platform (créditos grátis)"
+            },
+            gemini: {
+                placeholder: "AIza...",
+                info: "🔵 <strong>Gemini (Google)</strong> — Use o Gemini 2.0 Flash, que tem cota gratuita generosa via Google AI Studio.",
+                tutorial: "https://aistudio.google.com/app/apikey",
+                label: "Google AI Studio (grátis)"
+            },
+            windowai: {
+                placeholder: "",
+                info: "🪟 <strong>Chrome Built-in AI</strong> — I.A. embutida no Chrome (experimental). Não precisa de chave! Requer Chrome 127+ com flag <code>chrome://flags/#prompt-api-for-gemini-nano</code> ativada.",
+                tutorial: "https://developer.chrome.com/docs/ai/built-in",
+                label: "Ver documentação do Chrome Built-in AI"
+            }
+        };
+
+        function atualizarInfoProvedor() {
+            const p = document.getElementById('sel-ia-provider').value;
+            const info = PROVEDOR_INFO[p];
+            document.getElementById('info-provedor').innerHTML = info.info;
+            document.getElementById('btn-como-conseguir').title = info.label;
+            document.getElementById('api-key-anthropic').placeholder = info.placeholder;
+            const isWindowAI = p === 'windowai';
+            document.getElementById('api-key-section').style.display = isWindowAI ? 'none' : 'flex';
+            document.getElementById('windowai-section').style.display = isWindowAI ? 'block' : 'none';
+            if(isWindowAI) verificarWindowAI();
+        }
+
+        function abrirTutorialApi() {
+            const p = document.getElementById('sel-ia-provider').value;
+            window.open(PROVEDOR_INFO[p].tutorial, '_blank');
+        }
+
+        async function verificarWindowAI() {
+            const statusEl = document.getElementById('windowai-status');
+            // Check for Chrome's experimental Prompt API (various iterations)
+            const aiObj = window.LanguageModel || (window.ai && window.ai.languageModel) || window.ai;
+            if (!aiObj) {
+                statusEl.innerHTML = '<span style="color:#cc0000;">❌ API não encontrada no seu navegador. Use Chrome 127+ com a flag experimental ativada.</span>';
+                return;
+            }
+            try {
+                const caps = await (aiObj.capabilities ? aiObj.capabilities() : Promise.resolve({ available: 'readily' }));
+                if (caps.available === 'no') {
+                    statusEl.innerHTML = '<span style="color:#cc0000;">❌ Modelo não disponível neste dispositivo.</span>';
+                } else if (caps.available === 'after-download') {
+                    statusEl.innerHTML = '<span style="color:#856404;">⏳ Modelo precisa ser baixado. Aguarde e tente novamente.</span>';
+                } else {
+                    statusEl.innerHTML = '<span style="color:#155724;">✅ Pronto! I.A. local detectada e funcionando.</span>';
+                    localStorage.setItem('ts4_ia_provider', 'windowai');
+                }
+            } catch(e) {
+                statusEl.innerHTML = '<span style="color:#cc0000;">❌ Erro ao verificar: ' + e.message + '</span>';
+            }
+        }
+
+        // Inicializar info do provedor ao carregar
+        atualizarInfoProvedor();
+
+        // --- PIX ---
+        function copiarChavePix() {
+            const chave = document.getElementById('pix-key-display').innerText.trim();
+            navigator.clipboard.writeText(chave).then(() => showToast("📋 Chave PIX copiada!")).catch(() => {
+                prompt("Copie a chave PIX:", chave);
+            });
+        }
+
+        // --- DICIONÁRIO DE TRADUÇÃO DO MCCC ---
+        const MCCC_DICT = {
+            // Fases de vida
+            "Aged up to Infant": "Envelheceu para Bebê",
+            "Aged up to Toddler": "Envelheceu para Criança Pequena",
+            "Aged up to Child": "Envelheceu para Criança",
+            "Aged up to Teen": "Envelheceu para Adolescente",
+            "Aged up to Young Adult": "Envelheceu para Jovem Adulto",
+            "Aged up to Adult": "Envelheceu para Adulto",
+            "Aged up to Elder": "Envelheceu para Idoso",
+            "aged up to Infant": "envelheceu para Bebê",
+            "aged up to Toddler": "envelheceu para Criança Pequena",
+            "aged up to Child": "envelheceu para Criança",
+            "aged up to Teen": "envelheceu para Adolescente",
+            "aged up to Young Adult": "envelheceu para Jovem Adulto",
+            "aged up to Adult": "envelheceu para Adulto",
+            "aged up to Elder": "envelheceu para Idoso",
+            // Nascimento e morte
+            "was born": "nasceu",
+            "Born to": "Nasceu para",
+            "was born to": "nasceu para",
+            "died from": "faleceu por causa de",
+            "died of": "faleceu de",
+            "has died": "faleceu",
+            "passed away": "faleceu",
+            "Death by": "Morte por",
+            "death by": "morte por",
+            // Gravidez e filhos
+            "Had a pregnancy with": "Ficou grávida(o) com",
+            "had a pregnancy with": "ficou grávida(o) com",
+            "gave birth to": "deu à luz a",
+            "had a baby": "teve um bebê",
+            "is pregnant": "está grávida(o)",
+            "is now pregnant": "está grávida(o)",
+            "Miscarried": "Sofreu um aborto espontâneo",
+            // Relacionamentos
+            "got married to": "se casou com",
+            "is now married to": "agora é casado(a) com",
+            "proposed to": "pediu em casamento a",
+            "broke up with": "terminou com",
+            "divorced": "divorciou-se",
+            "is now divorced from": "se divorciou de",
+            "is now in a relationship with": "agora está em um relacionamento com",
+            "became a couple with": "ficou junto com",
+            "had a WooHoo with": "ficou com",
+            "had a risky WooHoo with": "ficou (com risco) com",
+            "had a WooHoo": "ficou com alguém",
+            "cheated on": "traiu",
+            "is cheating on": "está traindo",
+            "is having an affair with": "está tendo um caso com",
+            // Mudanças sociais
+            "moved into": "se mudou para",
+            "moved out of": "se mudou de",
+            "moved away": "se mudou",
+            "became friends with": "tornou-se amigo(a) de",
+            "became enemies with": "tornou-se inimigo(a) de",
+            "became best friends with": "tornou-se melhor amigo(a) de",
+            "lost a friendship with": "perdeu a amizade de",
+            // Trabalho e conquistas
+            "was promoted to": "foi promovido(a) para",
+            "was demoted from": "foi rebaixado(a) de",
+            "quit their job": "largou o emprego",
+            "was fired from": "foi demitido(a) de",
+            "started a new job as": "começou um novo emprego como",
+            "reached the top of": "alcançou o topo da carreira de",
+            "graduated": "se formou",
+            "enrolled in": "se matriculou em",
+            // Habilidades
+            "reached skill level": "alcançou o nível de habilidade",
+            "maxed out the": "maximizou a habilidade",
+            "learned the": "aprendeu",
+            // Ocultismo
+            "became a Vampire": "virou Vampiro",
+            "became a Werewolf": "virou Lobisomem",
+            "became a Mermaid": "virou Sereia",
+            "became a Spellcaster": "virou Bruxo(a)/Feiticeiro(a)",
+            "became a PlantSim": "virou PlantaSim",
+            "was abducted by aliens": "foi abduzido(a) por alienígenas",
+            "was cured of": "foi curado(a) de",
+            // Outros
+            "completed the": "completou a aspiração",
+            "fulfilled their aspiration": "completou a aspiração de vida",
+            "adopted a": "adotou um(a)",
+            "adopted": "adotou",
+            "pet died": "pet faleceu",
+            "cat died": "gato faleceu",
+            "dog died": "cachorro faleceu",
+            "Birthday": "Aniversário",
+            "Notification": "Notificação",
+            "Event": "Evento",
+            // Termos gerais
+            "and": "e",
+            "with": "com",
+            "from": "de",
+            "to": "para",
+            "the": "",
+            "a ": "um(a) ",
+            "an ": "um(a) ",
+            "their": "seu/sua",
+            "has": "teve",
+            "have": "tiveram",
+        };
+
+        // Padrões de detecção para eventos especiais
+        const MCCC_BORN_PATTERNS = [/\bBorn\b/i, /\bwas born\b/i, /\bbirth\b/i, /\bgave birth\b/i];
+        const MCCC_MARRIAGE_PATTERNS = [/\bmarried\b/i, /\bmarriage\b/i, /\bproposed\b/i, /\bgot married\b/i];
+        const MCCC_DEATH_PATTERNS = [/\bdied\b/i, /\bdeath\b/i, /\bpassed away\b/i, /\bhas died\b/i];
+
+        function traduzirLinhaMCCC(linha) {
+            let traduzida = linha;
+            // Apply dictionary longest-first to avoid partial replacements
+            const entries = Object.entries(MCCC_DICT).sort((a, b) => b[0].length - a[0].length);
+            for (const [en, pt] of entries) {
+                // Use a simple replaceAll for exact phrase matches
+                traduzida = traduzida.split(en).join(pt);
+            }
+            return traduzida;
+        }
+
+        function detectarTipoLinha(linha) {
+            if (MCCC_DEATH_PATTERNS.some(p => p.test(linha))) return 'MORTE';
+            if (MCCC_BORN_PATTERNS.some(p => p.test(linha))) return 'NASCIMENTO';
+            if (MCCC_MARRIAGE_PATTERNS.some(p => p.test(linha))) return 'CASAMENTO';
+            if (/aged up/i.test(linha)) return 'FASES DE VIDA';
+            return 'GERAL';
+        }
+
+        function extrairNomeDaLinha(linha) {
+            // Try to extract a Sim name (usually the first capitalized word(s) before a verb)
+            let m = linha.match(/^([A-Z][a-záàãâéèêíóôõúç]+(?: [A-Z][a-záàãâéèêíóôõúç]+)?)/);
+            return m ? m[1].trim() : null;
+        }
+
+        async function importarLogMCCC() {
+            const texto = document.getElementById('txt-mccc-import').value.trim();
+            if (!texto) return alert("Cole o log do MCCC no campo acima.");
+
+            const linhas = texto.split('\n').filter(l => l.trim() !== '');
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            let registradas = [];
+            let acoesEspeciais = [];
+
+            linhas.forEach(linha => {
+                const tipo = detectarTipoLinha(linha);
+                const traduzida = traduzirLinhaMCCC(linha.trim());
+                const entrada = `\n[${hoje}] [${tipo}] ${traduzida}`;
+                registradas.push({ original: linha.trim(), traduzida, tipo, entrada });
+
+                if (tipo === 'NASCIMENTO' || tipo === 'CASAMENTO' || tipo === 'MORTE') {
+                    const nome = extrairNomeDaLinha(linha.trim());
+                    acoesEspeciais.push({ tipo, nome, traduzida, original: linha.trim() });
+                }
+            });
+
+            // Register all in history
+            registradas.forEach(r => { db.historia += r.entrada; });
+            salvarTudo();
+            renderLivroComFiltro();
+
+            // Show preview
+            const preview = document.getElementById('mccc-preview');
+            preview.style.display = 'block';
+            preview.innerHTML = `
+                <strong style="color:var(--ts4-blue);">✅ ${registradas.length} linha(s) importada(s) e traduzida(s)!</strong>
+                <div style="max-height:180px; overflow-y:auto; margin-top:10px; font-size:12px;">
+                    ${registradas.map(r => `
+                        <div style="margin-bottom:8px; border-left:3px solid #aaa; padding-left:8px;">
+                            <div style="color:#888; font-size:10px;">Original: ${r.original}</div>
+                            <div style="color:#333;">→ ${r.traduzida} <span style="background:#e0e0e0; border-radius:5px; padding:1px 6px; font-size:10px;">${r.tipo}</span></div>
+                        </div>`).join('')}
+                </div>`;
+
+            // Process special events one by one
+            if (acoesEspeciais.length > 0) {
+                await processarAcoesEspeciaisMCCC(acoesEspeciais);
+            }
+
+            document.getElementById('txt-mccc-import').value = '';
+            showToast(`📋 ${registradas.length} eventos do MCCC importados!`);
+        }
+
+        async function processarAcoesEspeciaisMCCC(acoes) {
+            for (const acao of acoes) {
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        const nomeExibir = acao.nome || "um Sim";
+                        if (acao.tipo === 'NASCIMENTO') {
+                            const simExiste = acao.nome && db.sims.find(s => s.nome && s.nome.toLowerCase().includes(acao.nome.toLowerCase()));
+                            if (!simExiste) {
+                                if (confirm(`🍼 MCCC detectou um NASCIMENTO!\n\n"${acao.traduzida}"\n\nDeseja criar automaticamente "${nomeExibir}" na Árvore Genealógica?`)) {
+                                    abrirNovoSim();
+                                    if (acao.nome) document.getElementById('e-nome').value = acao.nome;
+                                    document.getElementById('e-fase').value = 'bebe';
+                                    document.getElementById('e-status').value = 'Vivo';
+                                    showToast("Formulário aberto — revise e salve!");
+                                }
+                            }
+                        } else if (acao.tipo === 'MORTE') {
+                            if (acao.nome) {
+                                const simEncontrado = db.sims.find(s => s.nome && s.nome.toLowerCase().includes(acao.nome.toLowerCase()));
+                                if (simEncontrado && simEncontrado.status !== 'Ancestral (Morto)') {
+                                    if (confirm(`💀 MCCC detectou uma MORTE!\n\n"${acao.traduzida}"\n\n"${simEncontrado.nome}" está vivo na sua árvore. Deseja marcá-lo(a) como Ancestral (Morto)?`)) {
+                                        simEncontrado.status = 'Ancestral (Morto)';
+                                        db.historia += `\n[${new Date().toLocaleDateString('pt-BR')}] [MORTE] ${simEncontrado.nome} foi marcado(a) como Ancestral (MCCC).`;
+                                        salvarTudo(); renderTree(); renderLivroComFiltro();
+                                        showToast(`✝️ ${simEncontrado.nome} marcado(a) como falecido(a)!`);
+                                    }
+                                }
+                            }
+                        } else if (acao.tipo === 'CASAMENTO') {
+                            if (confirm(`💍 MCCC detectou um CASAMENTO!\n\n"${acao.traduzida}"\n\nDeseja ir para a Árvore Genealógica para atualizar o status de ${nomeExibir}?`)) {
+                                switchTab('tab-tree');
+                                showToast("Encontre o Sim na árvore e edite o status civil!");
+                            }
+                        }
+                        resolve();
+                    }, 200);
+                });
+            }
         }
 
         function autenticarGoogle() {
@@ -1428,25 +1784,25 @@
             }
         }
 
-        // I.A. ANTHROPIC / FALLBACK LOCAL
+        // I.A. MULTI-PROVEDOR / FALLBACK LOCAL
         async function chamarIA_Anthropic(protagonista, tom, formato, modoSim) {
             if(!protagonista) return alert("Nenhum Sim disponível!");
             const apiKey = localStorage.getItem('ts4_anthropic_key');
-            
+            const provider = localStorage.getItem('ts4_ia_provider') || 'anthropic';
+
             const formatosNomes = {
                 "historia_vizinhanca": "🗣️ HISTÓRIAS DA VIZINHANÇA", "lore_save": "🎮 LORE DO SAVE", "notificacao_jogo": "📜 POP-UP DO JOGO", "diario_sim": "📔 DIÁRIO DO SIM", "dona_morte": "💀 TABLET DA DONA MORTE"
             };
             let cabecalho = modoSim ? formatosNomes[formato] + " | HISTÓRIA DE " + protagonista.nome.toUpperCase() : formatosNomes[formato];
 
-            if (!apiKey || apiKey.trim() === "") {
-                // FALLBACK ESTATICO
+            const semChave = (!apiKey || apiKey.trim() === "") && provider !== 'windowai';
+            if (semChave) {
                 let estatico = gerarTextoNarrativoCodexEstatico(protagonista, tom, formato, modoSim);
                 playReactionSound(tom === "Romântico" ? "obaoba" : (tom === "Caótico" || tom === "Dramático" || formato === "dona_morte") ? "perigo" : "geral");
                 exibirNarrativaCodex(estatico.cabecalho, estatico.corpo, tom);
                 return;
             }
 
-            // USO DA API REAL
             const btn1 = document.getElementById('btn-gerar-1'); const btn2 = document.getElementById('btn-gerar-2');
             const oldText1 = btn1.innerText; const oldText2 = btn2.innerText;
             btn1.innerText = "Pensando..."; btn2.innerText = "Pensando..."; btn1.disabled = true; btn2.disabled = true;
@@ -1454,33 +1810,57 @@
             const contextoFase = getContextoFaseCodex(protagonista);
             const contextoRelacoes = contextoDoSimCodex(protagonista);
             const traco = getTracoFocoCodex(protagonista);
-
-            const prompt = `Você é o narrador do jogo The Sims 4. Baseado nos dados do Sim abaixo, crie uma narrativa de estilo '${formato}' com um foco '${tom}'.
-Sim: ${protagonista.nome}
-Fase de Vida Atual: ${contextoFase}
-Contexto Familiar/Relações: ${contextoRelacoes}
-Traço principal afetando a ação: ${traco}
-
-A história deve ter consequências dramáticas, cômicas ou românticas dependendo do foco. Escreva APENAS a narrativa final. Formate o texto em parágrafos sem Markdown. No final, adicione uma linha exata dizendo: "[CONSEQUÊNCIA NARRATIVA]: (uma sugestão de impacto no gameplay para o jogador)".`;
+            const promptText = `Você é o narrador do jogo The Sims 4. Baseado nos dados do Sim abaixo, crie uma narrativa de estilo '${formato}' com um foco '${tom}'.\nSim: ${protagonista.nome}\nFase de Vida Atual: ${contextoFase}\nContexto Familiar/Relações: ${contextoRelacoes}\nTraço principal afetando a ação: ${traco}\n\nA história deve ter consequências dramáticas, cômicas ou românticas dependendo do foco. Escreva APENAS a narrativa final. Formate o texto em parágrafos sem Markdown. No final, adicione uma linha exata dizendo: "[CONSEQUÊNCIA NARRATIVA]: (uma sugestão de impacto no gameplay para o jogador)".`;
 
             try {
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-                    body: JSON.stringify({ model: "claude-3-haiku-20240307", max_tokens: 800, messages: [{ role: "user", content: prompt }] })
-                });
+                let textoResposta = "";
 
-                if(!response.ok) { const err = await response.json(); throw new Error(err.error?.message || "Erro na API."); }
-                const data = await response.json();
+                if (provider === 'windowai') {
+                    const aiObj = window.LanguageModel || (window.ai && window.ai.languageModel) || window.ai;
+                    if (!aiObj) throw new Error("Chrome Built-in AI não está disponível. Ative a flag em chrome://flags");
+                    const session = await (aiObj.create ? aiObj.create() : aiObj({ systemPrompt: "Você é um narrador criativo de The Sims 4." }));
+                    textoResposta = await session.prompt(promptText);
+                    if (session.destroy) session.destroy();
+
+                } else if (provider === 'openai') {
+                    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+                        body: JSON.stringify({ model: "gpt-4o-mini", max_tokens: 800, messages: [{ role: "user", content: promptText }] })
+                    });
+                    if(!response.ok) { const err = await response.json(); throw new Error(err.error?.message || "Erro na API OpenAI."); }
+                    const data = await response.json();
+                    textoResposta = data.choices[0].message.content;
+
+                } else if (provider === 'gemini') {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: { maxOutputTokens: 800 } })
+                    });
+                    if(!response.ok) { const err = await response.json(); throw new Error(err.error?.message || "Erro na API Gemini."); }
+                    const data = await response.json();
+                    textoResposta = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro ao ler resposta do Gemini.";
+
+                } else {
+                    const response = await fetch("https://api.anthropic.com/v1/messages", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+                        body: JSON.stringify({ model: "claude-3-haiku-20240307", max_tokens: 800, messages: [{ role: "user", content: promptText }] })
+                    });
+                    if(!response.ok) { const err = await response.json(); throw new Error(err.error?.message || "Erro na API Anthropic."); }
+                    const data = await response.json();
+                    textoResposta = data.content[0].text;
+                }
+
                 playReactionSound(tom === "Romântico" ? "obaoba" : (tom === "Caótico" || tom === "Dramático" || formato === "dona_morte") ? "perigo" : "geral");
-                exibirNarrativaCodex(cabecalho, data.content[0].text, tom);
+                exibirNarrativaCodex(cabecalho, textoResposta, tom);
             } catch(e) {
-                alert("Erro na IA Anthropic: " + e.message);
+                alert("Erro na I.A.: " + e.message);
             } finally {
                 btn1.innerText = oldText1; btn2.innerText = oldText2; btn1.disabled = false; btn2.disabled = false;
             }
         }
-
         function gerarTextoNarrativoCodexEstatico(protagonista, tom, formato, modoSim) {
             var tracoFoco = getTracoFocoCodex(protagonista);
             var contexto = contextoDoSimCodex(protagonista);
