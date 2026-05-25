@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v42 (Sims Edition)</title>
+    <title>Companion Narrativo - v43 (Sims Edition - Visual Premium)</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -16,7 +16,7 @@
     </script>
     <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -56,8 +56,43 @@
         .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 15px solid #ff4d4d; z-index: 10; }
         .suggestion-box { font-size: 12px; color: #444; background: #fffdf2; padding: 12px; border-radius: 10px; border-left: 4px solid #ffcc00; margin-top: 10px; min-height: 45px; line-height: 1.4; font-weight: 600;}
 
-        /* Container Vis.js para a Árvore */
-        .tree-container { width: 100%; height: 650px; background: var(--ts4-bg); border-radius: 15px; border: 1px solid #ccc; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); outline: none;}
+        /* Container Vis.js para a Árvore Premium Cinematográfica */
+        .tree-container { 
+            width: 100%; 
+            height: 750px; /* Mais alto para conforto visual */
+            background: radial-gradient(circle at center, #2b2b36 0%, #181820 100%); 
+            border-radius: 20px; 
+            border: 1px solid #444; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.1); 
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Malha sutil de fundo para dar textura de dashboard interativo/visual novel */
+        .tree-container::before {
+            content: ''; 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px; 
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Override do Tooltip nativo do Vis.js para ficar com visual de The Sims / Dark Mode */
+        div.vis-tooltip {
+            background-color: #222 !important;
+            border: 1px solid #444 !important;
+            border-radius: 15px !important;
+            color: #fff !important;
+            font-family: 'Nunito', sans-serif !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+            padding: 15px !important;
+            max-width: 280px;
+            white-space: normal !important;
+            z-index: 1000 !important;
+            pointer-events: none;
+        }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; z-index:100; justify-content: center; align-items: center; overflow-y: auto; padding: 20px 0; }
         .modal-content { background: white; width: 95%; max-width: 650px; padding: 25px; border-radius: 25px; margin: auto; position: relative;}
@@ -211,7 +246,7 @@
 
         <div id="tab-tree" class="tab-pane">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin:0;">Linhagem da Família</h2>
+                <h2 style="margin:0;">Legado Familiar</h2>
                 <div style="display:flex; gap: 10px;">
                     <button class="btn-main btn-sec" style="width:auto; margin:0; border-color:var(--ts4-blue); color:var(--ts4-blue);" onclick="exportarArvoreImagem()">📸 Exportar Imagem</button>
                     <button class="btn-main btn-sec" style="width:auto; margin:0;" onclick="toggleMortosArvore()" id="btn-toggle-mortos">👁️ Ocultar Mortos</button>
@@ -219,7 +254,7 @@
                 </div>
             </div>
             
-            <p style="font-size:12px; color:#555; margin-bottom:10px;">💡 Use o mouse (ou toque) para arrastar o painel livremente. Use o scroll para aumentar/diminuir o zoom. Clique em um Sim para visualizar o perfil.</p>
+            <p style="font-size:12px; color:#555; margin-bottom:10px;">💡 Use o mouse para explorar as gerações. Passe o mouse sobre os cards para visualizar as bios emocionais. Clique no card de um personagem para abrir seu perfil e editar seus dramas.</p>
             <div id="tree-display" class="tree-container"></div>
             
         </div>
@@ -962,7 +997,6 @@
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
             
-            // Corrige o layout caso a aba da árvore seja aberta e o canvas precise se atualizar
             if(id === 'tab-tree' && window.network) {
                 setTimeout(() => window.network.fit(), 100);
             }
@@ -1075,7 +1109,7 @@
         function concluirMeta(i) { const m = db.metas_pendentes[i]; db.metas_pendentes.splice(i, 1); db.historia += `\n[${new Date().toLocaleDateString('pt-BR')}] [CONQUISTA] Meta Concluída: ${m}`; salvarTudo(); renderMetas(); renderLivroComFiltro(); showToast("Meta registrada!"); }
         function renderMetas() { document.getElementById('lista-metas').innerHTML = db.metas_pendentes.map((m, i) => `<div style="background:#f9f9f9; padding:10px; border-radius:8px; border-left:4px solid var(--ts4-blue); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${m}</span><button class="btn-main" style="width:auto; margin:0; padding:5px 10px; background:var(--ts4-green)" onclick="concluirMeta(${i})">✓ Concluir</button></div>`).join(''); }
 
-        // MCCC UPLOAD E PREVIEW (Com Regex)
+        // MCCC UPLOAD E PREVIEW
         function lerArquivoMCCC(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -1193,7 +1227,7 @@
             salvarTudo(); renderLivroComFiltro(); showToast("Registrado!");
         }
 
-        // CONFIGURAÇÕES E CUSTOM UNIFICADO
+        // CONFIGURAÇÕES
         function renderConfig() {
             const area = document.getElementById('custom-items-area');
             area.innerHTML = `${['tracos', 'carreiras', 'aspiracoes'].map(tipo => `
@@ -1220,7 +1254,7 @@
         function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Opção 1"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
         function deletarRoleta(key) { if(confirm(`Excluir a roleta "${key}"?`)) { delete db.config[key]; salvarTudo(); renderConfig(); renderDash(); } }
 
-        // I.A. REESTRUTURADA E GERADOR DO SIM
+        // I.A. REESTRUTURADA
         function getSimByIdCodex(id) { return db.sims.find(s => String(s.id) === String(id)); }
         function getNomeSimCodex(id) { let s = getSimByIdCodex(id); return s ? s.nome : "Nenhum"; }
         function getTracoFocoCodex(sim) { let tracos = sim && sim.tracos ? sim.tracos.split(",").map(t => t.trim()).filter(Boolean) : []; return tracos.length ? tracos[Math.floor(Math.random() * tracos.length)] : "temperamento instável"; }
@@ -1254,39 +1288,25 @@
 
             const historias = {
                 "bebe-colo": [
-                    `A vida de um bebê não é só dormir e chorar. Sendo um bebê, ${sim.nome} fez uma grande descoberta hoje! Afetado(a) pelos seus traços (sendo ${tracos}), ${sim.nome} causou uma confusão tremenda que deixou a família inteira paralisada.`,
-                    `${sim.nome} começou a interagir com as coisas ao seu redor. Com sua personalidade ${tracos}, acabou engatinhando até um lugar perigoso da casa, causando um mini infarto nos pais!`,
-                    `Um choro no meio da madrugada alertou a todos. ${sim.nome}, influenciado(a) por ser ${tracos}, exigiu atenção de uma forma tão única que acabou mudando a rotina da casa inteira hoje.`
+                    `A vida de um bebê não é só dormir e chorar. Sendo um bebê, ${sim.nome} fez uma grande descoberta hoje! Afetado(a) pelos seus traços (sendo ${tracos}), ${sim.nome} causou uma confusão tremenda que deixou a família inteira paralisada.`
                 ],
                 "bebe": [
-                    `A vida de um bebê não é só dormir e chorar. Sendo um bebê, ${sim.nome} fez uma grande descoberta hoje! Afetado(a) pelos seus traços (sendo ${tracos}), ${sim.nome} causou uma confusão tremenda que deixou a família inteira paralisada.`,
-                    `${sim.nome} aprendeu uma nova palavra hoje! O problema é que, sendo ${tracos}, a usou exatamente na pior hora possível durante uma visita importante.`,
                     `Um rastro de destruição na cozinha. O culpado? ${sim.nome}. Agindo de forma bem ${tracos}, o bebê conseguiu alcançar o que não devia e criou o caos doméstico.`
                 ],
                 "crianca": [
-                    `Como uma criança em fase de crescimento, a imaginação de ${sim.nome} foi longe demais hoje na escola (ou em casa). Sendo tão ${tracos}, acabou criando uma situação muito atípica que exigirá atenção dos mais velhos.`,
-                    `${sim.nome} trouxe um "novo amigo" para casa hoje. O detalhe? Sendo ${tracos}, a família não sabe se é um bicho esquisito, um colega de escola ou um amigo imaginário causando problemas reais!`,
-                    `Um projeto escolar acabou em desastre (ou sucesso questionável). Graças a ser ${tracos}, ${sim.nome} tomou uma atitude que virou o assunto do bairro inteiro.`
+                    `Como uma criança em fase de crescimento, a imaginação de ${sim.nome} foi longe demais hoje na escola (ou em casa). Sendo tão ${tracos}, acabou criando uma situação muito atípica que exigirá atenção dos mais velhos.`
                 ],
                 "adolescente": [
-                    `Hormônios e rebeldia! Na fase adolescente, ${sim.nome} passou por um verdadeiro drama hoje. Sua personalidade, marcada por ser ${tracos}, bateu de frente com a autoridade, e agora há um segredo ou um castigo à vista.`,
-                    `${sim.nome} enviou uma mensagem (ou carta) para a pessoa errada. Com sua característica de ser ${tracos}, o que era pra ser um segredo virou uma bola de neve dramática no colégio.`,
-                    `Fugir à noite ou ficar no quarto? ${sim.nome} escolheu o caos. Sendo ${tracos}, a decisão tomada na madrugada de hoje vai trazer consequências hilárias ou tristes amanhã.`
+                    `Hormônios e rebeldia! Na fase adolescente, ${sim.nome} passou por um verdadeiro drama hoje. Sua personalidade, marcada por ser ${tracos}, bateu de frente com a autoridade, e agora há um segredo ou um castigo à vista.`
                 ],
                 "jovem-adulto": [
-                    `A vida adulta cobra seu preço diariamente. ${sim.nome} enfrentou um dilema sério hoje. Por conta de seus traços (${tracos}) e seu histórico amoroso, a escolha tomada hoje mudou o rumo da sua história no bairro.`,
-                    `${sim.nome} teve um encontro inusitado no trabalho (ou na rua). Sua forma de ser ${tracos} fez com que uma conversa simples se transformasse em uma oportunidade de vida... ou numa inimizade declarada.`,
-                    `As contas chegaram, mas ${sim.nome} estava com a cabeça em outro lugar. Fiel à sua natureza de ser ${tracos}, tomou uma decisão impulsiva que afetará drasticamente as finanças ou o coração da família.`
+                    `A vida adulta cobra seu preço diariamente. ${sim.nome} enfrentou um dilema sério hoje. Por conta de seus traços (${tracos}) e seu histórico amoroso, a escolha tomada hoje mudou o rumo da sua história no bairro.`
                 ],
                 "adulto": [
-                    `A vida adulta cobra seu preço diariamente. ${sim.nome} enfrentou um dilema sério hoje. Por conta de seus traços (${tracos}) e seu histórico amoroso, a escolha tomada hoje mudou o rumo da sua história no bairro.`,
-                    `Uma crise de meia-idade bateu à porta? ${sim.nome}, influenciado(a) por ser ${tracos}, sentiu uma vontade incontrolável de mudar tudo ao seu redor hoje. Alguém vai sair magoado ou surpreendido.`,
-                    `O passado bateu na porta de ${sim.nome} hoje. Sendo ${tracos}, a reação não foi nada convencional, reacendendo um velho romance ou uma velha rivalidade na vizinhança.`
+                    `Uma crise de meia-idade bateu à porta? ${sim.nome}, influenciado(a) por ser ${tracos}, sentiu uma vontade incontrolável de mudar tudo ao seu redor hoje. Alguém vai sair magoado ou surpreendido.`
                 ],
                 "idoso": [
-                    `A idade traz sabedoria, mas também manias incontroláveis. O(A) experiente ${sim.nome} refletiu sobre o passado hoje. Sendo ${tracos}, acabou surpreendendo a geração mais nova com uma atitude ou revelação chocante.`,
-                    `${sim.nome} escondeu algo importante na casa anos atrás. Hoje, por ser ${tracos}, decidiu que é hora de dar uma pista sobre o tesouro (ou a maldição) familiar.`,
-                    `Ninguém manda em ${sim.nome} agora! Usando a idade como desculpa e seu jeito ${tracos}, causou um escândalo em praça pública que os filhos (ou vizinhos) terão que resolver.`
+                    `A idade traz sabedoria, mas também manias incontroláveis. O(A) experiente ${sim.nome} refletiu sobre o passado hoje. Sendo ${tracos}, acabou surpreendendo a geração mais nova com uma atitude ou revelação chocante.`
                 ]
             };
 
@@ -1425,7 +1445,6 @@
         function carregarImagemNoInputDaFase() { let faseSel = document.getElementById('e-foto-fase-select').value; document.getElementById('e-img').value = tempFotosFases[faseSel] || ""; }
         function salvarImagemNaMemoriaDaFase() { let faseSel = document.getElementById('e-foto-fase-select').value; tempFotosFases[faseSel] = document.getElementById('e-img').value; }
         
-        // NOVO: Redimensionamento e compressão de Imagem via Canvas
         function carregarImagemComputador(e) {
             const file = e.target.files[0];
             if(file) { 
@@ -1439,15 +1458,9 @@
                         let height = img.height;
 
                         if (width > height) {
-                            if (width > MAX_SIZE) {
-                                height *= MAX_SIZE / width;
-                                width = MAX_SIZE;
-                            }
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
                         } else {
-                            if (height > MAX_SIZE) {
-                                width *= MAX_SIZE / height;
-                                height = MAX_SIZE;
-                            }
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
                         }
                         
                         canvas.width = width;
@@ -1455,8 +1468,6 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Convertendo para webp com leve compressão para garantir saúde do save. 
-                        // Mantém transparência se existir (diferente do jpeg).
                         const dataUrl = canvas.toDataURL('image/webp', 0.8);
                         document.getElementById('e-img').value = dataUrl; 
                         salvarImagemNaMemoriaDaFase(); 
@@ -1602,15 +1613,12 @@
         function exportarArvoreImagem() {
             if (window.network) {
                 showToast("📸 Preparando imagem completa (aguarde)...");
-                // Salvar estado atual do zoom
                 const currentScale = window.network.getScale();
                 const currentPos = window.network.getViewPosition();
                 
-                // Forçar a biblioteca a afastar e caber tudo na tela temporariamente
                 window.network.fit();
                 
                 setTimeout(() => {
-                    // Pegar a área do canvas e desenhar
                     const canvas = document.querySelector('#tree-display canvas');
                     if (canvas) {
                         const link = document.createElement('a');
@@ -1619,10 +1627,9 @@
                         link.click();
                         showToast("✅ Imagem Salva!");
                         
-                        // Retornar o zoom ao que era antes
                         window.network.moveTo({ position: currentPos, scale: currentScale });
                     }
-                }, 800); // 800ms para dar tempo do fit() renderizar 
+                }, 800); 
             } else {
                 alert("Nenhuma árvore disponível para exportar.");
             }
@@ -1634,57 +1641,135 @@
             const btn = document.getElementById('btn-toggle-mortos');
             if(hideDead) { btn.innerHTML = "👁️‍🗨️ Mostrar Mortos"; } 
             else { btn.innerHTML = "👁️ Ocultar Mortos"; }
-            renderTree(); // Com Vis.js, precisamos re-renderizar o estado
+            renderTree(); 
         }
 
-        // NOVA RENDERIZAÇÃO: Utilizando a Biblioteca Vis.js (Grafos)
+        // --- SISTEMA PREMIUM DE CARDS VIS.JS (GERADOR DE SVG) ---
+        function generateSimCardSVG(sim, isDead, hideDead) {
+            let isFounder = !sim.p1 && !sim.p2;
+            let tracos = (sim.tracos || "").toLowerCase();
+            let extra = (sim.extra || "").toLowerCase();
+            
+            // Lógica emocional / narrativa
+            let isVillain = sim.traicao || tracos.includes('maligno') || extra.includes('vilão');
+            let isHeir = extra.includes('herdeiro');
+            let isFavorite = extra.includes('favorito') || tracos.includes('protagonista');
+
+            let borderColor = '#555566'; 
+            let titleTag = '🎯 Membro da Família';
+            let nameColor = '#ffffff';
+            let bgGradient = ['#2a2a35', '#1a1a24'];
+
+            // Definição Visual Baseada na Narrativa
+            if (isFounder) { 
+                borderColor = '#FFD700'; titleTag = '👑 Fundador(a)'; bgGradient = ['#3a3215', '#1a180a']; 
+            } else if (isHeir) { 
+                borderColor = '#4dabf7'; titleTag = '👶 Herdeiro(a)'; bgGradient = ['#1a2a35', '#0a1520']; 
+            } else if (isVillain) { 
+                borderColor = '#ff4d4d'; titleTag = '🔥 Caótico(a)'; bgGradient = ['#351a1a', '#200a0a']; 
+            } else if (isFavorite) { 
+                borderColor = '#b19cd9'; titleTag = '⭐ Favorito(a)'; bgGradient = ['#2a1a35', '#150a20']; 
+            }
+
+            if (isDead) {
+                borderColor = '#444444';
+                titleTag = '🪦 Ancestral';
+                bgGradient = ['#1e1e1e', '#111111'];
+                nameColor = '#aaaaaa';
+            }
+
+            let faseAtual = sim.fase || "jovem-adulto";
+            let imgData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            if (sim.img) {
+                imgData = sim.img[faseAtual] || sim.img["jovem-adulto"] || sim.img["adulto"] || Object.values(sim.img).find(i => i !== "") || imgData;
+            }
+
+            // Mapeando Ícones de Relacionamento e Status Civil
+            let icons = [];
+            if (sim.relStatus === 'casado') icons.push('💍');
+            if (sim.relStatus === 'separado') icons.push('💔');
+            if (sim.crush) icons.push('💕');
+            let iconStr = icons.join('  ');
+
+            // Construção do Card (SVG)
+            let svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="220" height="300">
+                <defs>
+                    <clipPath id="avatarClip">
+                        <rect x="15" y="15" width="190" height="190" rx="15" ry="15" />
+                    </clipPath>
+                    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${bgGradient[0]}"/>
+                        <stop offset="100%" stop-color="${bgGradient[1]}"/>
+                    </linearGradient>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="6" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                
+                <rect x="5" y="5" width="210" height="290" rx="20" ry="20" fill="url(#bg)" stroke="${borderColor}" stroke-width="4" filter="${(isFavorite || isFounder) ? 'url(#glow)' : 'none'}" />
+                
+                <rect x="15" y="15" width="190" height="190" rx="15" ry="15" fill="#111" />
+                
+                <image href="${imgData}" x="15" y="15" width="190" height="190" preserveAspectRatio="xMidYMid slice" clip-path="url(#avatarClip)" />
+                
+                <text x="110" y="235" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${nameColor}" text-anchor="middle">${sim.nome}</text>
+                
+                <text x="110" y="255" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="${borderColor}" text-anchor="middle">${titleTag}</text>
+                
+                <text x="110" y="280" font-family="Arial, sans-serif" font-size="18" fill="#ffffff" text-anchor="middle">${iconStr}</text>
+            </svg>
+            `;
+            return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        }
+
+        // NOVA RENDERIZAÇÃO PREMIUM DA ÁRVORE GENEALÓGICA
         function renderTree() {
             const container = document.getElementById('tree-display');
             if (db.sims.length === 0) { 
-                container.innerHTML = '<p style="color:#888; text-align:center; padding-top:20px;">Nenhum Sim criado ainda. Adicione o seu primeiro Sim.</p>'; 
+                container.innerHTML = '<p style="color:#888; text-align:center; padding-top:20px;">Nenhum Sim criado ainda. Adicione o seu primeiro Sim para começar o legado.</p>'; 
                 window.network = null;
                 return; 
             }
 
-            const defaultImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            
-            // 1. Mapear os Nós (Sims)
+            const FASES_LABELS = { "bebe-colo":"👶 Bebê de Colo","bebe":"🍼 Bebê","crianca":"🧒 Criança","adolescente":"🧑 Adolescente","jovem-adulto":"👨 Jovem Adulto","adulto":"🧔 Adulto","idoso":"👴 Idoso" };
+
+            // 1. Mapear os Nós (Cards em formato de imagem SVG processado)
             let nodesArray = db.sims.map(s => {
                 let isDead = s.status === 'Ancestral (Morto)';
                 let faseAtual = s.fase || "jovem-adulto";
-                let imgData = "";
                 
-                if (s.img) { imgData = s.img[faseAtual] || s.img["jovem-adulto"] || s.img["adulto"] || Object.values(s.img).find(i => i !== "") || ""; }
+                // Construção da Bio Oculta (Vis.js Title / Tooltip)
+                let extraFormatado = s.extra ? `<p style="margin: 8px 0 0 0; font-size: 12px; font-style: italic; color: #aaa; border-top: 1px solid #444; padding-top: 8px;">${s.extra.substring(0, 100)}${s.extra.length > 100 ? '...' : ''}</p>` : '';
                 
-                let borderColor = '#0079C1';
-                if (s.traicao) borderColor = '#ff4d4d'; // Cor da traição (prioritária visualmente)
-                if (isDead) borderColor = '#aaaaaa'; 
-                
+                let tooltipHTML = `
+                    <h4 style="margin: 0 0 5px 0; color: #4dabf7; font-size:16px;">${s.nome}</h4>
+                    <p style="margin: 0; font-size: 13px; color: #ddd;"><strong>Fase:</strong> ${FASES_LABELS[faseAtual] || faseAtual}</p>
+                    <p style="margin: 0; font-size: 13px; color: #ddd;"><strong>Traços:</strong> ${s.tracos || 'Ainda descobrindo...'}</p>
+                    ${extraFormatado}
+                `;
+
                 return {
                     id: s.id,
-                    label: s.nome,
-                    shape: imgData ? 'circularImage' : 'ellipse',
-                    image: imgData || defaultImg,
-                    color: {
-                        border: borderColor,
-                        background: isDead ? '#f0f0f0' : '#ffffff',
-                    },
-                    borderWidth: s.traicao ? 4 : 2,
-                    font: { color: isDead ? '#888' : '#333', face: 'Nunito', size: 14, bold: true },
+                    shape: 'image',
+                    image: generateSimCardSVG(s, isDead, hideDead),
+                    size: 80, // Controla o tamanho geral do card na tela
+                    title: tooltipHTML, // Exibe no hover
                     opacity: isDead && hideDead ? 0.2 : 1
                 };
             });
 
-            // 2. Mapear Arestas (Relações/Setas)
+            // 2. Mapear Arestas (Relações elegantes)
             let edgesArray = [];
             let addedSpouses = new Set();
             
             db.sims.forEach(s => {
-                // Relação Pai -> Filho (A biblioteca entende que irmãos vem do mesmo pai automaticamente)
-                if (s.p1) edgesArray.push({ from: s.p1, to: s.id, color: { color: '#0079C1', opacity: 0.7 }, arrows: 'to' });
-                if (s.p2) edgesArray.push({ from: s.p2, to: s.id, color: { color: '#0079C1', opacity: 0.7 }, arrows: 'to' });
+                // Relação Pai -> Filho (Azul fino, conectivo emocional suave)
+                if (s.p1) edgesArray.push({ from: s.p1, to: s.id, color: { color: '#4dabf7', opacity: 0.6 }, arrows: 'to', width: 2 });
+                if (s.p2) edgesArray.push({ from: s.p2, to: s.id, color: { color: '#4dabf7', opacity: 0.6 }, arrows: 'to', width: 2 });
                 
-                // Relação de Casal
+                // Relação de Casal / Ex-Casal
                 if (s.spouse) {
                     let spKey1 = `${s.id}-${s.spouse}`;
                     let spKey2 = `${s.spouse}-${s.id}`;
@@ -1694,48 +1779,62 @@
                         edgesArray.push({
                             from: s.id,
                             to: s.spouse,
-                            color: { color: isSeparated ? '#ff4d4d' : '#fd7e14' },
-                            dashes: isSeparated,
-                            width: 3
+                            color: { color: isSeparated ? '#ff4d4d' : '#FFD700', opacity: 0.8 },
+                            dashes: isSeparated ? [8, 8] : false, // Linha tracejada elegante para divorciados
+                            width: isSeparated ? 2 : 3,
+                            smooth: { type: 'horizontal', roundness: 0.3 } // Deixa a linha dos casais mais reta e menos poluída
                         });
                         addedSpouses.add(spKey1);
                     }
                 }
             });
 
-            // 3. Renderizar com o Motor
-            let data = {
-                nodes: new vis.DataSet(nodesArray),
-                edges: new vis.DataSet(edgesArray)
-            };
+            // 3. Renderizar com Layout Direcional Otimizado e Espaçado
+            let data = { nodes: new vis.DataSet(nodesArray), edges: new vis.DataSet(edgesArray) };
 
             let options = {
                 layout: {
                     hierarchical: {
-                        direction: 'UD', // Cima para baixo
+                        direction: 'UD', 
                         sortMethod: 'directed',
-                        nodeSpacing: 180,
-                        levelSeparation: 150
+                        nodeSpacing: 250, // Maior respiro horizontal entre os cards
+                        levelSeparation: 300, // Maior separação entre as gerações (vertical)
+                        treeSpacing: 250
                     }
                 },
                 physics: {
-                    hierarchicalRepulsion: { nodeDistance: 150 },
+                    hierarchicalRepulsion: { nodeDistance: 250 },
                     solver: 'hierarchicalRepulsion'
                 },
                 interaction: {
                     dragNodes: true,
                     dragView: true,
-                    zoomView: true
+                    zoomView: true,
+                    hover: true, // Ativa a interação elegante
+                    tooltipDelay: 200
                 },
                 nodes: {
-                    size: 40,
-                    shadow: true
+                    // Micro-Animação Premium: O card aumenta suavemente ao passar o mouse ou clicar
+                    chosen: {
+                        node: function(values, id, selected, hovering) {
+                            if (hovering || selected) {
+                                values.size = 85; // Aumento de 5% no tamanho do card
+                            }
+                        }
+                    }
+                },
+                edges: {
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'vertical',
+                        roundness: 0.5 // Curvas mais orgânicas e vivas
+                    }
                 }
             };
 
             window.network = new vis.Network(container, data, options);
             
-            // 4. Interação (Abrir Perfil)
+            // 4. Interação Principal: Abrir Painel de Gestão e Dramas
             window.network.on("click", function (params) {
                 if (params.nodes.length > 0) {
                     abrirPerfil(params.nodes[0]);
