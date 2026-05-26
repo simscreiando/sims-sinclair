@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v44 (Sims Edition - Cozy Legacy)</title>
+    <title>Companion Narrativo - v45 (Sims Edition)</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -241,10 +241,12 @@
             <div id="tree-container-wrapper" style="position: relative;">
                 <div id="tree-legend" style="position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.85); padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 11px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.05); backdrop-filter: blur(5px);">
                     <strong style="color:var(--ts4-blue); display:block; margin-bottom:8px; font-size:12px; text-transform:uppercase;">Legenda de Conexões</strong>
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><div style="width:20px; height:3px; background:#0079C1;"></div> Pais e Filhos</div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><div style="width:20px; height:3px; background:#7CD700;"></div> Casados</div>
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;"><div style="width:20px; height:2px; background:#FF4D4D; border-bottom: 2px dashed #FF4D4D;"></div> Separados</div>
-                    <div style="display:flex; align-items:center; gap:8px;"><div style="width:20px; height:2px; background:#34495E; border-bottom: 2px dotted #34495E;"></div> Viúvos</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:5px;"><div style="width:20px; height:3px; background:#0079C1;"></div> Pais e Filhos</div>
+                        <div style="display:flex; align-items:center; gap:5px;"><div style="width:20px; height:3px; background:#7CD700;"></div> Casados</div>
+                        <div style="display:flex; align-items:center; gap:5px;"><div style="width:20px; height:2px; background:#FF4D4D; border-bottom: 2px dashed #FF4D4D;"></div> Separados</div>
+                        <div style="display:flex; align-items:center; gap:5px;"><div style="width:20px; height:2px; background:#34495E; border-bottom: 2px dotted #34495E;"></div> Viúvos</div>
+                    </div>
                 </div>
 
                 <div id="tree-display" class="tree-container"></div>
@@ -400,7 +402,7 @@
             <div class="panel">
                 <h2>⚙️ Ajustes do Sistema</h2>
 
-                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🖼️ VISUAL: THE CHART (CONEXÕES)</div>
+                <div class="config-header" style="font-weight: bold; margin-top: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px;">🖼️ VISUAL: THE CHART (CONEXões)</div>
                 <p style="font-size: 12px; color: #666;">Altere o fundo da sua árvore genealógica de acordo com o mundo ou a "vibe" da sua história atual.</p>
                 <div style="margin-top:10px;">
                     <label style="font-weight:bold; font-size:13px;">Estilo de Fundo da Árvore:</label>
@@ -578,6 +580,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
                     <div class="profile-field"><strong>Progenitor(a) 2</strong><span id="v-p2">Nenhum</span></div>
                     <div class="profile-field"><strong>Relacionamento</strong><span id="v-spouse">Nenhum</span></div>
+                    <div class="profile-field" id="campo-historico-rel" style="display:none; grid-column: span 2; border-left-color: #9B59B6;"><strong style="color:#9B59B6;">💌 Relacionamentos Anteriores</strong><span id="v-historico-rel"></span></div>
                     <div class="profile-field" style="grid-column: span 2;"><strong>Filhos(as)</strong><span id="v-filhos">Nenhum</span></div>
                     <div class="profile-field" style="grid-column: span 2;"><strong>Dinâmicas Especiais (Crush, Inimigo, Amante)</strong><span id="v-crush">Nenhum</span></div>
                     <div class="profile-field" style="grid-column: span 2;"><strong>Traços e Aspirações</strong><span id="v-tracos">...</span></div>
@@ -587,7 +590,10 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         <div id="v-parentesco" style="font-size: 13px; line-height: 1.5; margin-top: 5px;">Calculando...</div>
                     </div>
                 </div>
-                <button class="btn-main" style="background:var(--ts4-green); margin-top:20px;" onclick="adicionarFilhoPerfil()">+ ADICIONAR FILHO(A)</button>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-main" style="background:var(--ts4-green); margin:0;" onclick="adicionarFilhoPerfil()">+ ADICIONAR FILHO(A)</button>
+                    <button class="btn-main" style="background:#17a2b8; margin:0;" onclick="adotarFilhoPerfil()">+ ADOTAR FILHO(A)</button>
+                </div>
                 <button class="btn-main btn-sec" style="margin-top:10px;" onclick="fecharModal()">FECHAR</button>
             </div>
 
@@ -635,14 +641,14 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 </div>
                 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <div style="flex:1;"><label>Cônjuge/Namorado:</label><select id="e-spouse"></select></div>
+                    <div style="flex:1;"><label>Cônjuge / Ex-Parceiro(a):</label><select id="e-spouse"></select></div>
                     <div style="flex:1;">
                         <label>Status Civil:</label>
                         <select id="e-rel">
                             <option value="solteiro">Solteiro(a)</option>
                             <option value="casado">Casado(a) 💍</option>
-                            <option value="separado">Separado(a) 💔</option>
-                            <option value="viuvo">Viúvo(a) 🥀</option>
+                            <option value="separado">Separado(a) (Ex-Parceiro) 💔</option>
+                            <option value="viuvo">Viúvo(a) (Ex-Parceiro) 🥀</option>
                         </select>
                     </div>
                 </div>
@@ -769,6 +775,11 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 if (!db.config[k]) db.config[k] = [...DEFAULT_CONFIG_WHEELS[k]];
                 else DEFAULT_CONFIG_WHEELS[k].forEach(item => { if (!db.config[k].includes(item)) db.config[k].push(item); });
             }
+
+            // Migração: garante que todos os Sims existentes tenham o campo de histórico
+            db.sims.forEach(s => {
+                if (!s.historico_relacionamentos) s.historico_relacionamentos = [];
+            });
         }
 
         function iniciarDB() {
@@ -1067,7 +1078,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         }
         
         function salvarOraculoNoSim() {
-            let s = db.sims.find(x => x.id == document.getElementById('sel-sim-link').value);
+            let s = db.sims.find(x => String(x.id) === String(document.getElementById('sel-sim-link').value));
             if(s) { s.extra = (s.extra ? s.extra + "\n\n" : "") + window.lastOraculo; salvarTudo(); showToast("Salvo!"); }
         }
 
@@ -1473,7 +1484,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             toggleEditMode(true);
             if(paiPadrao) {
                 document.getElementById('e-p1').value = String(paiPadrao);
-                let paiObj = db.sims.find(x => x.id == paiPadrao);
+                let paiObj = db.sims.find(x => String(x.id) === String(paiPadrao));
                 if (paiObj) { 
                     let partesNome = paiObj.nome.trim().split(" "); 
                     if(partesNome.length > 1) document.getElementById('e-nome').value = "Bebê " + partesNome[partesNome.length - 1]; 
@@ -1492,7 +1503,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
         function preencherFormEdicao() {
             const defaultImgObj = {"bebe-colo":"","bebe":"","crianca":"","adolescente":"","jovem-adulto":"","adulto":"","idoso":""};
-            const s = db.sims.find(x => x.id == currentSimId) || { nome: "", status: "Vivo", p1: "", p2: "", spouse: "", relStatus: "solteiro", crush: "", tracos: "", extra: "", img: defaultImgObj, traicao: false, fase: "jovem-adulto" };
+            const s = db.sims.find(x => String(x.id) === String(currentSimId)) || { nome: "", status: "Vivo", p1: "", p2: "", spouse: "", relStatus: "solteiro", crush: "", tracos: "", extra: "", img: defaultImgObj, traicao: false, fase: "jovem-adulto" };
             
             ['e-nome','e-status','e-crush','e-tracos','e-extra'].forEach(id => {
                 if(document.getElementById(id)) document.getElementById(id).value = s[id.replace('e-','')] || "";
@@ -1502,7 +1513,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('e-foto-fase-select').value = s.fase || "jovem-adulto";
             carregarImagemNoInputDaFase();
             
-            const opt = '<option value="">Nenhum</option>' + db.sims.filter(x => x.id != currentSimId).map(x => `<option value="${x.id}">${x.nome}</option>`).join('');
+            const opt = '<option value="">Nenhum</option>' + db.sims.filter(x => String(x.id) !== String(currentSimId)).map(x => `<option value="${x.id}">${x.nome}</option>`).join('');
             ['e-p1','e-p2','e-spouse'].forEach(id => { 
                 const el = document.getElementById(id); 
                 if(el) { el.innerHTML = opt; el.value = s[id.replace('e-','')] || ""; }
@@ -1564,13 +1575,20 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
             if(!nomeSim) return alert("Preencha o nome do Sim!");
 
-            // 1. AUTO-VIÚVO: Se o jogador marcar como Morto e o Sim estava casado, vira viúvo na hora.
+            // 1. AUTO-VIÚVO: Se o jogador marcar como Morto no formulário e o Sim estava casado, ajusta o status!
             if (statusVital === 'Ancestral (Morto)' && relStatusNovo === 'casado') {
                 relStatusNovo = 'viuvo';
             }
 
+            // Preserva o histórico de relacionamentos já existente antes de sobrescrever o objeto
+            let historicoAtual = [];
+            if (currentSimId) {
+                let simExistente = db.sims.find(x => String(x.id) === String(currentSimId));
+                if (simExistente) historicoAtual = [...(simExistente.historico_relacionamentos || [])];
+            }
+
             const s = {
-                id: currentSimId || Date.now(), 
+                id: currentSimId ? String(currentSimId) : String(Date.now()), 
                 nome: nomeSim, 
                 status: statusVital, 
                 img: JSON.parse(JSON.stringify(tempFotosFases)), 
@@ -1582,16 +1600,51 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 crush: document.getElementById('e-crush').value, 
                 tracos: document.getElementById('e-tracos').value, 
                 extra: document.getElementById('e-extra').value, 
-                fase: faseNova
+                fase: faseNova,
+                historico_relacionamentos: historicoAtual
             };
 
             if(currentSimId) {
-                let oldSim = db.sims.find(x => x.id == currentSimId);
-                if(oldSim.spouse && oldSim.spouse != s.spouse) { let ex = db.sims.find(x => x.id == oldSim.spouse); if(ex) ex.spouse = ""; }
-                if(s.spouse) { let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); if(novoConj) { novoConj.spouse = s.id; novoConj.relStatus = s.relStatus; } }
-                const idx = db.sims.findIndex(x => x.id == currentSimId); db.sims[idx] = s;
+                let oldSim = db.sims.find(x => String(x.id) === String(currentSimId));
+                // Se o cônjuge mudou (novo casamento, separação com remoção ou limpeza manual)
+                if(oldSim.spouse && String(oldSim.spouse) !== String(s.spouse)) {
+                    let ex = db.sims.find(x => String(x.id) === String(oldSim.spouse));
+                    let nomeEx = ex ? ex.nome : 'Sim removido';
+
+                    // Arquiva o relacionamento encerrado no histórico do Sim atual
+                    s.historico_relacionamentos.push({
+                        simId: String(oldSim.spouse),
+                        simNome: nomeEx,
+                        statusFinal: oldSim.relStatus  // guarda como estava antes (casado, viuvo, separado)
+                    });
+
+                    // Arquiva também no histórico do ex-cônjuge (se ele ainda existir)
+                    if(ex) {
+                        if (!ex.historico_relacionamentos) ex.historico_relacionamentos = [];
+                        ex.historico_relacionamentos.push({
+                            simId: String(oldSim.id),
+                            simNome: oldSim.nome,
+                            statusFinal: oldSim.relStatus
+                        });
+                        ex.spouse = "";
+                    }
+                }
+                if(s.spouse) { 
+                    let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); 
+                    if(novoConj) { 
+                        novoConj.spouse = s.id; 
+                        novoConj.relStatus = s.relStatus; 
+                    } 
+                }
+                const idx = db.sims.findIndex(x => String(x.id) === String(currentSimId)); db.sims[idx] = s;
             } else {
-                if(s.spouse) { let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); if(novoConj) { novoConj.spouse = s.id; novoConj.relStatus = s.relStatus; } }
+                if(s.spouse) { 
+                    let novoConj = db.sims.find(x => String(x.id) === String(s.spouse)); 
+                    if(novoConj) { 
+                        novoConj.spouse = s.id; 
+                        novoConj.relStatus = s.relStatus; 
+                    } 
+                }
                 db.sims.push(s);
             }
             salvarTudo(); fecharModal(); renderTree(); renderGenList(); renderIaSimList(); showToast("Perfil salvo!");
@@ -1599,15 +1652,15 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
         function deletarSim() {
             if(!confirm("Tem certeza que deseja excluir este Sim?")) return;
-            let s = db.sims.find(x => x.id == currentSimId);
-            if(s && s.spouse) { let conj = db.sims.find(x => x.id == s.spouse); if(conj) conj.spouse = ""; }
-            db.sims = db.sims.filter(x => x.id != currentSimId);
+            let s = db.sims.find(x => String(x.id) === String(currentSimId));
+            if(s && s.spouse) { let conj = db.sims.find(x => String(x.id) === String(s.spouse)); if(conj) conj.spouse = ""; }
+            db.sims = db.sims.filter(x => String(x.id) !== String(currentSimId));
             db.sims.forEach(filho => { if (String(filho.p1) === String(currentSimId)) filho.p1 = ""; if (String(filho.p2) === String(currentSimId)) filho.p2 = ""; });
             salvarTudo(); fecharModal(); renderTree(); renderGenList(); renderIaSimList();
         }
 
         function abrirPerfil(id) {
-            currentSimId = id; const s = db.sims.find(x => x.id == id);
+            currentSimId = id; const s = db.sims.find(x => String(x.id) === String(id));
             toggleEditMode(false);
             
             document.getElementById('v-nome').innerText = s.nome;
@@ -1628,9 +1681,9 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             if (strRel === 'solteiro') { 
                 document.getElementById('v-spouse').innerText = s.spouse ? getNome(s.spouse) + " (Namorados/Noivos)" : "Solteiro(a)";
             } else { 
-                let txtStatus = 'Casado(a)';
-                if (strRel === 'separado') txtStatus = 'Separado(a)';
-                else if (strRel === 'viuvo') txtStatus = 'Viúvo(a)';
+                let txtStatus = 'Cônjuge';
+                if (strRel === 'separado') txtStatus = 'Ex-Parceiro(a) 💔';
+                else if (strRel === 'viuvo') txtStatus = 'Ex-Parceiro(a) - Viúvo(a) 🥀';
                 document.getElementById('v-spouse').innerText = s.spouse ? getNome(s.spouse) + " (" + txtStatus + ")" : txtStatus + " (Sem Sim vinculado)"; 
             }
 
@@ -1641,11 +1694,46 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('v-extra').innerText = s.extra || '...';
             document.getElementById('v-parentesco').innerHTML = calcularParentesco(s.id);
             document.getElementById('v-timeline').innerHTML = gerarLinhaDoTempo(s);
+
+            // Exibe campo de histórico apenas quando há entradas arquivadas
+            let historico = s.historico_relacionamentos || [];
+            let campoHistorico = document.getElementById('campo-historico-rel');
+            if (historico.length > 0) {
+                campoHistorico.style.display = 'block';
+                document.getElementById('v-historico-rel').innerText = historico.map(h => {
+                    let lbl = h.statusFinal === 'viuvo' ? '🥀 Viúvo(a) de' 
+                            : h.statusFinal === 'separado' ? '💔 Sep. de' 
+                            : '💍 Casado(a) com';
+                    return `${lbl} ${h.simNome}`;
+                }).join('  •  ');
+            } else {
+                campoHistorico.style.display = 'none';
+            }
+
             document.getElementById('modal-sim').style.display = 'flex';
         }
 
+        // --- NOVA FUNÇÃO INSERIDA AQUI PARA CORRIGIR O BUG ---
+        function atualizarFotoExibicaoPerfil() {
+            if (!currentSimId) return;
+            const s = db.sims.find(x => String(x.id) === String(currentSimId));
+            if (!s) return;
+            
+            let faseSel = document.getElementById('v-seletor-foto-fase').value;
+            let imgContainer = document.getElementById('v-img');
+            
+            let imgData = (s.img && s.img[faseSel]) ? s.img[faseSel] : "";
+
+            if (imgData) {
+                imgContainer.innerHTML = `<img src="${imgData}" alt="Foto do Sim">`;
+            } else {
+                imgContainer.innerHTML = "👤";
+            }
+        }
+        // -----------------------------------------------------
+
         function marcarFalecidoRapido() {
-            let s = db.sims.find(x => x.id == currentSimId);
+            let s = db.sims.find(x => String(x.id) === String(currentSimId));
             if(s) { 
                 s.status = 'Ancestral (Morto)'; 
                 let msgHistoria = `\n[${new Date().toLocaleDateString('pt-BR')}] [MORTE] ${s.nome} infelizmente faleceu e tornou-se um Ancestral.`;
@@ -1656,7 +1744,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     let conjuge = db.sims.find(x => String(x.id) === String(s.spouse));
                     if(conjuge) {
                         conjuge.relStatus = 'viuvo';
-                        msgHistoria += ` Seu cônjuge, ${conjuge.nome}, agora é viúvo(a).`;
+                        msgHistoria += ` Seu(sua) cônjuge, ${conjuge.nome}, agora é viúvo(a).`;
                     }
                 }
 
@@ -1666,6 +1754,17 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         }
 
         function adicionarFilhoPerfil() { abrirNovoSim(currentSimId); }
+
+        function adotarFilhoPerfil() {
+            let adotante = db.sims.find(x => String(x.id) === String(currentSimId));
+            let msgHistoria = `\n[${new Date().toLocaleDateString('pt-BR')}] [NASCIMENTO] Adoção! ${adotante.nome} adotou uma criança para a família.`;
+            db.historia += msgHistoria;
+            salvarTudo();
+            renderLivroComFiltro();
+            fecharModal();
+            abrirNovoSim(currentSimId);
+            showToast("Adoção iniciada no Livro!");
+        }
 
         function calcularParentesco(targetId) {
             const getSim = id => db.sims.find(s => String(s.id) === String(id));
@@ -1691,9 +1790,29 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         function gerarLinhaDoTempo(s) {
             let timeline = [];
             if (s.p1 || s.p2) timeline.push({ txt: "Nascimento", class: "" }); else timeline.push({ txt: "Fundador(a)", class: "" });
-            if (s.spouse) { if(s.relStatus === 'separado') timeline.push({ txt: "Casamento Desfeito", class: "bad" }); else timeline.push({ txt: "Casamento", class: "" }); }
+            
+            // Relacionamentos anteriores (arquivados em historico_relacionamentos)
+            if (s.historico_relacionamentos && s.historico_relacionamentos.length > 0) {
+                s.historico_relacionamentos.forEach(h => {
+                    if (h.statusFinal === 'viuvo') {
+                        timeline.push({ txt: `🥀 Viúvo(a) de ${h.simNome}`, class: "dead" });
+                    } else if (h.statusFinal === 'separado') {
+                        timeline.push({ txt: `💔 Separação de ${h.simNome}`, class: "bad" });
+                    } else {
+                        timeline.push({ txt: `💍 Casado(a) c/ ${h.simNome}`, class: "" });
+                    }
+                });
+            }
+
+            if (s.spouse) { 
+                let nomeSpouse = db.sims.find(x => String(x.id) === String(s.spouse))?.nome || "Desconhecido";
+                if(s.relStatus === 'separado') timeline.push({ txt: `Separação de ${nomeSpouse}`, class: "bad" }); 
+                else if(s.relStatus === 'viuvo') timeline.push({ txt: `Viúvo(a) de ${nomeSpouse}`, class: "bad" }); 
+                else timeline.push({ txt: `Casamento com ${nomeSpouse}`, class: "" }); 
+            }
+            
             if (s.traicao) timeline.push({ txt: "Escândalo / Traição", class: "bad" });
-            if (s.status === 'Ancestral (Morto)') timeline.push({ txt: "Faleceu", class: "dead" });
+            if (s.status === 'Ancestral (Morto)') timeline.push({ txt: "Faleceu como Ancestral", class: "dead" });
             if (timeline.length === 1 && s.status === 'Vivo') timeline.push({ txt: "Dias Atuais", class: "" });
 
             return timeline.map((item, index) => {
@@ -1737,9 +1856,11 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             renderTree(); 
         }
 
-        // --- SISTEMA DE CÁLCULO DE PROFUNDIDADE DE GERAÇÃO ---
+        // --- SISTEMA DE CÁLCULO DE PROFUNDIDADE DE GERAÇÃO (FIX VIS.JS) ---
         function calcularNiveisDeGeracao() {
             let niveis = {};
+            
+            // Pass 1: Calcula o nível baseado nos pais
             function getDepth(id, visited = new Set()) {
                 if (visited.has(id)) return 0; // Previne loops infinitos no grafo
                 visited.add(id);
@@ -1750,6 +1871,21 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 return Math.max(d1, d2);
             }
             db.sims.forEach(s => { niveis[s.id] = getDepth(s.id); });
+
+            // Pass 2: Sincroniza cônjuges isolados para o mesmo nível, impedindo a engine de crachar
+            db.sims.forEach(s => {
+                if (s.spouse) {
+                    let spLevel = niveis[s.spouse];
+                    let myLevel = niveis[s.id];
+                    // Se o Sim não tem pais (nível 0) mas o cônjuge tem, ele deve ficar no mesmo andar
+                    if (myLevel === 0 && spLevel > 0) {
+                        niveis[s.id] = spLevel;
+                    } else if (spLevel === 0 && myLevel > 0) {
+                        niveis[s.spouse] = myLevel;
+                    }
+                }
+            });
+
             return niveis;
         }
 
@@ -1860,7 +1996,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             let nodesArray = db.sims.map(s => {
                 let isDead = s.status === 'Ancestral (Morto)';
                 return {
-                    id: String(s.id), // <-- Ajuste: Garantindo o tipo de dado para evitar travamentos
+                    id: String(s.id), // <-- Garantindo String para a Engine
                     shape: 'image',
                     image: generateSimCardSVG(s, isDead, hideDead),
                     size: 70, 
@@ -1899,13 +2035,12 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         }
 
                         edgesArray.push({
-                            from: String(s.id),       // <-- Ajuste estrutural
-                            to: String(s.spouse),     // <-- Ajuste estrutural
+                            from: String(s.id),       // <-- Strings obrigatórias
+                            to: String(s.spouse),     
                             color: { color: edgeColor },
                             dashes: edgeDashes,
                             width: 3,
-                            // Dynamic permite que linhas entre cônjuges se empurrem e evitem se cruzar tão retamente
-                            smooth: { type: 'dynamic' } 
+                            smooth: { type: 'curvedCW', roundness: 0.3 }  // FIX: Mais compatível com layout hierárquico
                         });
                         addedSpouses.add(spKey1);
                     }
@@ -1922,7 +2057,9 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         sortMethod: 'directed',
                         nodeSpacing: 220, 
                         levelSeparation: 260, 
-                        treeSpacing: 220
+                        treeSpacing: 300,
+                        blockShifting: false,       // FIX: Evita o bug de nós sumindo ao vincular cônjuges no mesmo nível
+                        edgeMinimization: false     // FIX: Evita conflito de layout com arestas horizontais (casais sem pais)
                     }
                 },
                 physics: {
