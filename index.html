@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v46 (Sims Edition - Cozy Legacy)</title>
+    <title>Companion Narrativo - v47 (Sims Edition)</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -97,6 +97,11 @@
 
         .audio-config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 15px; }
         .mini-btn { width: auto; margin: 8px 6px 0 0; padding: 7px 11px; border-radius: 12px; font-size: 11px; }
+
+        .sim-album-gallery { -ms-overflow-style: none; scrollbar-width: none; scroll-behavior: smooth; }
+        .sim-album-gallery::-webkit-scrollbar { display: none; }
+        .sim-album-gallery .album-item:hover img { transform: scale(1.06); box-shadow: 0 4px 16px rgba(0,121,193,0.3); }
+        .sim-album-gallery .album-item img { transition: transform 0.2s, box-shadow 0.2s; }
 
         .sim-img-circle { width: 80px; height: 80px; border-radius: 50%; background: #eee; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; border: 2px solid var(--ts4-blue); }
         .sim-img-circle img { width: 100%; height: 100%; object-fit: cover; pointer-events: none;}
@@ -370,7 +375,6 @@
                     <div id="filtros-tags-custom" style="display:contents;"></div>
                 </div>
 
-                <!-- TAGS CUSTOMIZÁVEIS -->
                 <div style="margin-bottom:12px; background:#f0f7ff; border-radius:10px; padding:10px; border-left:3px solid var(--ts4-blue);">
                     <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleGerenciadorTags()">
                         <strong style="font-size:12px; color:var(--ts4-blue);">🏷️ Gerenciar Tags Customizadas</strong>
@@ -597,11 +601,18 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         <option value="idoso">Idoso</option>
                     </select>
                 </div>
-                <div style="margin-top: 10px; padding: 10px; background: #fafafa; border-radius: 10px; border: 1px solid #eee;">
-                    <strong style="font-size: 11px; color: var(--ts4-blue); text-transform: uppercase; font-weight:800;">Linha do Tempo Visual</strong>
-                    <div id="v-timeline" class="timeline-visual"></div>
-                </div>
-                <div class="profile-view-grid" id="profile-details-view">
+
+<div id="sim-album-section" style="display:none; margin-top:15px; padding:12px 14px; background:#f4f8fd; border-radius:14px; border:1px solid #d6e8f7;">
+    <strong style="font-size:11px; color:var(--ts4-blue); text-transform:uppercase; font-weight:800; display:block; margin-bottom:9px; letter-spacing:0.5px;">📸 Álbum de Fotos por Fase de Vida</strong>
+    <div id="sim-album-gallery" class="sim-album-gallery" style="display:flex; gap:12px; overflow-x:auto; padding:4px 2px 8px 2px; scroll-snap-type:x mandatory;"></div>
+</div>
+
+<div style="margin-top: 15px; padding: 10px; background: #fafafa; border-radius: 10px; border: 1px solid #eee;">
+    <strong style="font-size: 11px; color: var(--ts4-blue); text-transform: uppercase; font-weight:800;">Linha do Tempo Visual</strong>
+    <div id="v-timeline" class="timeline-visual"></div>
+</div>
+
+<div class="profile-view-grid" id="profile-details-view">
                     <div class="profile-field"><strong>Status de Vida</strong><span id="v-status">Vivo</span></div>
                     <div class="profile-field"><strong>Fase de Vida Atual</strong><span id="v-fase">—</span></div>
                     <div class="profile-field"><strong>Progenitor(a) 1</strong><span id="v-p1">Nenhum</span></div>
@@ -622,7 +633,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     <button class="btn-main" style="background:#17a2b8; margin:0;" onclick="adotarFilhoPerfil()">+ ADOTAR FILHO(A)</button>
                 </div>
                 <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button class="btn-main" style="background:#9B59B6; margin:0; flex:1;" onclick="exportarPerfilSim(currentSimId)">📤 Exportar Perfil do Sim</button>
+                    <button class="btn-main" style="background:#9B59B6; margin:0; flex:1;" onclick="exportarPerfilSim(currentSimId)">📤 Exportar Card Resumido do Sim</button>
                     <button class="btn-main btn-sec" style="margin:0; flex:1;" onclick="fecharModal()">FECHAR</button>
                 </div>
             </div>
@@ -690,7 +701,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     </label>
                 </div>
 
-                <!-- RELAÇÕES PASSADAS -->
                 <div style="margin-top:15px; background:#f8f0ff; border-radius:10px; border-left:3px solid #9B59B6; padding:12px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleRelPassadasEdit()">
                         <strong style="color:#9B59B6; font-size:13px;">💌 Relações Passadas (Histórico de Cônjuges)</strong>
@@ -731,6 +741,27 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         </div>
     </div>
 
+    <div id="lightbox-overlay" onclick="fecharLightbox()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.93); z-index:500; justify-content:center; align-items:center; flex-direction:column; cursor:zoom-out;">
+        <button onclick="fecharLightbox()" title="Fechar (Esc)" style="position:absolute; top:18px; right:22px; background:rgba(255,255,255,0.12); border:none; color:white; font-size:26px; cursor:pointer; line-height:1; font-family:'Nunito',sans-serif; font-weight:700; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">✕</button>
+        <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" style="max-width:88vw; max-height:78vh; border-radius:18px; object-fit:contain; box-shadow:0 8px 60px rgba(0,0,0,0.7); cursor:default;">
+        <div id="lightbox-caption" style="color:rgba(255,255,255,0.9); font-size:13px; font-weight:800; margin-top:16px; text-transform:uppercase; letter-spacing:1.5px; font-family:'Nunito',sans-serif; background:rgba(255,255,255,0.08); padding:6px 18px; border-radius:20px;"></div>
+    </div>
+<div class="modal-overlay" id="modal-crop" onclick="fecharModalCrop()" style="z-index: 300;">
+    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px; text-align: center;">
+        <h3 style="color: var(--ts4-blue); margin-top: 0;">Ajustar Enquadramento</h3>
+        <p style="font-size: 11px; color: #666;">A imagem será cortada centralizada para caber nos ícones circulares.</p>
+        
+        <div style="margin: 15px auto; width: 220px; height: 220px; border-radius: 50%; overflow: hidden; border: 3px solid var(--ts4-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <img id="crop-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-main" style="background: var(--ts4-green); margin:0;" onclick="confirmarRecorte()">✅ Confirmar</button>
+            <button class="btn-main btn-sec" style="margin:0;" onclick="fecharModalCrop()">❌ Cancelar</button>
+        </div>
+    </div>
+</div>
+
     <div id="toast">✓ Sucesso!</div>
 
     <script>
@@ -756,8 +787,8 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             "Gravidez Inesperada": "Como fazer: Selecione 'Tentar o Bebê' com o parceiro imediatamente."
         };
 
-        const BASE_DADOS = {
-             tracos: {
+ const BASE_DADOS = {
+            tracos: {
                 "bebe-colo": ["Agitado", "Calmo", "Cauteloso", "Intenso", "Sensível", "Vibrante"],
                 "bebe": ["Angelical", "Bobo", "Curioso", "Encantador", "Grudento", "Incansável", "Independente", "Irritável"],
                 "crianca": ["a prática leva à perfeição", "alegre", "cabeça-quente", "criativo", "errático", "genial", "nauseento", "pateta", "seguro de si", "soturno", "adora o ar livre", "amante da arte", "amante da música", "devorador de livros", "geek", "reciclador", "amigo da natureza", "asseado", "ativo", "aventureiro", "cleptomaníaco", "competitivo", "cético", "filho da ilha", "filho do oceano", "glutão", "imaginação ativa", "intolerante a lactose", "macabro", "perfeccionista", "preguiçoso", "provinciano", "relaxado", "vegetariano", "amante de cavalos", "amante de cães", "amante de gatos", "amante de plantas", "bondoso", "engajado", "extrovertido", "fã de animais", "maldoso", "maligno", "respeitoso", "solitário"],
@@ -796,6 +827,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             "estações": ["Primavera", "Verão", "Outono", "Inverno"]
         };
 
+
         const AUDIO_DEFAULTS = {
             geral: "data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA//8AAAD//wAAAAD//wAAAAD//wAAAAD//wAAAAD//wAAAAD//wAAAAD//wAAAAD//w==", 
             perigo: "data:audio/wav;base64,UklGRlQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTAAAAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/w==", 
@@ -829,12 +861,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             if (!db.config.treeBgMode) db.config.treeBgMode = 'default';
             if (!db.config.treeBgCustom) db.config.treeBgCustom = '';
 
-            for (let k in DEFAULT_CONFIG_WHEELS) {
-                if (!db.config[k]) db.config[k] = [...DEFAULT_CONFIG_WHEELS[k]];
-                else DEFAULT_CONFIG_WHEELS[k].forEach(item => { if (!db.config[k].includes(item)) db.config[k].push(item); });
-            }
-
-            // Migração: garante que todos os Sims existentes tenham o campo de histórico
             db.sims.forEach(s => {
                 if (!s.historico_relacionamentos) s.historico_relacionamentos = [];
             });
@@ -883,7 +909,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         let lastRotation = {};
         let currentSimId = null;
 
-        // -- CLOUD & GOOGLE --
         function autenticarGoogle() {
             if(CLIENT_ID.includes('SEU_CLIENT_ID')) return alert("Configure seu Client ID");
             if (typeof google === 'undefined') return alert("API não carregou.");
@@ -1037,7 +1062,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             salvarTudo(); recarregarInterface(); showToast("✨ Novo tabuleiro criado!");
         }
 
-        // -- SALVAMENTO E ESTADO --
         function salvarTudo() { 
             hasUnsavedChanges = true;
             if (allowLocalSave) localStorage.setItem('ts4_companion_data', JSON.stringify(db)); 
@@ -1097,7 +1121,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
         }
 
-        // FUNÇÃO DE IDIOMA
         function alterarIdiomaVisual() {
             let lang = document.querySelector('.lang-selector').value;
             let gtSelect = document.querySelector('.goog-te-combo');
@@ -1109,7 +1132,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
         }
 
-        // GENERATORS E ORÁCULOS
         function rand(arr) { return arr && arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : ""; }
         function multiRand(arr, n) { return arr ? [...arr].sort(()=> 0.5 - Math.random()).slice(0,n).join(', ') : ""; }
         function getPool(cat, sub) { return [...(BASE_DADOS[cat][sub] || BASE_DADOS[cat] || []), ...(db.custom[cat] || [])]; }
@@ -1151,7 +1173,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
         }
 
-        // FUNÇÕES DO LIVRO DE LORE E METAS E MCCC
         let filtroAtivoLivro = 'TODOS';
         function renderLivroComFiltro() {
             let historico = db.historia || "";
@@ -1172,7 +1193,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     let dataStr = match ? match[1] : ""; let tag = match && match[2] ? match[2] : ""; let texto = match ? match[3] : item.texto;
                     let corTag = "#555";
                     if(tag.includes("NASCIMENTO")) corTag = "#e83e8c"; else if(tag.includes("MORTE")) corTag = "#343a40"; else if(tag.includes("CASAMENTO")) corTag = "#fd7e14"; else if(tag.includes("DRAMA") || tag.includes("SEPARAÇÃO")) corTag = "#dc3545"; else if(tag.includes("FASES")) corTag = "#17a2b8"; else if(tag.includes("CONQUISTA")) corTag = "#28a745";
-                    // Custom tags
                     else if (db.custom && db.custom.tags && db.custom.tags.some(t => tag.includes(t))) corTag = "#9B59B6";
 
                     html += `
@@ -1206,7 +1226,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         function concluirMeta(i) { const m = db.metas_pendentes[i]; db.metas_pendentes.splice(i, 1); db.historia += `\n[${new Date().toLocaleDateString('pt-BR')}] [CONQUISTA] Meta Concluída: ${m}`; salvarTudo(); renderMetas(); renderLivroComFiltro(); showToast("Meta registrada!"); }
         function renderMetas() { document.getElementById('lista-metas').innerHTML = db.metas_pendentes.map((m, i) => `<div style="background:#f9f9f9; padding:10px; border-radius:8px; border-left:4px solid var(--ts4-blue); margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;"><span>${m}</span><button class="btn-main" style="width:auto; margin:0; padding:5px 10px; background:var(--ts4-green)" onclick="concluirMeta(${i})">✓ Concluir</button></div>`).join(''); }
 
-        // MCCC UPLOAD E PREVIEW
         function lerArquivoMCCC(e) {
             const file = e.target.files[0];
             if(!file) return;
@@ -1287,13 +1306,11 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
         }
 
-        // AUDIO
         function renderReactionAudioConfig() { let area = document.getElementById("reaction-audio-area"); if(!area) return; let labels = { geral: "Geral / Plumbob", perigo: "Perigo / Caos", obaoba: "Oba-oba / Romance" }; area.innerHTML = Object.keys(labels).map(key => `<div style="background:#f8f9fa; border-left:3px solid var(--ts4-blue); border-radius:10px; padding:12px;"><strong>${labels[key]}</strong><input type="file" accept="audio/*" onchange="salvarAudioReacao('${key}', event)"><button class="btn-main btn-sec mini-btn" onclick="playReactionSound('${key}')">Testar</button><button class="btn-main btn-sec mini-btn" onclick="removerAudioReacao('${key}')">Remover</button></div>`).join(""); }
         function salvarAudioReacao(tipo, event) { let file = event.target.files[0]; if(!file) return; let reader = new FileReader(); reader.onload = ev => { db.reactionAudio[tipo] = ev.target.result; salvarTudo(); renderReactionAudioConfig(); showToast("Áudio salvo!"); }; reader.readAsDataURL(file); }
         function removerAudioReacao(tipo) { db.reactionAudio[tipo] = AUDIO_DEFAULTS[tipo]; salvarTudo(); renderReactionAudioConfig(); showToast("Áudio restaurado para o padrão!"); }
         function playReactionSound(tipo) { let mapa = db.reactionAudio || AUDIO_DEFAULTS; let src = mapa[tipo] || mapa.geral; if(!src) return; let audio = new Audio(src); audio.volume = 0.55; audio.play().catch(()=>{}); }
 
-        // ROLETAS
         function renderDash() { renderWheels('dash-cards', Object.keys(db.config).filter(key => !LAB_KEYS.includes(key) && key !== 'treeBgMode' && key !== 'treeBgCustom')); }
         function renderLab() { renderWheels('lab-cards', LAB_KEYS); }
         function renderWheels(containerId, keys) {
@@ -1324,7 +1341,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             salvarTudo(); renderLivroComFiltro(); showToast("Registrado!");
         }
 
-        // MOODBOARD CONFIG
         function salvarTreeBg() {
             let mode = document.getElementById('sel-tree-bg').value;
             db.config.treeBgMode = mode;
@@ -1370,7 +1386,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
         }
 
-        // CONFIGURAÇÕES GERAIS
         function renderConfig() {
             const area = document.getElementById('custom-items-area');
             area.innerHTML = `${['tracos', 'carreiras', 'aspiracoes'].map(tipo => `
@@ -1391,13 +1406,12 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         function addRoul(k) { const v = document.getElementById('in-r-'+k).value; if(v) { db.config[k].push(v); salvarTudo(); renderConfig(); } }
         function removeRoul(k, i) { 
             const item = db.config[k][i];
-            if (DEFAULT_CONFIG_WHEELS[k] && DEFAULT_CONFIG_WHEELS[k].includes(item)) { return alert("Aviso de Sistema: O item original da base '" + item + "' não pode ser excluído. Se a opção for indesejada, simplesmente ignore-a durante o jogo. Você pode adicionar e remover livremente itens que você mesmo inseriu."); }
+            if (DEFAULT_CONFIG_WHEELS[k] && DEFAULT_CONFIG_WHEELS[k].includes(item)) { return alert("Aviso de Sistema: O item original da base '" + item + "' não pode ser excluído."); }
             db.config[k].splice(i,1); salvarTudo(); renderConfig(); 
         }
         function criarNovaRoleta() { const n = document.getElementById('new-roulette-name').value.trim().toLowerCase(); if(n && !db.config[n]) { db.config[n] = ["Opção 1"]; document.getElementById('new-roulette-name').value = ""; salvarTudo(); renderConfig(); } }
         function deletarRoleta(key) { if(confirm(`Excluir a roleta "${key}"?`)) { delete db.config[key]; salvarTudo(); renderConfig(); renderDash(); } }
 
-        // I.A. REESTRUTURADA
         function getSimByIdCodex(id) { return db.sims.find(s => String(s.id) === String(id)); }
         function getNomeSimCodex(id) { let s = getSimByIdCodex(id); return s ? s.nome : "Nenhum"; }
         function getTracoFocoCodex(sim) { let tracos = sim && sim.tracos ? sim.tracos.split(",").map(t => t.trim()).filter(Boolean) : []; return tracos.length ? tracos[Math.floor(Math.random() * tracos.length)] : "temperamento instável"; }
@@ -1431,39 +1445,31 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             const historias = {
                 "bebe-colo": [
                     `A casa de ${sim.nome} não teve um minuto de paz. Hoje, o bebê descobriu que consegue fazer um barulho ensurdecedor com um objeto inusitado, deixando todos de cabelo em pé.`,
-                    `Um momento de silêncio na casa de ${sim.nome}... e todos sabem que silêncio e bebê de colo não combinam. Uma verdadeira bagunça surpresa os aguardava.`,
-                    `Dormir a noite toda? Não no turno de ${sim.nome}! O bebê protagonizou um verdadeiro drama noturno que envolveu metade da vizinhança acordada.`
+                    `Um momento de silêncio na casa de ${sim.nome}... e todos sabem que silêncio e bebê de colo não combinam. Uma verdadeira bagunça surpresa os aguardava.`
                 ],
                 "bebe": [
                     `Um rastro misterioso de sujeira pela casa inteira... O culpado? ${sim.nome}. Aproveitando um segundo de distração, o bebê explorou o mundo e testou os limites da sanidade dos pais.`,
-                    `${sim.nome} aprendeu uma palavra nova. O problema é qual foi a palavra e em que momento extremamente inapropriado ela foi dita diante das visitas.`,
-                    `A missão era simples: comer a papinha. Mas ${sim.nome} transformou a cozinha em uma verdadeira zona de guerra culinária.`
+                    `${sim.nome} aprendeu uma palavra nova. O problema é qual foi a palavra e em que momento extremamente inapropriado ela foi dita diante das visitas.`
                 ],
                 "crianca": [
                     `A imaginação de ${sim.nome} foi longe demais hoje. Inventando uma brincadeira épica, acabou causando um estrago que a família vai demorar para consertar.`,
-                    `Um "projeto escolar" virou o motivo de um caos na vizinhança. ${sim.nome} levou muito a sério o que precisava fazer e arrumou confusão com os vizinhos.`,
-                    `Todo mundo achava que ${sim.nome} estava quieto(a) demais no quarto. Quando abriram a porta, o susto foi grande: uma coleção de coisas muito estranhas escondidas debaixo da cama.`
+                    `Um "projeto escolar" virou o motivo de um caos na vizinhança. ${sim.nome} levou muito a sério o que precisava fazer e arrumou confusão com os vizinhos.`
                 ],
                 "adolescente": [
                     `Hormônios, rebeldia e muito drama! ${sim.nome} se envolveu em uma confusão gigantesca hoje. Um segredo escapou, uma regra foi quebrada e o castigo será severo.`,
-                    `O coração de ${sim.nome} pregou uma peça. Uma tentativa de impressionar um interesse romântico acabou no maior constrangimento da história da escola.`,
-                    `Fase rebelde? Talvez. ${sim.nome} decidiu mudar o visual radicalmente e faltar às aulas para fazer algo inusitado pela cidade. A família ficou em choque.`
+                    `O coração de ${sim.nome} pregou uma peça. Uma tentativa de impressionar um interesse romântico acabou no maior constrangimento da história da escola.`
                 ],
                 "jovem-adulto": [
                     `A vida adulta bateu à porta com força. ${sim.nome} tomou uma decisão impulsiva hoje que envolveu dinheiro, promessas vazias e um telefonema bem constrangedor.`,
-                    `O clima esquentou para ${sim.nome}. Um mal-entendido com alguém muito próximo gerou uma discussão de novela, mudando o rumo das amizades no bairro.`,
-                    `Tentando se provar no mundo, ${sim.nome} aceitou um desafio que não podia cumprir. O resultado? Uma vergonha pública e uma história que ninguém vai esquecer tão cedo.`,
-                    `Uma noite na cidade, um barulho estranho e um flerte arriscado. ${sim.nome} amanheceu com um problema que não existia ontem.`
+                    `O clima esquentou para ${sim.nome}. Um mal-entendido com alguém muito próximo gerou uma discussão de novela, mudando o rumo das amizades no bairro.`
                 ],
                 "adulto": [
                     `Uma crise intensa bateu à porta de ${sim.nome}. Sentindo uma vontade incontrolável de mudar de vida, cometeu uma gafe que ofendeu alguém importante.`,
-                    `Manter as aparências não é fácil. Hoje, ${sim.nome} perdeu a paciência de vez durante um evento social e disse tudo o que estava engasgado há anos.`,
-                    `O passado sempre volta para assombrar. Alguém do passado de ${sim.nome} reapareceu, e o caos que se instalou na rotina foi digno de cinema.`
+                    `Manter as aparências não é fácil. Hoje, ${sim.nome} perdeu a paciência de vez durante um evento social e disse tudo o que estava engasgado há anos.`
                 ],
                 "idoso": [
                     `A idade traz sabedoria, mas também menos filtro. ${sim.nome} resolveu soltar um segredo de família guardado a sete chaves durante o jantar de domingo.`,
-                    `Cansado(a) das regras da nova geração, ${sim.nome} armou um boicote dentro da própria casa que terminou em muita confusão e risadas.`,
-                    `Um antigo diário ou baú foi aberto. ${sim.nome} chocou os mais novos ao revelar quem realmente era em sua juventude, mudando a forma como todos o(a) enxergam.`
+                    `Cansado(a) das regras da nova geração, ${sim.nome} armou um boicote dentro da própria casa que terminou em muita confusão e risadas.`
                 ]
             };
 
@@ -1550,11 +1556,9 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             chamarIA_HistoriaSimProfunda(sim, tom, formato);
         }
 
-        // UTILITÁRIOS FINAIS
         function showToast(msg) { const t = document.getElementById('toast'); t.style.display='block'; t.innerText=msg; setTimeout(()=>t.style.display='none',3000); }
         function abrirTutorialApi() { window.open("https://platform.openai.com/api-keys", '_blank'); }
         
-        // MCCC & GENEALOGIA
         function abrirNovoSim(paiPadrao = null) {
             currentSimId = null; 
             toggleEditMode(true);
@@ -1610,38 +1614,50 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('e-img').value = "";
             showToast("Foto removida da memória temporária.");
         }
+        let tempImageDataURL = ""; 
 
         function carregarImagemComputador(e) {
             const file = e.target.files[0];
             if(file) { 
-                const reader = new FileReader(); 
+                const reader = new FileReader();
                 reader.onload = (ev) => { 
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_SIZE = 150;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                        } else {
-                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const dataUrl = canvas.toDataURL('image/webp', 0.8);
-                        document.getElementById('e-img').value = dataUrl; 
-                        salvarImagemNaMemoriaDaFase(); 
-                    };
-                    img.src = ev.target.result;
+                    tempImageDataURL = ev.target.result;
+                    document.getElementById('crop-preview-img').src = tempImageDataURL;
+                    document.getElementById('modal-crop').style.display = 'flex';
                 }; 
-                reader.readAsDataURL(file); 
+                reader.readAsDataURL(file);
             }
+        }
+
+        function fecharModalCrop() {
+            document.getElementById('modal-crop').style.display = 'none';
+            document.getElementById('e-img-file').value = ""; 
+        }
+
+        function confirmarRecorte() {
+            const img = new Image();
+            img.onload = () => {
+                const TARGET_SIZE = 220;
+                const canvas = document.createElement('canvas');
+                canvas.width = TARGET_SIZE;
+                canvas.height = TARGET_SIZE;
+                const ctx = canvas.getContext('2d');
+                
+                const scale = Math.max(TARGET_SIZE / img.width, TARGET_SIZE / img.height);
+                const scaledW = img.width * scale;
+                const scaledH = img.height * scale;
+                const offsetX = (scaledW - TARGET_SIZE) / 2;
+                const offsetY = (scaledH - TARGET_SIZE) / 2;
+
+                ctx.drawImage(img, -offsetX, -offsetY, scaledW, scaledH);
+                
+                const dataUrl = canvas.toDataURL('image/webp', 0.78);
+                document.getElementById('e-img').value = dataUrl; 
+                salvarImagemNaMemoriaDaFase();
+                fecharModalCrop();
+                showToast("📸 Imagem ajustada com sucesso!");
+            };
+            img.src = tempImageDataURL;
         }
 
         function salvarSim() {
@@ -1653,12 +1669,10 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
             if(!nomeSim) return alert("Preencha o nome do Sim!");
 
-            // 1. AUTO-VIÚVO: Se o jogador marcar como Morto no formulário e o Sim estava casado, ajusta o status!
             if (statusVital === 'Ancestral (Morto)' && relStatusNovo === 'casado') {
                 relStatusNovo = 'viuvo';
             }
 
-            // Preserva o histórico de relacionamentos já existente antes de sobrescrever o objeto
             let historicoAtual = [...tempHistoricoRelacionamentos];
 
             const s = {
@@ -1680,12 +1694,10 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
             if(currentSimId) {
                 let oldSim = db.sims.find(x => String(x.id) === String(currentSimId));
-                // Se o cônjuge mudou (novo casamento, separação com remoção ou limpeza manual)
                 if(oldSim.spouse && String(oldSim.spouse) !== String(s.spouse)) {
                     let ex = db.sims.find(x => String(x.id) === String(oldSim.spouse));
                     let nomeEx = ex ? ex.nome : 'Sim removido';
 
-                    // Arquiva o relacionamento encerrado no histórico do Sim atual
                     s.historico_relacionamentos.push({
                         simId: String(oldSim.spouse),
                         simNome: nomeEx,
@@ -1693,7 +1705,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         data: new Date().toLocaleDateString('pt-BR')
                     });
 
-                    // Arquiva também no histórico do ex-cônjuge (se ele ainda existir)
                     if(ex) {
                         if (!ex.historico_relacionamentos) ex.historico_relacionamentos = [];
                         ex.historico_relacionamentos.push({
@@ -1751,6 +1762,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('v-nome').innerText = s.nome;
             document.getElementById('v-seletor-foto-fase').value = s.fase || "jovem-adulto";
             atualizarFotoExibicaoPerfil();
+            renderAlbumFotos(s);
             
             const getNome = (fid) => db.sims.find(x => String(x.id) === String(fid))?.nome || "Nenhum";
             document.getElementById('v-status').innerText = s.status;
@@ -1780,7 +1792,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('v-parentesco').innerHTML = calcularParentesco(s.id);
             document.getElementById('v-timeline').innerHTML = gerarLinhaDoTempo(s);
 
-            // Exibe campo de histórico apenas quando há entradas arquivadas
             let historico = s.historico_relacionamentos || [];
             let campoHistorico = document.getElementById('campo-historico-rel');
             if (historico.length > 0) {
@@ -1805,7 +1816,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 s.status = 'Ancestral (Morto)'; 
                 let msgHistoria = `\n[${new Date().toLocaleDateString('pt-BR')}] [MORTE] ${s.nome} infelizmente faleceu e tornou-se um Ancestral.`;
 
-                // 2. AUTO-VIÚVO: Se morreu pelo botão rápido e era casado, atualiza ele e o cônjuge!
                 if(s.spouse && s.relStatus === 'casado') {
                     s.relStatus = 'viuvo';
                     let conjuge = db.sims.find(x => String(x.id) === String(s.spouse));
@@ -1858,7 +1868,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             let timeline = [];
             if (s.p1 || s.p2) timeline.push({ txt: "Nascimento", class: "" }); else timeline.push({ txt: "Fundador(a)", class: "" });
             
-            // Relacionamentos anteriores (arquivados em historico_relacionamentos)
             if (s.historico_relacionamentos && s.historico_relacionamentos.length > 0) {
                 s.historico_relacionamentos.forEach(h => {
                     if (h.statusFinal === 'viuvo') {
@@ -1906,17 +1915,29 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 window.network.fit();
                 
                 setTimeout(() => {
-                    const canvas = document.querySelector('#tree-display canvas');
-                    if (canvas) {
+                    const originalCanvas = document.querySelector('#tree-display canvas');
+                    if (originalCanvas) {
+                        const mergedCanvas = document.createElement('canvas');
+                        mergedCanvas.width = originalCanvas.width;
+                        mergedCanvas.height = originalCanvas.height;
+                        const ctx = mergedCanvas.getContext('2d');
+                        
+                        const treeContainer = document.querySelector('.tree-container');
+                        const compStyles = window.getComputedStyle(treeContainer);
+                        
+                        ctx.fillStyle = compStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? compStyles.backgroundColor : '#ffffff';
+                        ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+                        ctx.drawImage(originalCanvas, 0, 0);
+                        
                         const link = document.createElement('a');
-                        link.download = `Arvore_Genealogica_${new Date().toLocaleDateString().replace(/\//g, '-')}.png`;
-                        link.href = canvas.toDataURL("image/png");
+                        link.download = `Arvore_Genealogica_Legado.png`;
+                        link.href = mergedCanvas.toDataURL("image/png");
                         link.click();
-                        showToast("✅ Imagem Salva!");
+                        showToast("✅ Imagem da Árvore Salva com Fundo!");
                         
                         window.network.moveTo({ position: currentPos, scale: currentScale });
                     }
-                }, 800); 
+                }, 800);
             } else {
                 alert("Nenhuma árvore disponível para exportar.");
             }
@@ -1931,11 +1952,9 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             renderTree(); 
         }
 
-        // --- FORMATO DA ÁRVORE ---
         let currentTreeLayout = 1;
         function setTreeLayout(n) {
             currentTreeLayout = n;
-            // Destaca o botão ativo
             [1,2,3,4,5].forEach(i => {
                 const b = document.getElementById('btn-layout-' + i);
                 if (!b) return;
@@ -1946,7 +1965,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             renderTree();
         }
 
-        // --- IMPORTAR BACKUP (.json) ---
         function importarArquivo(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1954,11 +1972,9 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             reader.onload = function(e) {
                 try {
                     const dados = JSON.parse(e.target.result);
-                    // Valida estrutura mínima
                     if (!dados.sims || !Array.isArray(dados.sims)) {
                         return alert("❌ Arquivo inválido: não parece um backup do Legacy Companion.");
                     }
-                    // Migração: garante campo historico_relacionamentos em todos os Sims importados
                     dados.sims.forEach(s => {
                         if (!s.historico_relacionamentos) s.historico_relacionamentos = [];
                     });
@@ -1973,17 +1989,14 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 }
             };
             reader.readAsText(file);
-            // Limpa o input para permitir reimportar o mesmo arquivo
             event.target.value = "";
         }
 
-        // --- SISTEMA DE CÁLCULO DE PROFUNDIDADE DE GERAÇÃO (FIX VIS.JS) ---
         function calcularNiveisDeGeracao() {
             let niveis = {};
             
-            // Pass 1: Calcula o nível baseado nos pais
             function getDepth(id, visited = new Set()) {
-                if (visited.has(id)) return 0; // Previne loops infinitos no grafo
+                if (visited.has(id)) return 0; 
                 visited.add(id);
                 let sim = db.sims.find(s => String(s.id) === String(id));
                 if (!sim) return 0;
@@ -1993,12 +2006,10 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             }
             db.sims.forEach(s => { niveis[s.id] = getDepth(s.id); });
 
-            // Pass 2: Sincroniza cônjuges isolados para o mesmo nível, impedindo a engine de crachar
             db.sims.forEach(s => {
                 if (s.spouse) {
                     let spLevel = niveis[s.spouse];
                     let myLevel = niveis[s.id];
-                    // Se o Sim não tem pais (nível 0) mas o cônjuge tem, ele deve ficar no mesmo andar
                     if (myLevel === 0 && spLevel > 0) {
                         niveis[s.id] = spLevel;
                     } else if (spLevel === 0 && myLevel > 0) {
@@ -2010,7 +2021,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             return niveis;
         }
 
-        // --- SISTEMA PREMIUM DE CARDS VIS.JS (GERADOR DE SVG) ---
         function generateSimCardSVG(sim, isDead, hideDead) {
             let isFounder = !sim.p1 && !sim.p2;
             let tracos = (sim.tracos || "").toLowerCase();
@@ -2020,19 +2030,18 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             let isHeir = extra.includes('herdeiro');
             let isFavorite = extra.includes('favorito') || tracos.includes('protagonista');
 
-            let borderColor = 'rgba(0, 121, 193, 0.4)'; // Azul suave para base clara
+            let borderColor = 'rgba(0, 121, 193, 0.4)'; 
             let titleTag = '🎯 Membro';
             let badgeBg = 'rgba(0, 0, 0, 0.1)';
             let badgeText = '#2B2B2B';
 
-            // Cores Narrativas (Adaptadas para card branco)
             if (isFounder) { 
                 borderColor = '#00d8a6'; 
                 titleTag = '👑 Fundador(a)'; 
                 badgeBg = '#00d8a6';
                 badgeText = '#ffffff';
             } else if (isHeir) { 
-                borderColor = '#0079C1'; // TS4 Blue para herdeiros
+                borderColor = '#0079C1'; 
                 titleTag = '👶 Herdeiro(a)'; 
                 badgeBg = '#0079C1';
                 badgeText = '#ffffff';
@@ -2068,9 +2077,28 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             if (sim.crush) icons.push('💕');
             let iconStr = icons.join(' ');
 
-            let displayNome = sim.nome.length > 15 ? sim.nome.substring(0, 13) + '...' : sim.nome;
+            const xmlEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const MAX_LINE = 12;
+            let nameLine1 = '', nameLine2 = '';
+            if (sim.nome.length <= MAX_LINE) {
+                nameLine1 = sim.nome;
+            } else {
+                const words = sim.nome.split(' ');
+                let acc = '';
+                for (const w of words) {
+                    const test = acc ? acc + ' ' + w : w;
+                    if (test.length <= MAX_LINE) { acc = test; } else { break; }
+                }
+                nameLine1 = acc || sim.nome.substring(0, MAX_LINE);
+                nameLine2 = sim.nome.substring(nameLine1.length).trim();
+                if (nameLine2.length > MAX_LINE) {
+                    nameLine2 = nameLine2.substring(0, MAX_LINE - 1) + '…';
+                }
+            }
+            const nameL1 = xmlEsc(nameLine1);
+            const nameL2 = nameLine2 ? xmlEsc(nameLine2) : '';
+            const nameColor = isDead ? '#888888' : '#2B2B2B';
 
-            // Busca nome do ex-parceiro no histórico ou vínculo atual quebrado
             let exName = "";
             if (sim.relStatus === 'separado' || sim.relStatus === 'viuvo') {
                 if (sim.historico_relacionamentos && sim.historico_relacionamentos.length > 0) {
@@ -2085,12 +2113,11 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             let exTextElement = "";
             if (exName) {
                 let displayExName = exName.length > 18 ? exName.substring(0, 16) + '...' : exName;
-                exTextElement = `<text x="110" y="260" font-family="'Nunito', Arial, sans-serif" font-size="10" font-weight="bold" fill="#888888" text-anchor="middle">Ex: ${displayExName}</text>`;
+                exTextElement = `<text x="110" y="280" font-family="'Nunito', Arial, sans-serif" font-size="10" font-weight="bold" fill="#888888" text-anchor="middle">Ex: ${xmlEsc(displayExName)}</text>`;
             }
 
-            // Card Branco e Limpo sem badge de classificação
             let svg = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="220" height="275">
+            <svg xmlns="http://www.w3.org/2000/svg" width="220" height="300">
                 <defs>
                     <clipPath id="avatarClip">
                         <circle cx="110" cy="100" r="70" />
@@ -2104,21 +2131,21 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     </filter>
                 </defs>
                 
-                <rect x="10" y="30" width="200" height="230" rx="20" ry="20" fill="url(#cardBg)" stroke="rgba(0,0,0,0.05)" stroke-width="1.5" filter="url(#shadow)" />
+                <rect x="10" y="30" width="200" height="255" rx="20" ry="20" fill="url(#cardBg)" stroke="rgba(0,0,0,0.05)" stroke-width="1.5" filter="url(#shadow)" />
                 
                 <circle cx="110" cy="100" r="74" fill="#e4ebf5" stroke="${borderColor}" stroke-width="4" />
                 <image href="${imgData}" x="40" y="30" width="140" height="140" preserveAspectRatio="xMidYMid slice" clip-path="url(#avatarClip)" />
                 
-                <text x="110" y="210" font-family="'Nunito', Arial, sans-serif" font-size="20" font-weight="bold" fill="${isDead ? '#888888' : '#2B2B2B'}" text-anchor="middle">${displayNome}</text>
+                <text x="110" y="210" font-family="'Nunito', Arial, sans-serif" font-size="28" font-weight="bold" fill="${nameColor}" text-anchor="middle">${nameL1}</text>
+                ${nameL2 ? `<text x="110" y="240" font-family="'Nunito', Arial, sans-serif" font-size="28" font-weight="bold" fill="${nameColor}" text-anchor="middle">${nameL2}</text>` : ''}
                 
-                <text x="110" y="242" font-family="Arial, sans-serif" font-size="16" fill="#2B2B2B" text-anchor="middle">${iconStr}</text>
+                <text x="110" y="262" font-family="Arial, sans-serif" font-size="16" fill="#2B2B2B" text-anchor="middle">${iconStr}</text>
                 ${exTextElement}
             </svg>
             `;
             return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
         }
 
-        // NOVA RENDERIZAÇÃO PREMIUM DA ÁRVORE GENEALÓGICA
         function renderTree() {
             const container = document.getElementById('tree-display');
             if (db.sims.length === 0) { 
@@ -2129,7 +2156,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
             let geracoes = calcularNiveisDeGeracao();
             
-            // --- LÓGICA DO MODO HISTÓRICO FOCADO (LAYOUT 5) ---
             let baseSims = db.sims;
             if (currentTreeLayout === 5) {
                 let keptIds = new Set();
@@ -2152,29 +2178,25 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 }
             }
 
-            // 1. Mapear os Nós
             let nodesArray = baseSims.map(s => {
                 let isDead = s.status === 'Ancestral (Morto)';
                 return {
                     id: String(s.id), 
                     shape: 'image',
                     image: generateSimCardSVG(s, isDead, hideDead),
-                    size: 70, 
+                    size: 82, 
                     level: geracoes[s.id],
                     opacity: isDead && hideDead ? 0.2 : 1
                 };
             });
 
-            // 2. Mapear Arestas
             let edgesArray = [];
             let addedSpouses = new Set();
             
             baseSims.forEach(s => {
-                // Relação Pai -> Filho (Garante que os nós pais existem no array atual)
                 if (s.p1 && baseSims.some(b => String(b.id) === String(s.p1))) edgesArray.push({ from: String(s.p1), to: String(s.id), color: { color: '#0079C1' }, arrows: 'to', width: 3 });
                 if (s.p2 && baseSims.some(b => String(b.id) === String(s.p2))) edgesArray.push({ from: String(s.p2), to: String(s.id), color: { color: '#0079C1' }, arrows: 'to', width: 3 });
                 
-                // Relação de Casal / Ex-Casal / Viúvo
                 if (s.spouse && baseSims.some(b => String(b.id) === String(s.spouse))) {
                     let spKey1 = `${s.id}-${s.spouse}`;
                     let spKey2 = `${s.spouse}-${s.id}`;
@@ -2183,14 +2205,14 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         let isSeparated = s.relStatus === 'separado';
                         let isWidowed = s.relStatus === 'viuvo';
                         
-                        let edgeColor = '#7CD700'; // Verde (Casados)
+                        let edgeColor = '#7CD700'; 
                         let edgeDashes = false;
                         
                         if (isSeparated) {
-                            edgeColor = '#FF4D4D'; // Vermelho
+                            edgeColor = '#FF4D4D'; 
                             edgeDashes = [8, 8];
                         } else if (isWidowed) {
-                            edgeColor = '#34495E'; // Cinza escuro (Viúvos)
+                            edgeColor = '#34495E'; 
                             edgeDashes = [3, 5];
                         }
 
@@ -2207,7 +2229,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 }
             });
 
-            // 2b. Arestas de Irmãos e Meio-Irmãos
             let addedSiblingEdges = new Set();
             let paiParaFilhos = {};
             baseSims.forEach(s => {
@@ -2221,13 +2242,11 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
 
             Object.values(paiParaFilhos).forEach(filhos => {
                 if (filhos.length < 2) return;
-                // Conecta em cadeia para não poluir (A-B-C em vez de A-B, A-C, B-C)
                 for (let i = 0; i < filhos.length - 1; i++) {
                     let edgeKey = [filhos[i], filhos[i+1]].sort().join('|');
                     if (addedSiblingEdges.has(edgeKey)) continue;
                     addedSiblingEdges.add(edgeKey);
 
-                    // Verifica se são irmãos plenos ou meio-irmãos
                     let sA = baseSims.find(x => String(x.id) === filhos[i]);
                     let sB = baseSims.find(x => String(x.id) === filhos[i+1]);
                     let pA = new Set([sA?.p1, sA?.p2].filter(Boolean).map(String));
@@ -2248,60 +2267,56 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             });
             let data = { nodes: new vis.DataSet(nodesArray), edges: new vis.DataSet(edgesArray) };
 
-            // --- FORMATO 1: Tradicional Topo→Base ---
             let options = {
                 layout: {
                     hierarchical: {
                         direction: 'UD',
                         sortMethod: 'directed',
-                        nodeSpacing: 220,
-                        levelSeparation: 260,
+                        nodeSpacing: 245,
+                        levelSeparation: 290,
                         treeSpacing: 300,
                         blockShifting: false,
                         edgeMinimization: false
                     }
                 },
-                physics: { hierarchicalRepulsion: { nodeDistance: 220, springLength: 150 }, solver: 'hierarchicalRepulsion' },
+                physics: { hierarchicalRepulsion: { nodeDistance: 245, springLength: 150 }, solver: 'hierarchicalRepulsion' },
                 interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, navigationButtons: true },
-                nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 75; } } },
+                nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 88; } } },
                 edges: { smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.5 } }
             };
 
             if (currentTreeLayout === 2) {
-                // --- FORMATO 2: Horizontal Esq→Dir (cada geração = coluna) ---
                 options = {
                     layout: {
                         hierarchical: {
                             direction: 'LR',
                             sortMethod: 'directed',
-                            nodeSpacing: 200,
-                            levelSeparation: 320,
+                            nodeSpacing: 220,
+                            levelSeparation: 345,
                             treeSpacing: 250,
                             blockShifting: false,
                             edgeMinimization: false
                         }
                     },
-                    physics: { hierarchicalRepulsion: { nodeDistance: 200, springLength: 150 }, solver: 'hierarchicalRepulsion' },
+                    physics: { hierarchicalRepulsion: { nodeDistance: 220, springLength: 150 }, solver: 'hierarchicalRepulsion' },
                     interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, navigationButtons: true },
-                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 75; } } },
+                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 88; } } },
                     edges: { smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.5 } }
                 };
             } else if (currentTreeLayout === 3) {
-                // --- FORMATO 3: Livre com Física (orgânico) ---
                 options = {
                     layout: { randomSeed: 42 },
                     physics: {
                         enabled: true,
                         solver: 'forceAtlas2Based',
-                        forceAtlas2Based: { gravitationalConstant: -80, springLength: 300, springConstant: 0.04, damping: 0.5 },
+                        forceAtlas2Based: { gravitationalConstant: -80, springLength: 320, springConstant: 0.04, damping: 0.5 },
                         stabilization: { iterations: 200 }
                     },
                     interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, navigationButtons: true },
-                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 75; } } },
+                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 88; } } },
                     edges: { smooth: { type: 'dynamic' } }
                 };
             } else if (currentTreeLayout === 4) {
-                // --- FORMATO 4: Radial/Circular ---
                 options = {
                     layout: { hierarchical: false, randomSeed: 7 }, 
                     physics: {
@@ -2309,7 +2324,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         solver: 'barnesHut',
                         barnesHut: {
                             centralGravity: 0.008, 
-                            springLength: 480,
+                            springLength: 500,
                             springConstant: 0.02,
                             gravitationalConstant: -28000, 
                             damping: 0.25,
@@ -2319,26 +2334,25 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         stabilization: { iterations: 400, updateInterval: 25 }
                     },
                     interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, navigationButtons: true },
-                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 75; } } },
+                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 88; } } },
                     edges: { smooth: { type: 'continuous' } }
                 };
             } else if (currentTreeLayout === 5) {
-                // --- FORMATO 5: Histórico Focado (Limpo) ---
                 options = {
                     layout: {
                         hierarchical: {
                             direction: 'UD',
                             sortMethod: 'directed',
-                            nodeSpacing: 250,
-                            levelSeparation: 300,
+                            nodeSpacing: 270,
+                            levelSeparation: 325,
                             treeSpacing: 350,
                             blockShifting: false,
                             edgeMinimization: false
                         }
                     },
-                    physics: { hierarchicalRepulsion: { nodeDistance: 250, springLength: 150 }, solver: 'hierarchicalRepulsion' },
+                    physics: { hierarchicalRepulsion: { nodeDistance: 270, springLength: 150 }, solver: 'hierarchicalRepulsion' },
                     interaction: { dragNodes: true, dragView: true, zoomView: true, hover: true, navigationButtons: true },
-                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 75; } } },
+                    nodes: { chosen: { node: function(values, id, selected, hovering) { if (hovering || selected) values.size = 88; } } },
                     edges: { smooth: { type: 'cubicBezier', forceDirection: 'vertical', roundness: 0.5 } }
                 };
             }
@@ -2354,9 +2368,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             });
         }
         
-        // =============================================
-        // FEATURE 1: RELAÇÕES PASSADAS (EDIÇÃO)
-        // =============================================
         function toggleRelPassadasEdit() {
             let painel = document.getElementById('painel-rel-passadas');
             let icon = document.getElementById('icon-rel-passadas');
@@ -2399,7 +2410,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         }
 
         // =============================================
-        // FEATURE 3: EXPORTAR PERFIL DO SIM
+        // NOVO EXPORTAR PERFIL DO SIM: UX NARRATIVA E TEMÁTICA
         // =============================================
         function exportarPerfilSim(simId) {
             let s = db.sims.find(x => String(x.id) === String(simId));
@@ -2408,119 +2419,189 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             const getNome = (fid) => db.sims.find(x => String(x.id) === String(fid))?.nome || "—";
             let filhos = db.sims.filter(x => String(x.p1) === String(s.id) || String(x.p2) === String(s.id));
 
-            const W = 600, H = 400;
+            // Setup Temático (lê do campo Extra e Traços para definir a cor)
+            let textoGeral = ((s.tracos || "") + " " + (s.extra || "")).toLowerCase();
+            let isVamp = textoGeral.includes('vampir');
+            let isSpell = textoGeral.includes('brux') || textoGeral.includes('feiticeir') || textoGeral.includes('mágic');
+            let isMermaid = textoGeral.includes('serei') || textoGeral.includes('tritão') || textoGeral.includes('oceano');
+            let isAlien = textoGeral.includes('alien') || textoGeral.includes('extraterrestre');
+            let isWolf = textoGeral.includes('lobisomem') || textoGeral.includes('lua');
+            
+            let bgGrad = { c1: '#0079C1', c2: '#7CD700', text: '#0079C1', tagBg: '#e4ebf5', tagText: '#0079C1', icon: '👤', occult: 'Sim Humano' };
+            if (isVamp) bgGrad = { c1: '#2b0000', c2: '#7a1022', text: '#8b0000', tagBg: '#f5e4e6', tagText: '#8b0000', icon: '🦇', occult: 'Vampiro(a)' };
+            else if (isSpell) bgGrad = { c1: '#31124b', c2: '#6a0dad', text: '#6a0dad', tagBg: '#ece4f5', tagText: '#6a0dad', icon: '🔮', occult: 'Feiticeiro(a)' };
+            else if (isMermaid) bgGrad = { c1: '#0077b6', c2: '#00b4d8', text: '#0077b6', tagBg: '#e4f3f5', tagText: '#0077b6', icon: '🧜‍♀️', occult: 'Sereia/Tritão' };
+            else if (isAlien) bgGrad = { c1: '#000000', c2: '#1a5e20', text: '#2e7d32', tagBg: '#e4f5e7', tagText: '#2e7d32', icon: '👽', occult: 'Alienígena' };
+            else if (isWolf) bgGrad = { c1: '#3e2723', c2: '#795548', text: '#5d4037', tagBg: '#f5efe4', tagText: '#5d4037', icon: '🐺', occult: 'Lobisomem' };
+            
+            if (s.status === 'Ancestral (Morto)') {
+                bgGrad = { c1: '#2c3e50', c2: '#4ca1af', text: '#34495e', tagBg: '#eaeced', tagText: '#34495e', icon: '🪦', occult: 'Espírito Ancestral' };
+            }
+
+            // Gerador de Resumo Narrativo
+            let tracosArr = s.tracos ? s.tracos.split(',').map(t=>t.trim()).filter(Boolean) : [];
+            let destqueTraco = tracosArr.length > 0 ? tracosArr[0].toLowerCase() : "temperamento misterioso";
+            let relText = s.relStatus === 'casado' ? "Compartilha a vida com seu amor" : 
+                          s.relStatus === 'separado' ? "Carrega as marcas de uma separação" : 
+                          s.relStatus === 'viuvo' ? "Guarda o luto por um amor que partiu" : "Segue uma jornada independente";
+            
+            let aspiracao = "deixar sua marca no legado familiar";
+            if (s.extra && s.extra.trim().length > 3) {
+                // Tenta puxar a primeira frase do campo extra como gancho de vida
+                aspiracao = s.extra.split('.')[0].toLowerCase().trim();
+                if (aspiracao.length > 60) aspiracao = aspiracao.substring(0, 57) + "...";
+            }
+            
+            let narrativaText = `Em sua fase de ${s.fase || 'jovem adulto'}, ${s.nome} carrega a essência de um(a) ${bgGrad.oculto}. Conhecido(a) por ser ${destqueTraco}, busca ${aspiracao}. ${relText}.`;
+
+            // Canvas Setup
+            const W = 700, H = 420;
             const canvas = document.createElement('canvas');
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            // Fundo gradiente
+            // Função helper para quebra de texto
+            function wrapText(context, text, x, y, maxWidth, lineHeight) {
+                let words = text.split(' '); let line = ''; let currentY = y;
+                for(let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = context.measureText(testLine);
+                    let testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, currentY);
+                        line = words[n] + ' '; currentY += lineHeight;
+                    } else { line = testLine; }
+                }
+                context.fillText(line, x, currentY);
+            }
+
+            // Background
             let grad = ctx.createLinearGradient(0, 0, W, H);
-            grad.addColorStop(0, '#0079C1');
-            grad.addColorStop(1, '#7CD700');
+            grad.addColorStop(0, bgGrad.c1);
+            grad.addColorStop(1, bgGrad.c2);
             ctx.fillStyle = grad;
             ctx.roundRect ? ctx.roundRect(0, 0, W, H, 20) : ctx.fillRect(0, 0, W, H);
             ctx.fill();
 
-            // Card branco interno
-            ctx.fillStyle = 'rgba(255,255,255,0.95)';
+            // White Card
+            ctx.fillStyle = 'rgba(255,255,255,0.96)';
             ctx.beginPath();
             ctx.roundRect ? ctx.roundRect(20, 20, W-40, H-40, 16) : ctx.fillRect(20, 20, W-40, H-40);
             ctx.fill();
 
-            // Círculo avatar
-            let avatarX = 90, avatarY = 120, avatarR = 60;
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2);
-            ctx.clip();
+            let avatarX = 120, avatarY = 140, avatarR = 75;
             let faseAtual = s.fase || 'jovem-adulto';
             let imgSrc = s.img && (s.img[faseAtual] || s.img['jovem-adulto'] || Object.values(s.img).find(v=>v)) || null;
-            
-            const drawCard = () => {
-                ctx.restore();
-                ctx.strokeStyle = '#0079C1';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2);
-                ctx.stroke();
 
-                // Nome
-                ctx.fillStyle = '#0079C1';
-                ctx.font = 'bold 26px Nunito, Arial, sans-serif';
-                ctx.fillText(s.nome, 175, 65);
-
-                // Linha divisória
-                ctx.strokeStyle = '#eee';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(175, 75); ctx.lineTo(560, 75); ctx.stroke();
-
-                const campos = [
-                    ['Status', s.status || '—'],
-                    ['Fase', s.fase || '—'],
-                    ['Traços', (s.tracos || '—').substring(0, 40)],
-                    ['Aspiração', (s.extra || '—').substring(0, 40)],
-                    ['Cônjuge', s.spouse ? getNome(s.spouse) : '—'],
-                    ['Filhos(as)', filhos.length > 0 ? filhos.map(f=>f.nome).join(', ').substring(0,40) : '—']
-                ];
-
-                ctx.font = 'bold 13px Nunito, Arial, sans-serif';
-                campos.forEach((c, i) => {
-                    let col = i < 3 ? 0 : 1;
-                    let row = i % 3;
-                    let x = 175 + col * 195;
-                    let y = 100 + row * 60;
-                    ctx.fillStyle = '#0079C1';
-                    ctx.fillText(c[0].toUpperCase(), x, y);
-                    ctx.fillStyle = '#333';
-                    ctx.font = '13px Nunito, Arial, sans-serif';
-                    ctx.fillText(c[1], x, y + 16);
-                    ctx.font = 'bold 13px Nunito, Arial, sans-serif';
-                });
-
-                // Histórico relacionamentos
-                if (s.historico_relacionamentos && s.historico_relacionamentos.length > 0) {
-                    ctx.fillStyle = '#9B59B6';
-                    ctx.font = 'bold 11px Nunito, Arial, sans-serif';
-                    ctx.fillText('Relações Passadas:', 175, 305);
-                    ctx.font = '11px Nunito, Arial, sans-serif';
-                    ctx.fillStyle = '#555';
-                    let histTxt = s.historico_relacionamentos.map(h => h.simNome).join(', ').substring(0, 70);
-                    ctx.fillText(histTxt, 175, 320);
+            const drawCardContent = () => {
+                // Avatar Clip & Draw
+                ctx.save();
+                ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2); ctx.clip();
+                if (imgSrc) {
+                    // Try to catch base64 directly, error handled below if not loaded yet
+                    try { 
+                        let img = new Image(); img.src = imgSrc; 
+                        ctx.drawImage(img, avatarX - avatarR, avatarY - avatarR, avatarR*2, avatarR*2); 
+                    } catch(e) { /* handled in async flow */ }
+                } else {
+                    ctx.fillStyle = '#e4ebf5'; ctx.fillRect(avatarX-avatarR, avatarY-avatarR, avatarR*2, avatarR*2);
+                    ctx.font = '55px serif'; ctx.textAlign='center'; ctx.fillStyle = '#999'; ctx.fillText('👤', avatarX, avatarY+20);
                 }
+                ctx.restore();
 
-                // Rodapé
-                ctx.fillStyle = 'rgba(0,121,193,0.15)';
-                ctx.fillRect(20, H-55, W-40, 35);
-                ctx.fillStyle = '#0079C1';
-                ctx.font = 'bold 11px Nunito, Arial, sans-serif';
-                ctx.fillText('The Sims 4 — Legacy Companion', 35, H-33);
-                ctx.textAlign = 'right';
-                ctx.fillStyle = '#7CD700';
-                ctx.fillText(new Date().toLocaleDateString('pt-BR'), W-35, H-33);
+                // Avatar Border
+                ctx.strokeStyle = bgGrad.text; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2); ctx.stroke();
+
+                // Status Badge Under Avatar
+                let statusIcon = s.status === 'Ancestral (Morto)' ? '🪦' : '🟢';
+                ctx.fillStyle = '#f0f4f8';
+                ctx.beginPath(); ctx.roundRect(50, 235, 140, 32, 16); ctx.fill();
+                ctx.fillStyle = '#444'; ctx.font = 'bold 12px Nunito, sans-serif'; ctx.textAlign = 'center';
+                let shortFase = (s.fase || 'Adulto').split('-').map(w=>w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                ctx.fillText(`${statusIcon} ${shortFase}`, 120, 256);
+                
+                // Occult/Theme Badge Under Status
+                ctx.fillStyle = bgGrad.tagBg;
+                ctx.beginPath(); ctx.roundRect(50, 275, 140, 28, 14); ctx.fill();
+                ctx.fillStyle = bgGrad.tagText; ctx.font = 'bold 11px Nunito, sans-serif';
+                ctx.fillText(`${bgGrad.icon} ${bgGrad.occult}`, 120, 294);
                 ctx.textAlign = 'left';
 
+                // Right Panel Data
+                let startX = 240;
+                
+                // Name
+                ctx.fillStyle = bgGrad.text; ctx.font = '900 32px Nunito, sans-serif';
+                ctx.fillText(s.nome, startX, 80);
+                ctx.strokeStyle = '#eee'; ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(startX, 95); ctx.lineTo(650, 95); ctx.stroke();
+
+                // Narrative Summary
+                ctx.fillStyle = '#555'; ctx.font = 'italic 14px Nunito, sans-serif';
+                wrapText(ctx, `"${narrativaText}"`, startX, 125, 400, 22);
+
+                // Trait Chips
+                ctx.fillStyle = '#333'; ctx.font = 'bold 12px Nunito, sans-serif';
+                ctx.fillText('IDENTIDADE', startX, 205);
+                
+                let currentX = startX;
+                let currentY = 215;
+                if(tracosArr.length === 0) tracosArr = ['Sem traços definidos'];
+                tracosArr.slice(0, 5).forEach(t => { 
+                    ctx.font = 'bold 11px Nunito, sans-serif';
+                    let textWidth = ctx.measureText(t).width;
+                    let chipWidth = textWidth + 24;
+                    if(currentX + chipWidth > 650) { currentX = startX; currentY += 30; } 
+                    ctx.fillStyle = bgGrad.tagBg;
+                    ctx.beginPath(); ctx.roundRect(currentX, currentY, chipWidth, 24, 12); ctx.fill();
+                    ctx.fillStyle = bgGrad.tagText;
+                    ctx.fillText(t, currentX + 12, currentY + 16);
+                    currentX += chipWidth + 8;
+                });
+
+                // Family Dynamics
+                let familyY = currentY + 45;
+                ctx.fillStyle = '#333'; ctx.font = 'bold 12px Nunito, sans-serif';
+                ctx.fillText('DINÂMICA FAMILIAR', startX, familyY);
+                ctx.font = '13px Nunito, sans-serif';
+                
+                let conjTxt = s.spouse ? getNome(s.spouse) : 'Nenhum';
+                let filTxt = filhos.length > 0 ? filhos.map(f=>f.nome).join(', ') : 'Nenhum';
+                if(filTxt.length > 55) filTxt = filTxt.substring(0, 52) + '...';
+                
+                let relIcon = s.relStatus === 'separado' ? '💔' : s.relStatus === 'viuvo' ? '🥀' : '💍';
+                ctx.fillText(`${relIcon} Parceiro(a): ${conjTxt}`, startX, familyY + 25);
+                ctx.fillText(`👶 Descendentes: ${filTxt}`, startX, familyY + 45);
+
+                // Footer
+                ctx.fillStyle = bgGrad.tagBg;
+                ctx.fillRect(20, H-45, W-40, 25);
+                ctx.fillStyle = bgGrad.text;
+                ctx.font = 'bold 10px Nunito, Arial, sans-serif';
+                ctx.fillText('THE SIMS 4 • LEGACY COMPANION', 35, H-28);
+                ctx.textAlign = 'right';
+                ctx.fillText(new Date().toLocaleDateString('pt-BR'), W-35, H-28);
+                
+                // Export
                 const link = document.createElement('a');
                 link.download = `Perfil_${s.nome.replace(/\s+/g, '_')}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-                showToast("✅ Card do Sim exportado!");
+                showToast("✅ Card do Sim exportado com novo visual!");
             };
 
+            // Processa imagem assincronamente se existir, ou gera direto
             if (imgSrc) {
                 let img = new Image();
-                img.onload = () => { ctx.drawImage(img, avatarX - avatarR, avatarY - avatarR, avatarR*2, avatarR*2); drawCard(); };
-                img.onerror = () => { ctx.fillStyle = '#e4ebf5'; ctx.fillRect(avatarX-avatarR, avatarY-avatarR, avatarR*2, avatarR*2); ctx.font = '48px serif'; ctx.textAlign='center'; ctx.fillText('👤', avatarX, avatarY+15); ctx.textAlign='left'; drawCard(); };
+                img.onload = () => { drawCardContent(); };
+                img.onerror = () => { imgSrc = null; drawCardContent(); };
                 img.src = imgSrc;
             } else {
-                ctx.fillStyle = '#e4ebf5'; ctx.fillRect(avatarX-avatarR, avatarY-avatarR, avatarR*2, avatarR*2);
-                ctx.font = '48px serif'; ctx.textAlign='center'; ctx.fillText('👤', avatarX, avatarY+15); ctx.textAlign='left';
-                drawCard();
+                drawCardContent();
             }
         }
 
-        // =============================================
-        // FEATURE 4: TAGS CUSTOMIZÁVEIS
-        // =============================================
         function toggleGerenciadorTags() {
             let painel = document.getElementById('painel-gerenciador-tags');
             let icon = document.getElementById('icon-gerenciador-tags');
@@ -2547,7 +2628,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         function renderTagSelectOptions() {
             let sel = document.getElementById('sel-tag-historia');
             if (!sel) return;
-            // Remove old custom options
             Array.from(sel.options).forEach(o => { if (o.dataset.custom) sel.removeChild(o); });
             (db.custom.tags || []).forEach(t => {
                 let opt = document.createElement('option');
@@ -2581,12 +2661,81 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             renderTagSelectOptions();
         }
 
+        let _albumFotos = []; 
+
+        function renderAlbumFotos(sim) {
+            const albumSection = document.getElementById('sim-album-section');
+            const gallery = document.getElementById('sim-album-gallery');
+            if (!albumSection || !gallery) return;
+
+            const FASES_ORDEM = ["bebe-colo", "bebe", "crianca", "adolescente", "jovem-adulto", "adulto", "idoso"];
+            const FASES_LABELS = {
+                "bebe-colo":    "👶 Bebê de Colo",
+                "bebe":         "🍼 Bebê",
+                "crianca":      "🧒 Criança",
+                "adolescente":  "🧑 Adolescente",
+                "jovem-adulto": "👨 Jovem Adulto",
+                "adulto":       "🧔 Adulto",
+                "idoso":        "👴 Idoso"
+            };
+
+            if (!sim.img) { albumSection.style.display = 'none'; _albumFotos = []; return; }
+
+            _albumFotos = FASES_ORDEM
+                .filter(f => sim.img[f] && sim.img[f] !== "")
+                .map(f => ({ fase: f, src: sim.img[f], label: FASES_LABELS[f] || f }));
+
+            if (_albumFotos.length === 0) { albumSection.style.display = 'none'; return; }
+
+            albumSection.style.display = 'block';
+gallery.innerHTML = _albumFotos.map((foto, idx) => `
+    <div class="album-item" style="position: relative; flex:0 0 auto; text-align:center; scroll-snap-align:start; cursor:pointer;">
+        <div onclick="abrirLightbox(${idx})" style="width:82px; height:82px; border-radius:14px; overflow:hidden; border:2.5px solid var(--ts4-blue); background:#e4ebf5; box-shadow:0 2px 8px rgba(0,121,193,0.15);">
+            <img src="${foto.src}" style="width:100%; height:100%; object-fit:cover; display:block;" alt="${foto.label}">
+        </div>
+        <button onclick="excluirFotoDiretoAlbum('${sim.id}', '${foto.fase}')" style="position: absolute; bottom: 20px; right: -5px; background: #ff4d4d; color: white; border: 2px solid white; border-radius: 50%; width: 24px; height: 24px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3);" title="Excluir foto">🗑️</button>
+        <div style="font-size:9px; font-weight:800; color:var(--ts4-blue); margin-top:5px; width:82px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${foto.label}</div>
+    </div>
+`).join('');
+        }
+function excluirFotoDiretoAlbum(simId, fase) {
+    if(!confirm("Tem certeza que deseja excluir a foto desta fase da vida?")) return;
+    
+    let sim = db.sims.find(x => String(x.id) === String(simId));
+    if(sim && sim.img && sim.img[fase]) {
+        sim.img[fase] = ""; 
+        salvarTudo(); 
+        renderAlbumFotos(sim); 
+        atualizarFotoExibicaoPerfil(); 
+        if(typeof renderTree === 'function') renderTree(); 
+        showToast("🗑️ Foto removida com sucesso!");
+    }
+}
+        function abrirLightbox(idx) {
+            const foto = _albumFotos[idx];
+            if (!foto) return;
+            const overlay = document.getElementById('lightbox-overlay');
+            document.getElementById('lightbox-img').src = foto.src;
+            document.getElementById('lightbox-caption').textContent = foto.label;
+            overlay.style.display = 'flex';
+        }
+
+        function fecharLightbox() {
+            const overlay = document.getElementById('lightbox-overlay');
+            overlay.style.display = 'none';
+            document.getElementById('lightbox-img').src = '';
+        }
+
         function fecharModal() { document.getElementById('modal-sim').style.display = 'none'; }
         function fecharModalSeFundo(event) { if (event.target.id === 'modal-sim') fecharModal(); }
 
         window.onload = function() {
             iniciarDB();
-        };
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') fecharLightbox();
+            });
+
+};
 
     </script>
 </body>
