@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimStoria - Companion Narrativo - Em Implementação - v47 (Sims Edition)</title>
+    <title>SimStoria - Companion Narrativo em Implementação - v47 (Sims Edition)</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
     <script type="text/javascript">
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({pageLanguage: 'pt', autoDisplay: false}, 'google_translate_element');
@@ -133,6 +136,9 @@
         
         .del-historia-btn { background: #fff0f0; border: 1px solid #ff4d4d; color: #ff4d4d; cursor: pointer; padding: 3px 8px; border-radius: 5px; font-size: 10px; margin-left: 10px; }
 
+        /* Estilização para deixar o Cropper.js com formato visual redondo na interface */
+        .cropper-view-box, .cropper-face { border-radius: 50%; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--ts4-green); color: white; padding: 12px 25px; border-radius: 30px; display: none; z-index: 200; font-weight:800; }
 
@@ -251,7 +257,7 @@
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px; flex-wrap: wrap; gap: 10px;">
                 <h2 style="margin:0;">Legado Familiar</h2>
                 <div style="display:flex; gap: 10px;">
-                    <button class="btn-main btn-sec" style="width:auto; margin:0; border-color:var(--ts4-blue); color:var(--ts4-blue);" onclick="exportarArvoreImagem()">📸 Exportar Imagem</button>
+                    <button class="btn-main btn-sec" style="width:auto; margin:0; border-color:var(--ts4-blue); color:var(--ts4-blue);" onclick="exportarArvoreImagem()">📸 Exportar Árvore The Chart</button>
                     <button class="btn-main btn-sec" style="width:auto; margin:0;" onclick="centralizarArvore()" title="Centralizar visualização">🎯 Centralizar</button>
                     <button class="btn-main btn-sec" style="width:auto; margin:0;" onclick="toggleMortosArvore()" id="btn-toggle-mortos">👁️ Ocultar Mortos</button>
                     <button class="btn-main" style="width:180px; margin:0" onclick="abrirNovoSim()">+ Novo Sim</button>
@@ -762,13 +768,14 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" style="max-width:88vw; max-height:78vh; border-radius:18px; object-fit:contain; box-shadow:0 8px 60px rgba(0,0,0,0.7); cursor:default;">
         <div id="lightbox-caption" style="color:rgba(255,255,255,0.9); font-size:13px; font-weight:800; margin-top:16px; text-transform:uppercase; letter-spacing:1.5px; font-family:'Nunito',sans-serif; background:rgba(255,255,255,0.08); padding:6px 18px; border-radius:20px;"></div>
     </div>
+
 <div class="modal-overlay" id="modal-crop" onclick="fecharModalCrop()" style="z-index: 300;">
     <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 400px; text-align: center;">
         <h3 style="color: var(--ts4-blue); margin-top: 0;">Ajustar Enquadramento</h3>
-        <p style="font-size: 11px; color: #666;">A imagem será cortada centralizada para caber nos ícones circulares.</p>
+        <p style="font-size: 11px; color: #666;">Dê zoom (mouse ou dedos) e arraste a imagem para enquadrar no círculo perfeitamente.</p>
         
-        <div style="margin: 15px auto; width: 220px; height: 220px; border-radius: 50%; overflow: hidden; border: 3px solid var(--ts4-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            <img id="crop-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="margin: 15px auto; width: 100%; max-width: 250px; height: 250px; border: 3px solid var(--ts4-blue); border-radius: 50%; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <img id="crop-preview-img" src="" style="display: block; max-width: 100%;">
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -796,6 +803,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         let currentFamilyName = localStorage.getItem('ts4_current_family_name') || "Família Padrão";
         let tempFotosFases = {};
         let tempHistoricoRelacionamentos = [];
+        let cropperInstance = null;
 
         const SUGESTOES = {
             "Incêndio": "Como fazer: Deixe um Sim sem habilidade cozinhando em um fogão barato sem alarme.",
@@ -838,7 +846,7 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             "sexualidade": ["Heterossexual", "Bissexual", "Homossexual", "Não marcar (Decidir no jogo)"],
             "sim oculto": ["Vampiro", "Lobisomem", "Sereia", "Alien", "Bruxo", "PlantaSim", "Humano"],
             "modo de morte": ["Velhice", "Fogo", "Afogamento", "Riso", "Fome", "Choque", "Planta Vaca"],
-            "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "San Myshuno"],
+            "mundos a morar": ["Willow Creek", "Oasis Springs", "Newcrest", "Magnolia Promenade", "Windenburg", "San Myshuno", "Forgotten Hollow", "Brindleton Bay", "Del Sol Valley", "StrangerVille", "Sulani", "Glimmerbrook", "Britechester", "Evergreen Harbor", "Mt. Komorebi", "Henford-on-Bagley", "Tartosa", "Moonwood Mill", "Copperdale", "San Sequoia", "Chestnut Ridge", "Tomarang", "Ciudad Enamorada", "Ravenwood", "Nordhaven", "Innisgreen", "Gibbi Point", "Ondarion"],
             "simoleons a começar": ["0 (Desafio)", "1.000", "5.000", "10.000", "20.000 (Padrão)", "50.000", "100.000", "Infinito (Motherlode)"],
             "estações": ["Primavera", "Verão", "Outono", "Inverno"]
         };
@@ -1630,16 +1638,34 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             document.getElementById('e-img').value = "";
             showToast("Foto removida da memória temporária.");
         }
-        let tempImageDataURL = ""; 
 
         function carregarImagemComputador(e) {
             const file = e.target.files[0];
             if(file) { 
                 const reader = new FileReader();
                 reader.onload = (ev) => { 
-                    tempImageDataURL = ev.target.result;
-                    document.getElementById('crop-preview-img').src = tempImageDataURL;
+                    const tempImageDataURL = ev.target.result;
+                    const imgEl = document.getElementById('crop-preview-img');
+                    imgEl.src = tempImageDataURL;
                     document.getElementById('modal-crop').style.display = 'flex';
+                    
+                    // Inicializar Cropper.js
+                    if (cropperInstance) {
+                        cropperInstance.destroy();
+                    }
+                    cropperInstance = new Cropper(imgEl, {
+                        aspectRatio: 1, // Fixa o corte como quadrado (para virar círculo)
+                        viewMode: 1, // Previne que o usuário arraste fora da área da imagem
+                        dragMode: 'move', // Puxar com o mouse arrasta a foto
+                        autoCropArea: 1,
+                        restore: false,
+                        guides: false,
+                        center: false,
+                        highlight: false,
+                        cropBoxMovable: false,
+                        cropBoxResizable: false,
+                        toggleDragModeOnDblclick: false,
+                    });
                 }; 
                 reader.readAsDataURL(file);
             }
@@ -1648,32 +1674,27 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
         function fecharModalCrop() {
             document.getElementById('modal-crop').style.display = 'none';
             document.getElementById('e-img-file').value = ""; 
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
         }
 
         function confirmarRecorte() {
-            const img = new Image();
-            img.onload = () => {
-                const TARGET_SIZE = 220;
-                const canvas = document.createElement('canvas');
-                canvas.width = TARGET_SIZE;
-                canvas.height = TARGET_SIZE;
-                const ctx = canvas.getContext('2d');
-                
-                const scale = Math.max(TARGET_SIZE / img.width, TARGET_SIZE / img.height);
-                const scaledW = img.width * scale;
-                const scaledH = img.height * scale;
-                const offsetX = (scaledW - TARGET_SIZE) / 2;
-                const offsetY = (scaledH - TARGET_SIZE) / 2;
-
-                ctx.drawImage(img, -offsetX, -offsetY, scaledW, scaledH);
-                
-                const dataUrl = canvas.toDataURL('image/webp', 0.78);
-                document.getElementById('e-img').value = dataUrl; 
-                salvarImagemNaMemoriaDaFase();
-                fecharModalCrop();
-                showToast("📸 Imagem ajustada com sucesso!");
-            };
-            img.src = tempImageDataURL;
+            if (!cropperInstance) return;
+            // Pegar o canvas já cortado na medida ideal
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 220,
+                height: 220,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            
+            const dataUrl = canvas.toDataURL('image/webp', 0.78);
+            document.getElementById('e-img').value = dataUrl; 
+            salvarImagemNaMemoriaDaFase();
+            fecharModalCrop();
+            showToast("📸 Imagem ajustada com sucesso!");
         }
 
         function salvarSim() {
@@ -1938,20 +1959,68 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                         mergedCanvas.height = originalCanvas.height;
                         const ctx = mergedCanvas.getContext('2d');
                         
-                        const treeContainer = document.querySelector('.tree-container');
-                        const compStyles = window.getComputedStyle(treeContainer);
+                        let mode = db.config.treeBgMode || 'default';
                         
-                        ctx.fillStyle = compStyles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? compStyles.backgroundColor : '#ffffff';
-                        ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
-                        ctx.drawImage(originalCanvas, 0, 0);
+                        if (mode === 'custom' && db.config.treeBgCustom) {
+                            const bgImg = new Image();
+                            bgImg.onload = () => drawRestOfExport(bgImg);
+                            bgImg.src = db.config.treeBgCustom;
+                            return; 
+                        } else {
+                            let grad = ctx.createLinearGradient(0, 0, mergedCanvas.width, mergedCanvas.height);
+                            if (mode === 'default') {
+                                grad.addColorStop(0, '#b8fff1'); grad.addColorStop(0.35, '#8be9fd'); grad.addColorStop(1, '#bdb2ff');
+                            } else if (mode === 'goth') {
+                                grad.addColorStop(0, '#2b1029'); grad.addColorStop(1, '#4a0d24');
+                            } else if (mode === 'cozy') {
+                                grad.addColorStop(0, '#a8edea'); grad.addColorStop(1, '#fed6e3');
+                            } else if (mode === 'caotico') {
+                                grad.addColorStop(0, '#f12711'); grad.addColorStop(1, '#f5af19');
+                            }
+                            ctx.fillStyle = grad;
+                            ctx.fillRect(0, 0, mergedCanvas.width, mergedCanvas.height);
+                            drawRestOfExport(null);
+                        }
+
+                        function drawRestOfExport(bgImg) {
+                            if (bgImg) {
+                                const scale = Math.max(mergedCanvas.width / bgImg.width, mergedCanvas.height / bgImg.height);
+                                const x = (mergedCanvas.width / 2) - (bgImg.width / 2) * scale;
+                                const y = (mergedCanvas.height / 2) - (bgImg.height / 2) * scale;
+                                ctx.drawImage(bgImg, x, y, bgImg.width * scale, bgImg.height * scale);
+                            }
+
+                            const logoImg = new Image();
+                            logoImg.crossOrigin = "Anonymous"; 
+                            logoImg.onload = () => {
+                                ctx.globalAlpha = 0.10;
+                                const logoSize = Math.min(mergedCanvas.width, mergedCanvas.height) * 0.5;
+                                const lx = (mergedCanvas.width - logoSize) / 2;
+                                const ly = (mergedCanvas.height - logoSize) / 2;
+                                ctx.drawImage(logoImg, lx, ly, logoSize, logoSize);
+
+                                ctx.globalAlpha = 1.0;
+                                ctx.drawImage(originalCanvas, 0, 0);
+
+                                salvarExportacaoFinal();
+                            };
+                            
+                            logoImg.onerror = () => {
+                                ctx.globalAlpha = 1.0;
+                                ctx.drawImage(originalCanvas, 0, 0);
+                                salvarExportacaoFinal();
+                            };
+                            logoImg.src = 'https://raw.githubusercontent.com/simscreiando/SimStoria/67fd436abea8a2622d7333f25780b164c3510ade/SimStoria.png';
+                        }
                         
-                        const link = document.createElement('a');
-                        link.download = `Arvore_Genealogica_Legado.png`;
-                        link.href = mergedCanvas.toDataURL("image/png");
-                        link.click();
-                        showToast("✅ Imagem da Árvore Salva com Fundo!");
-                        
-                        window.network.moveTo({ position: currentPos, scale: currentScale });
+                        function salvarExportacaoFinal() {
+                            const link = document.createElement('a');
+                            link.download = `Arvore_Genealogica_Legado.png`;
+                            link.href = mergedCanvas.toDataURL("image/png");
+                            link.click();
+                            showToast("✅ Imagem da Árvore Salva!");
+                            window.network.moveTo({ position: currentPos, scale: currentScale });
+                        }
                     }
                 }, 800);
             } else {
@@ -2425,9 +2494,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             renderRelPassadasEdit();
         }
 
-        // =============================================
-        // NOVO EXPORTAR PERFIL DO SIM: UX NARRATIVA E TEMÁTICA
-        // =============================================
         function exportarPerfilSim(simId) {
             let s = db.sims.find(x => String(x.id) === String(simId));
             if (!s) return alert("Sim não encontrado.");
@@ -2435,7 +2501,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             const getNome = (fid) => db.sims.find(x => String(x.id) === String(fid))?.nome || "—";
             let filhos = db.sims.filter(x => String(x.p1) === String(s.id) || String(x.p2) === String(s.id));
 
-            // Setup Temático (lê do campo Extra e Traços para definir a cor)
             let textoGeral = ((s.tracos || "") + " " + (s.extra || "")).toLowerCase();
             let isVamp = textoGeral.includes('vampir');
             let isSpell = textoGeral.includes('brux') || textoGeral.includes('feiticeir') || textoGeral.includes('mágic');
@@ -2454,7 +2519,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 bgGrad = { c1: '#2c3e50', c2: '#4ca1af', text: '#34495e', tagBg: '#eaeced', tagText: '#34495e', icon: '🪦', occult: 'Espírito Ancestral' };
             }
 
-            // Gerador de Resumo Narrativo
             let tracosArr = s.tracos ? s.tracos.split(',').map(t=>t.trim()).filter(Boolean) : [];
             let destqueTraco = tracosArr.length > 0 ? tracosArr[0].toLowerCase() : "temperamento misterioso";
             let relText = s.relStatus === 'casado' ? "Compartilha a vida com seu amor" : 
@@ -2463,20 +2527,17 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             
             let aspiracao = "deixar sua marca no legado familiar";
             if (s.extra && s.extra.trim().length > 3) {
-                // Tenta puxar a primeira frase do campo extra como gancho de vida
                 aspiracao = s.extra.split('.')[0].toLowerCase().trim();
                 if (aspiracao.length > 60) aspiracao = aspiracao.substring(0, 57) + "...";
             }
             
-            let narrativaText = `Em sua fase de ${s.fase || 'jovem adulto'}, ${s.nome} carrega a essência de um(a) ${bgGrad.oculto}. Conhecido(a) por ser ${destqueTraco}, busca ${aspiracao}. ${relText}.`;
+            let narrativaText = `Em sua fase de ${s.fase || 'jovem adulto'}, ${s.nome} carrega a essência de um(a) ${bgGrad.occult}. Conhecido(a) por ser ${destqueTraco}, busca ${aspiracao}. ${relText}.`;
 
-            // Canvas Setup
             const W = 700, H = 420;
             const canvas = document.createElement('canvas');
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            // Função helper para quebra de texto
             function wrapText(context, text, x, y, maxWidth, lineHeight) {
                 let words = text.split(' '); let line = ''; let currentY = y;
                 for(let n = 0; n < words.length; n++) {
@@ -2491,7 +2552,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 context.fillText(line, x, currentY);
             }
 
-            // Background
             let grad = ctx.createLinearGradient(0, 0, W, H);
             grad.addColorStop(0, bgGrad.c1);
             grad.addColorStop(1, bgGrad.c2);
@@ -2499,7 +2559,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             ctx.roundRect ? ctx.roundRect(0, 0, W, H, 20) : ctx.fillRect(0, 0, W, H);
             ctx.fill();
 
-            // White Card
             ctx.fillStyle = 'rgba(255,255,255,0.96)';
             ctx.beginPath();
             ctx.roundRect ? ctx.roundRect(20, 20, W-40, H-40, 16) : ctx.fillRect(20, 20, W-40, H-40);
@@ -2510,26 +2569,22 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
             let imgSrc = s.img && (s.img[faseAtual] || s.img['jovem-adulto'] || Object.values(s.img).find(v=>v)) || null;
 
             const drawCardContent = () => {
-                // Avatar Clip & Draw
                 ctx.save();
                 ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2); ctx.clip();
                 if (imgSrc) {
-                    // Try to catch base64 directly, error handled below if not loaded yet
                     try { 
                         let img = new Image(); img.src = imgSrc; 
                         ctx.drawImage(img, avatarX - avatarR, avatarY - avatarR, avatarR*2, avatarR*2); 
-                    } catch(e) { /* handled in async flow */ }
+                    } catch(e) { }
                 } else {
                     ctx.fillStyle = '#e4ebf5'; ctx.fillRect(avatarX-avatarR, avatarY-avatarR, avatarR*2, avatarR*2);
                     ctx.font = '55px serif'; ctx.textAlign='center'; ctx.fillStyle = '#999'; ctx.fillText('👤', avatarX, avatarY+20);
                 }
                 ctx.restore();
 
-                // Avatar Border
                 ctx.strokeStyle = bgGrad.text; ctx.lineWidth = 4;
                 ctx.beginPath(); ctx.arc(avatarX, avatarY, avatarR, 0, Math.PI*2); ctx.stroke();
 
-                // Status Badge Under Avatar
                 let statusIcon = s.status === 'Ancestral (Morto)' ? '🪦' : '🟢';
                 ctx.fillStyle = '#f0f4f8';
                 ctx.beginPath(); ctx.roundRect(50, 235, 140, 32, 16); ctx.fill();
@@ -2537,27 +2592,22 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 let shortFase = (s.fase || 'Adulto').split('-').map(w=>w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                 ctx.fillText(`${statusIcon} ${shortFase}`, 120, 256);
                 
-                // Occult/Theme Badge Under Status
                 ctx.fillStyle = bgGrad.tagBg;
                 ctx.beginPath(); ctx.roundRect(50, 275, 140, 28, 14); ctx.fill();
                 ctx.fillStyle = bgGrad.tagText; ctx.font = 'bold 11px Nunito, sans-serif';
                 ctx.fillText(`${bgGrad.icon} ${bgGrad.occult}`, 120, 294);
                 ctx.textAlign = 'left';
 
-                // Right Panel Data
                 let startX = 240;
                 
-                // Name
                 ctx.fillStyle = bgGrad.text; ctx.font = '900 32px Nunito, sans-serif';
                 ctx.fillText(s.nome, startX, 80);
                 ctx.strokeStyle = '#eee'; ctx.lineWidth = 1.5;
                 ctx.beginPath(); ctx.moveTo(startX, 95); ctx.lineTo(650, 95); ctx.stroke();
 
-                // Narrative Summary
                 ctx.fillStyle = '#555'; ctx.font = 'italic 14px Nunito, sans-serif';
                 wrapText(ctx, `"${narrativaText}"`, startX, 125, 400, 22);
 
-                // Trait Chips
                 ctx.fillStyle = '#333'; ctx.font = 'bold 12px Nunito, sans-serif';
                 ctx.fillText('IDENTIDADE', startX, 205);
                 
@@ -2576,7 +2626,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                     currentX += chipWidth + 8;
                 });
 
-                // Family Dynamics
                 let familyY = currentY + 45;
                 ctx.fillStyle = '#333'; ctx.font = 'bold 12px Nunito, sans-serif';
                 ctx.fillText('DINÂMICA FAMILIAR', startX, familyY);
@@ -2590,7 +2639,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 ctx.fillText(`${relIcon} Parceiro(a): ${conjTxt}`, startX, familyY + 25);
                 ctx.fillText(`👶 Descendentes: ${filTxt}`, startX, familyY + 45);
 
-                // Footer
                 ctx.fillStyle = bgGrad.tagBg;
                 ctx.fillRect(20, H-45, W-40, 25);
                 ctx.fillStyle = bgGrad.text;
@@ -2599,7 +2647,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 ctx.textAlign = 'right';
                 ctx.fillText(new Date().toLocaleDateString('pt-BR'), W-35, H-28);
                 
-                // Export
                 const link = document.createElement('a');
                 link.download = `Perfil_${s.nome.replace(/\s+/g, '_')}.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -2607,7 +2654,6 @@ A plataforma continuará gratuita e sem anúncios invasivos. Se ela deixa seu ga
                 showToast("✅ Card do Sim exportado com novo visual!");
             };
 
-            // Processa imagem assincronamente se existir, ou gera direto
             if (imgSrc) {
                 let img = new Image();
                 img.onload = () => { drawCardContent(); };
