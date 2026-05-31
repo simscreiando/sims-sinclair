@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Companion Narrativo - v47 (Sims Edition)</title>
+    <title>SimStoria - Companion Narrativo - Em Implementação - v47 (Sims Edition)</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -65,6 +65,7 @@
             position: relative;
             overflow: hidden;
             transition: background 0.5s ease;
+            isolation: isolate;
         }
         
         .tree-container::before {
@@ -74,6 +75,18 @@
             background-size: 30px 30px; 
             pointer-events: none;
             z-index: 0;
+        }
+
+        .tree-container::after {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://raw.githubusercontent.com/simscreiando/SimStoria/67fd436abea8a2622d7333f25780b164c3510ade/SimStoria.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: contain;
+            opacity: 0.10;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display:none; z-index:100; justify-content: center; align-items: center; overflow-y: auto; padding: 20px 0; }
@@ -148,7 +161,10 @@
             <div id="google_translate_element" style="display:none;"></div>
         </div>
 
-        <h1>Legacy Companion</h1>
+        <h1 style="display: flex; align-items: center; gap: 9px;">
+            <img src="https://raw.githubusercontent.com/simscreiando/SimStoria/67fd436abea8a2622d7333f25780b164c3510ade/SimStoria.png" alt="SimStoria" style="width: 50px; height: 50px; object-fit: contain; flex-shrink: 0;">
+            SimStoria - Legacy Companion
+        </h1>
         <button class="nav-btn active" onclick="switchTab('tab-dash')">🏠 Dashboard</button>
         <button class="nav-btn" onclick="switchTab('tab-lab')">🧪 Laboratório</button>
         <button class="nav-btn" onclick="switchTab('tab-gen')">🔮 Personalidade</button>
